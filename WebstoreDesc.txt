@@ -2,9 +2,17 @@ This extension is an email Tracker Blocker, hence the name: Trocker!
 
 Tracking your emails to know if the receiver has seen them or not is awesome, so is being immune to it! 
 
+Trocker Works on any webmail (including Gmail, Yahoo!, Outlook). It is designed to be as lightweight as possible. 
+
+Trocker is open source: source code available at https://github.com/trockerapp/trocker
+
 Feel free to send us your feedback at: trockerapp@gmail.com
 
 Change log:
+1.2.0:
+- Blocking more Trackers!
+- Blocking some click Trackers in addition to email open trackers!
+- Improved options page.
 1.1.0:
 - Open changelog in a new tab on update
 1.0.6:
@@ -31,7 +39,9 @@ No one will be able to know when and if you open their emails if you enable Troc
 
 Trocker needs permission to all tabs in order to be able to detect and prevent any tacking images from being loaded from any of the tabs. 
 But you are safe! There is absolutely no outbound internet access and we neither gather nor use any data about you or your browsing behaviour. 
-The source codes of this extension are not obfuscated and people familiar with javascript are more than welcome to check them out and make sure there are no suspicious activities being done.
+Trocker is open source (https://github.com/trockerapp/trocker) codes are not obfuscated; so people familiar with javascript are more than welcome to check them out and make sure there are no suspicious activities being done.
+Trocker is designed to be as lightweight as possible. It doesn't analyze tabs unless a tracking activity is initiated from them. And even then, it only analyzes those tabs if the user wants tracker exposing or tracker counting.
+
 We created this because we wanted to be able to say "No" to trackers and you are more than welcome to use it!
 
 Feel free to send us your feedback at: trockerapp@gmail.com

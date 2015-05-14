@@ -4,9 +4,11 @@ a{color:#11c;text-decoration:none}a:hover{text-decoration:underline}
 #title{color:#333;font-size:20px;margin:0 auto;text-align:center; max-width:80%;}
 .option_row{clear:left;padding:5px 10px 0}
 .option_name{float:left;font-weight:bold;margin-top:2px;width:20%;}
-.changlog_name{float:left;font-weight:bold;margin-top:2px;width:5%;}
 .option_value{float:left}
+.changlog_name{float:left;font-weight:bold;margin-top:2px;width:5%;}
+.changlog_value{float:left;width:90%;}
 .text_disabled{color:#999}
 .message{text-align:center; clear:both;padding:20px 10px 10px}
 #status{background-color:white;color:black;font-weight:bold;margin-left:10px;opacity:0;padding:3px}
+#contactus{float: right;position: relative;right: 10px;bottom: 20px;}
 .footer{margin-top:10px;text-align:center;clear: both;}

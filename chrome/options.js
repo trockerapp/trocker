@@ -1,5 +1,5 @@
 // Saves options to localStorage.
-function save_options() {
+function saveOptions() {
   saveVariable('trockerEnable', document.getElementById("trockerEnableOpt").checked);
   saveVariable('showTrackerCount', document.getElementById("showTrackerCountOpt").checked);
   saveVariable('exposeLinks', document.getElementById("exposeLinksOpt").checked);
@@ -16,19 +16,23 @@ function save_options() {
 }
 
 // Restores select box state to saved value from cache.
-function restore_options() {
+function restoreOptions() {
 	document.getElementById("trockerEnableOpt").checked = loadVariable('trockerEnable');
-	document.getElementById("trockerEnableOpt").onchange = save_options;
+	document.getElementById("trockerEnableOpt").onchange = saveOptions;
 
 	document.getElementById("showTrackerCountOpt").checked = loadVariable('showTrackerCount');
-	document.getElementById("showTrackerCountOpt").onchange = save_options;
+	document.getElementById("showTrackerCountOpt").onchange = saveOptions;
 
 	document.getElementById("exposeLinksOpt").checked = loadVariable('exposeLinks');
-	document.getElementById("exposeLinksOpt").onchange = save_options;
+	document.getElementById("exposeLinksOpt").onchange = saveOptions;
 	
 	// Showing some stats
-	document.getElementById("allowedTrackerLinks").innerHTML = loadVariable('allowedTrackerLinks');
-	document.getElementById("blockedTrackerLinks").innerHTML = loadVariable('blockedTrackerLinks');
+	document.getElementById("blockedOpenTrackers").innerHTML = loadVariable('blockedYWOpenTrackers') + loadVariable('blockedSKOpenTrackers');
+	document.getElementById("allowedOpenTrackers").innerHTML = loadVariable('allowedYWOpenTrackers') + loadVariable('allowedSKOpenTrackers');
+	document.getElementById("bypassedClickTrackers").innerHTML = loadVariable('bypassedYWClickTrackers');
+	document.getElementById("allowedClickTrackers").innerHTML = loadVariable('allowedYWClickTrackers');
 	document.getElementById("statsSinceDate").innerHTML = "(Since "+(new Date(loadVariable('statsSinceDate')).toLocaleDateString())+")";
+	
+	setTimeout(restoreOptions, 5*1000);
 }
-document.addEventListener('DOMContentLoaded', restore_options);
+document.addEventListener('DOMContentLoaded', restoreOptions);
