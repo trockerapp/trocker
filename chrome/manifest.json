@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+  "version": "1.1.0",
+  "name": "__MSG_extension_name__",
+  "short_name": "__MSG_extension_name__",
+  "default_locale": "en",
+  "background": {
+    "persistent": true,
+    "page": "background.html"
+  },
+  "browser_action": {
+    "default_icon": "icon_128.png"
+  },
+  "description": "__MSG_extension_description__",
+  "icons": {
+    "16": "icon_16.png",
+    "48": "icon_48.png",
+    "128": "icon_128.png"
+  },
+  "options_page": "options.html",
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
+  },
+  "web_accessible_resources": ["tl.png", "td.png"],
+  "permissions": [
+    "alarms",
+    "tabs",
+    "webNavigation",
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>",
+    "*://*.google.com/*",
+    "*://*.yahoo.com/*"
+   ]
+}

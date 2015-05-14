@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Trocker Extension Options</title>
+  <link rel="stylesheet" type="text/css" href="options.css">
+</head>
+<body>
+<div id="content">
+  <div id="title">
+    <img src="header.png" title="Trocker" alt="Trocker">
+    <div>Extension Options</div>
+  </div>
+  <form name="options_form" action="">
+    <div class="option_row">
+      <div class="option_name">Block Trackers:</div>
+      <div class="option_value">
+        <div class="option_value_primary">
+          <input type="checkbox" name="trockerEnable" id="trockerEnableOpt">
+          <label for="trockerEnable">Enable</label>
+        </div>
+      </div>
+	</div>
+	<div class="option_row">
+      <div class="option_name">Show Current Tab Trackers:</div>
+      <div class="option_value">
+        <div class="option_value_primary">
+          <input type="checkbox" name="showTrackerCount" id="showTrackerCountOpt">
+          <label for="showTrackerCount">Enable</label> <br/>
+		  <p>
+		    Shows the number of tracking links found in the current tab on the Trocker icon. <br/>
+			(The number includes invisible trackers loaded in the background)
+		  </p>
+        </div>
+      </div>
+	</div>
+	<div class="option_row">
+	  <div class="option_name">Make Tracking Images Visible:</div>
+      <div class="option_value">
+        <div class="option_value_primary">
+          <input type="checkbox" name="exposeLinks" id="exposeLinksOpt">
+          <label for="exposeLinks">Enable</label> <br/>
+		  <p>  
+		    Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> (http links) or <img src="td.png" style="width:10px; height:10px;"> (https links)<br/>
+		    This will not affect how other people will see the tracked emails you send them. <br/>
+		    It only helps you visually track where tracker softwares inject their tracking images.
+		  </p>
+        </div>
+      </div>
+    </div>	  
+    <div class="option_row">
+      <div class="option_name">Some statistics: <br/><span class="statsSinceDate" id="statsSinceDate"></span></div>
+      <div class="option_value">
+        <div class="option_value_primary"><span class="stat_name">Blocked Tracking links: </span><span class="stat_value" id="blockedTrackerLinks"></span></div>
+        <div class="option_value_primary"><span class="stat_name">Allowed Tracking links: </span><span class="stat_value" id="allowedTrackerLinks"></span></div>
+      </div>
+    </div>
+    <div class="message"><div id="status"></div></div>
+  </form>
+</div>
+</body>
+<script src="tools.js"></script>
+<script src="options.js"></script>
+</html>
