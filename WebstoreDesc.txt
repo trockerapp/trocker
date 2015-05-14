@@ -6,7 +6,7 @@ Feel free to send us your feedback at: trockerapp@gmail.com
 
 Change log:
 1.1.1:
-- Do open changelog on small updates 
+- Don't open changelog on small updates 
 - Bugfix for new installations.
 1.1.0:
 - Open changelog in a new tab on update
