@@ -49,12 +49,12 @@ function loadVariable(varName){
 	varValue = loadObjectFromCache(varName);
 	
 	// If variable is not valid or not defined, return and save the default value
-	if ((varName == 'trockerEnable') && (varValue === "undefined")) { varValue = true; cacheObject(varName, varValue); }
-	if ((varName == 'showTrackerCount') && (varValue === "undefined")) { varValue = true; cacheObject(varName, varValue); }
-	if ((varName == 'exposeLinks') && (varValue === "undefined")) { varValue = false; cacheObject(varName, varValue); }
+	if ((varName == 'trockerEnable') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); }
+	if ((varName == 'showTrackerCount') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); }
+	if ((varName == 'exposeLinks') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
 	if ((varName == 'allowedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'blockedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
-	if ((varName == 'statsSinceDate') && ((varValue === "undefined") || (new Date(varValue) == "Invalid Date"))) { varValue = new Date(); cacheObject(varName, varValue); }
+	if ((varName == 'statsSinceDate') && ((varValue === undefined) || (new Date(varValue) == "Invalid Date"))) { varValue = new Date(); cacheObject(varName, varValue); }
 	
 	return varValue;
 }
@@ -63,4 +63,18 @@ function saveVariable(varName, varValue){
 	loadVariable(varName); // This make sure dataCache exists
 	cacheObject(varName, varValue);
 	return loadVariable(varName);
+}
+
+function parseVersionString(str) {
+    if (typeof(str) != 'string') { return false; }
+    var x = str.split('.');
+    // parse from string or default to 0 if can't parse
+    var maj = parseInt(x[0]) || 0;
+    var min = parseInt(x[1]) || 0;
+    var pat = parseInt(x[2]) || 0;
+    return {
+        major: maj,
+        minor: min,
+        patch: pat
+    }
 }

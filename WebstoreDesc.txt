@@ -5,6 +5,9 @@ Tracking your emails to know if the receiver has seen them or not is awesome, so
 Feel free to send us your feedback at: trockerapp@gmail.com
 
 Change log:
+1.1.1:
+- Do open changelog on small updates 
+- Bugfix for new installations.
 1.1.0:
 - Open changelog in a new tab on update
 1.0.6:

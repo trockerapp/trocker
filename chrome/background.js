@@ -27,20 +27,27 @@ chrome.browserAction.onClicked.addListener(openOptionsPage);
 
 chrome.runtime.onInstalled.addListener(function(details){
   if (details.reason == "update"){
-	// Migrating from old system of storing stuff
-    if (typeof localStorage['dataCache'] === "undefined") { 
-	  if (typeof localStorage["nowareEnable"] !== "undefined") { saveVariable('trockerEnable', ((localStorage["nowareEnable"] === "true") || localStorage.nowareEnable==true) ); }
-	  if (typeof localStorage["exposeLinks"] !== "undefined") { saveVariable('exposeLinks', ((localStorage["exposeLinks"] === "true") || localStorage.exposeLinks==true) ); }
-	  if (!isNaN(localStorage["allowedYeswareLinks"])) { saveVariable('allowedTrackerLinks', parseInt(localStorage["allowedYeswareLinks"])); }
-	  if (!isNaN(localStorage["blockedYeswareLinks"])) { saveVariable('blockedTrackerLinks', parseInt(localStorage["blockedYeswareLinks"])); }
-	  if ((typeof localStorage["statsSinceDate"] !== "undefined")&&(new Date(localStorage["statsSinceDate"]) != "Invalid Date")) {
-  	    saveVariable('statsSinceDate', new Date(localStorage["statsSinceDate"]) );
-	  }
-    }
+	var newVer = parseVersionString(chrome.runtime.getManifest().version);
+	var prevVer = parseVersionString(details.previousVersion);
 	
-    // Open updated page in a new tab
-	var url = "updated.html";
-	chrome.tabs.create({ url: url, active: true});	
+	if ((prevVer.major <= 1) && (prevVer.minor<=0) && (prevVer.patch<=5)) {
+	  // Migrating from old system of storing stuff
+      if (typeof localStorage['dataCache'] === "undefined") { 
+	    if (typeof localStorage["nowareEnable"] !== "undefined") { saveVariable('trockerEnable', ((localStorage["nowareEnable"] === "true") || localStorage.nowareEnable==true) ); }
+	    if (typeof localStorage["exposeLinks"] !== "undefined") { saveVariable('exposeLinks', ((localStorage["exposeLinks"] === "true") || localStorage.exposeLinks==true) ); }
+	    if (!isNaN(localStorage["allowedYeswareLinks"])) { saveVariable('allowedTrackerLinks', parseInt(localStorage["allowedYeswareLinks"])); }
+	    if (!isNaN(localStorage["blockedYeswareLinks"])) { saveVariable('blockedTrackerLinks', parseInt(localStorage["blockedYeswareLinks"])); }
+	    if ((typeof localStorage["statsSinceDate"] !== "undefined")&&(new Date(localStorage["statsSinceDate"]) != "Invalid Date")) {
+  	      saveVariable('statsSinceDate', new Date(localStorage["statsSinceDate"]) );
+	    }
+      }
+	}
+	
+	if ((prevVer.major < newVer.major) || (prevVer.minor < newVer.minor)) {
+      // Open updated page in a new tab
+	  var url = "updated.html";
+	  chrome.tabs.create({ url: url, active: true});	
+	}
   }
   
   // Initializations for new installs
