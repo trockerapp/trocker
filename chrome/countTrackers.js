@@ -56,8 +56,8 @@ checkAndDoYourDuty = function(){
 		var trockerEnable = response.varValue;
 		//if (trockerEnable) {
 			chrome.extension.sendMessage({method: "loadVariable", key: 'exposeLinks'}, function(response) {
-				var exposeLinks = response.varValue;
-				var trackerCount = countTrackers({exposeLinks: exposeLinks});				
+				var exposeTrackers = response.varValue;
+				var trackerCount = countTrackers({exposeTrackers: exposeTrackers});				
 				chrome.extension.sendMessage({method: "reportTrackerCount", value: trackerCount}, function(response) {});
 			});
 		//}
@@ -75,14 +75,14 @@ countTrackers = function(options){
 	var SKDomains = ["t.sigopn01.com", "t.senaluno.com", "t.senaldos.com", "t.senaltres.com", "t.senalquatro.com", "t.senalcinco.com", "t.sigopn02.com", "t.sigopn03.com", "t.sigopn04.com", "t.sigopn05.com", "t.signauxun.com", "t.signauxdeux.com", "t.signauxtrois.com", "t.signauxquatre.com", "t.signauxcinq.com", "t.signauxsix.com", "t.signauxsept.com", "t.signauxhuit.com", "t.signauxdix.com", "t.signauxneuf.com", "t.signaleuna.com", "t.signaledue.com", "t.signaletre.com", "t.signalequattro.com", "t.signalecinque.com", "t.strk01.email", "t.strk02.email", "t.strk03.email", "t.strk04.email", "t.strk05.email", "t.strk06.email", "t.strk07.email", "t.strk08.email", "t.strk09.email", "t.strk10.email", "t.strk11.email", "t.strk12.email", "t.strk13.email", "t.sidekickopen01.com", "t.sidekickopen02.com", "t.sidekickopen03.com", "t.sidekickopen04.com", "t.sidekickopen05.com"];
 	
 	var openDomains = YWOpenDomains.concat(SKDomains);
-	var clickDomains = YWOpenDomains.concat(YWClickDomains);
+	var clickDomains = YWClickDomains.concat(SKDomains);
 
 	var images = document.getElementsByTagName('img');
 	for (var i = 0; i < images.length; i++)	{
 		var img = images[i];
 		if (  multiMatch(img.src, openDomains) ) {
 			trackerCount++;
-			if (options.exposeLinks){
+			if (options.exposeTrackers){
 				// Expose links (wrap the link in a specific span element. Because pseudo elems can't be used with the images themselves.)
 				var parent = img.parentNode;
 				if ((parent.className != "trexpsd") && (parent.className != "trexpsds") && parent.getAttribute("title") != "trexpsdspnelm") {
@@ -119,7 +119,7 @@ countTrackers = function(options){
 		var link = links[i];
 		if (  multiMatch(link.href, clickDomains) ) {
 			trackerCount++;
-			if (options.exposeLinks){
+			if (options.exposeTrackers){
 				// Expose links
 				link.classList.add('trexpsdl');
 			}
@@ -146,7 +146,7 @@ function prepareCSSRules(){
 	  css.innerHTML += "span.trexpsd:before{position: absolute;content:'';background: url("+chrome.extension.getURL("tl.png")+") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
 	  css.innerHTML += "span.trexpsds:before{position: absolute;content:'';background: url("+chrome.extension.getURL("td.png")+") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
 	  css.innerHTML += 'span.trexpsd:empty, span.trexpsds:empty, span[title="trexpsdspnelm"]:empty, span[title="trexpsdspnelm"] :not(img){display:none !important;}';
-	  css.innerHTML += "a.trexpsdl{cursor: url("+chrome.extension.getURL("tlc.png")+"), auto; !important;}";
+	  css.innerHTML += "a.trexpsdl:hover{cursor: url("+chrome.extension.getURL("tlc.png")+"), auto; !important;}";
 	  css.setAttribute("id", styleSheetId);
 	  document.body.appendChild(css);
 	}

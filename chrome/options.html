@@ -21,29 +21,31 @@
       </div>
 	</div>
 	<div class="option_row">
-      <div class="option_name">Show Current Tab Trackers:</div>
+      <div class="option_name">Show Current Tab Trackers Count:</div>
       <div class="option_value">
         <div class="option_value_primary">
           <input type="checkbox" name="showTrackerCount" id="showTrackerCountOpt">
           <label for="showTrackerCount">Enable</label> <br/>
-		  <p>
+		  <p> 
 		    Shows the number of tracking links found in the current tab on the Trocker icon. <br/>
-			(The number includes invisible trackers loaded in the background)
+			<small>(The number includes invisible trackers loaded in the background)</small>
 		  </p>
         </div>
       </div>
 	</div>
 	<div class="option_row">
-	  <div class="option_name">Make Tracking Images Visible:</div>
+	  <div class="option_name">Expose Trackers:</div>
       <div class="option_value">
         <div class="option_value_primary">
           <input type="checkbox" name="exposeLinks" id="exposeLinksOpt">
           <label for="exposeLinks">Enable</label> <br/>
-		  <p>  
+		  <p> <ul>
+		    <li> Mouse pointer turns into <img src="tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
+		    <li>
 		    Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> (http links) or <img src="td.png" style="width:10px; height:10px;"> (https links)<br/>
 		    This will not affect how other people will see the tracked emails you send them. <br/>
-		    It only helps you visually track where tracker softwares inject their tracking images.
-		  </p>
+		    It only helps you visually track where tracker softwares inject their tracking images. </li>
+		  </ul></p>
         </div>
       </div>
     </div>	  
