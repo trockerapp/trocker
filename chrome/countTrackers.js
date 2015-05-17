@@ -78,13 +78,12 @@ countTrackers = function(options){
 	var clickDomains = YWOpenDomains.concat(YWClickDomains);
 
 	var images = document.getElementsByTagName('img');
-	for (var i = 0; i < images.length; i++)
-	{
+	for (var i = 0; i < images.length; i++)	{
 		var img = images[i];
 		if (  multiMatch(img.src, openDomains) ) {
 			trackerCount++;
 			if (options.exposeLinks){
-				// Expose links
+				// Expose links (wrap the link in a specific span element. Because pseudo elems can't be used with the images themselves.)
 				var parent = img.parentNode;
 				if ((parent.className != "trexpsd") && (parent.className != "trexpsds") && parent.getAttribute("title") != "trexpsdspnelm") {
 					var span = document.createElement('span');
@@ -92,20 +91,14 @@ countTrackers = function(options){
 					span.setAttribute("style","border:0px;width:0px;min-height:0px;margin:0 5px;");
 					span.setAttribute("width","0");
 					span.setAttribute("height","0");
-					span.setAttribute("title","trexpsdspnelm");
+					span.setAttribute("title","trexpsdspnelm"); // We add this because gmail changes classes but looks like it doesn't change titles
 					if (img.src.indexOf('https://t.yesware.com/t/')>-1) {
-						//img.className += " trexpsds";
-						//img.classList.add("trexpsds");
 						span.setAttribute("class","trexpsds");
-						//span.className = "trexpsds";
 					} else {
-						//img.className += " trexpsd";
-						//img.classList.add("trexpsd");
 						span.setAttribute("class","trexpsd");
-						//span.className = "trexpsd";
 					}
 					wrap(span, img);
-				} else if (parent.getAttribute("title") == "trexpsdspnelm") {
+				} else if (parent.getAttribute("title") == "trexpsdspnelm") { // If already wrapped in an exposer
 					if (img.src.indexOf('http://t.yesware.com/t/')>-1) {
 						parent.setAttribute("class","trexpsd");
 					} else {
@@ -115,16 +108,20 @@ countTrackers = function(options){
 			}
 		}
 	}
+	// Remove Empty Exposers
+	var elems = document.querySelectorAll('span[title="trexpsdspnelm"] :not(img)'); // Unwanted children in exposer spans
+	for (var i = 0; i < elems.length; i++) elems[i].parentNode.removeChild(elems[i]);
+	var elems = document.querySelectorAll('span[title="trexpsdspnelm"]:empty'); // Empty exposers
+	for (var i = 0; i < elems.length; i++) elems[i].parentNode.removeChild(elems[i]);
 	
 	var links = document.getElementsByTagName('a');
-	for (var i = 0; i < links.length; i++)
-	{
+	for (var i = 0; i < links.length; i++) {
 		var link = links[i];
 		if (  multiMatch(link.href, clickDomains) ) {
 			trackerCount++;
 			if (options.exposeLinks){
 				// Expose links
-				
+				link.classList.add('trexpsdl');
 			}
 		}
 	}
@@ -148,6 +145,8 @@ function prepareCSSRules(){
 	  css.type = "text/css";
 	  css.innerHTML += "span.trexpsd:before{position: absolute;content:'';background: url("+chrome.extension.getURL("tl.png")+") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
 	  css.innerHTML += "span.trexpsds:before{position: absolute;content:'';background: url("+chrome.extension.getURL("td.png")+") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
+	  css.innerHTML += 'span.trexpsd:empty, span.trexpsds:empty, span[title="trexpsdspnelm"]:empty, span[title="trexpsdspnelm"] :not(img){display:none !important;}';
+	  css.innerHTML += "a.trexpsdl{cursor: url("+chrome.extension.getURL("tlc.png")+"), auto; !important;}";
 	  css.setAttribute("id", styleSheetId);
 	  document.body.appendChild(css);
 	}
