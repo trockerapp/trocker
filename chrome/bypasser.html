@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Redirecting...</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div class="content">
+  <div class="title">
+	<img src="header.png" title="Trocker" alt="Trocker">
+  <div class="centeredsec">
+    <div>You were trying to click on this link:</div>
+    <div><span class="link"><a id="trackedLink" href="" alt="Tracked Link"></a></span><div>
+	<div>But it is tracked!</div>
+  </div>
+  <div id="willbypass" class="centeredsec hidden">
+    <div>Trocker has extracted the original untracked link:</div>
+    <div><span class="link"><a id="origLink" href="" alt="Original Link"></a></span></div>
+	<div>(We will redirect to this)</div>
+  </div>  
+  <div id="cantbypass" class="centeredsec hidden">
+    <div>The original untracked link can't be extracted!</div>
+	<div>(We will redirect to the tracked link)</div>
+  </div>
+  <div>Redirecting in <span id="cntdown"></span>s...</div>
+  </div>  
+</div>
+</body>
+<script src="lists.js"></script>
+<script src="tools.js"></script>
+<script src="bypasser.js"></script>
+</html>

@@ -31,6 +31,23 @@ function updateBrowserActionButton(tabId, trackerCount){
   setBrowserActions(browserActionOptions);
 }
 
+function findOriginalLink(trackedURL){
+	var origLink = '';
+	var clickTrackers = getClickTrackerList();
+	for (var i=0; i<clickTrackers.length; i++) {
+		if (multiMatch(trackedURL, clickTrackers[i].domains)) {
+			if (clickTrackers[i]['param'] !== undefined) {
+				var urlParams = parseUrlParams(trackedURL);
+				if (urlParams[clickTrackers[i]['param']] !== undefined) {
+					var origLink = urlParams[clickTrackers[i]['param']];
+					return origLink;
+				}
+			}
+			break;
+		}
+	}
+	return origLink;	
+}
 
 function loadObjectFromCache(objName){
 	var dataCache = JSON.parse(localStorage['dataCache']);

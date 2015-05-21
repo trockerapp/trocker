@@ -22,7 +22,7 @@
     "page": "options.html",
     "chrome_style": true
   },
-  "web_accessible_resources": ["tl.png", "td.png", "tlc.png"],
+  "web_accessible_resources": ["tl.png", "td.png", "tlc.png", "bypasser.html"],
   "permissions": [
     "alarms",
     "tabs",

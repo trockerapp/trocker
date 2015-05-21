@@ -81,6 +81,8 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 		}
 	} else if (request.method == "getTrackerLists") {
 		sendResponse({openTrackers: getOpenTrackerList(), clickTrackers: getClickTrackerList()});
+	} else if (request.method == "addLimitedOpenPermission") {
+		limitedPermissions.addOpenPermission(request.key);
 	} else
       sendResponse({}); // snub them.
 });
@@ -145,24 +147,12 @@ function handleOnBeforeRequestClickTracker(details){
   
   for (var i=0; i<clickTrackers.length; i++){
 	if (multiMatch(details.url, clickTrackers[i].domains)){
-	  // If you know the tab, run the content script
-      if (details.tabId > -1) { // If the request comes from a tab
-	    if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
-	      chrome.tabs.executeScript(details.tabId, {file: "countTrackers.js"}, function(ret){});
-	    }
-	  }
-	  
 	  if (loadVariable('trockerEnable')==true){
-		if (openTrackers[i].name == 'YW') {
-		  var urlParams = parseUrlParams(details.url);
-	      var redirectUrl = urlParams['ytl'];
-	      statPlusPlus('clickTrackerStats', openTrackers[i].name, 'bypassed');
+		if (!limitedPermissions.hasOpenPermission(details.url)) {
+	      var redirectUrl = chrome.extension.getURL("bypasser.html")+'#'+details.url;
 		  return {redirectUrl: redirectUrl};
-		} else if (openTrackers[i].name == 'SK') {
-		  var urlParams = parseUrlParams(details.url);
-	      var redirectUrl = urlParams['t'];
-	      statPlusPlus('clickTrackerStats', openTrackers[i].name, 'bypassed');
-		  return {redirectUrl: redirectUrl};
+		} else {
+		  limitedPermissions.removeOpenPermission(details.url);
 		}
 	  }	
 	  
@@ -175,7 +165,19 @@ function handleOnBeforeRequestClickTracker(details){
 }
 
 
-
+limitedPermissions = {
+  allowedURLs: [],
+  hasOpenPermission: function(url){
+	if (limitedPermissions.allowedURLs.indexOf(url) > -1) return true;
+	else return false;
+  },
+  removeOpenPermission: function(url){
+	while (limitedPermissions.allowedURLs.indexOf(url) > -1) limitedPermissions.allowedURLs.splice(limitedPermissions.allowedURLs.indexOf(url), 1);
+  },
+  addOpenPermission: function(url){
+	limitedPermissions.allowedURLs.push(url);
+  }
+};
 
 
 
