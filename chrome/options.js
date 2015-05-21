@@ -27,12 +27,35 @@ function restoreOptions() {
 	document.getElementById("exposeLinksOpt").onchange = saveOptions;
 	
 	// Showing some stats
-	document.getElementById("blockedOpenTrackers").innerHTML = loadVariable('blockedYWOpenTrackers') + loadVariable('blockedSKOpenTrackers');
-	document.getElementById("allowedOpenTrackers").innerHTML = loadVariable('allowedYWOpenTrackers') + loadVariable('allowedSKOpenTrackers');
-	document.getElementById("bypassedClickTrackers").innerHTML = loadVariable('bypassedYWClickTrackers');
-	document.getElementById("allowedClickTrackers").innerHTML = loadVariable('allowedYWClickTrackers');
+	// Open Tracker Stats
+	var allOpenTrackerBlocks = 0;
+	var allOpenTrackerAllows = 0;
+	var statsObj = loadVariable('openTrackerStats');
+	for (var key in statsObj) {
+      if (statsObj.hasOwnProperty(key)) {
+        var val = statsObj[key];
+		if (!isNaN(val['blocked'])) allOpenTrackerBlocks = allOpenTrackerBlocks + val['blocked'];
+		if (!isNaN(val['allowed'])) allOpenTrackerAllows = allOpenTrackerAllows + val['allowed'];
+      }
+    }
+	document.getElementById("blockedOpenTrackers").innerHTML = allOpenTrackerBlocks;
+	document.getElementById("allowedOpenTrackers").innerHTML = allOpenTrackerAllows;
+	// Click Tracker Stats
+	var allClickTrackerBypasses = 0;
+	var allClickTrackerAllows = 0;
+	var statsObj = loadVariable('clickTrackerStats');
+	for (var key in statsObj) {
+      if (statsObj.hasOwnProperty(key)) {
+        var val = statsObj[key];
+		if (!isNaN(val['bypassed'])) allClickTrackerBypasses = allClickTrackerBypasses + val['bypassed'];
+		if (!isNaN(val['allowed'])) allClickTrackerAllows = allClickTrackerAllows + val['allowed'];
+      }
+    }
+	document.getElementById("bypassedClickTrackers").innerHTML = allClickTrackerBypasses;
+	document.getElementById("allowedClickTrackers").innerHTML = allClickTrackerAllows;
+	// Stats start date
 	document.getElementById("statsSinceDate").innerHTML = "(Since "+(new Date(loadVariable('statsSinceDate')).toLocaleDateString())+")";
 	
-	setTimeout(restoreOptions, 5*1000);
+	setTimeout(restoreOptions, 5*1000); // Update stats every few seconds
 }
 document.addEventListener('DOMContentLoaded', restoreOptions);

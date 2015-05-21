@@ -47,7 +47,20 @@ function wrap(wrapper, elms) {
     }
 };
 
-
+function prepareCSSRules(){
+	var styleSheetId = "trexpsdstlsht";
+	var currentStyleSheet = document.getElementById(styleSheetId);
+	if (currentStyleSheet === null) {
+	  var css = document.createElement("style");
+	  css.type = "text/css";
+	  css.innerHTML += "span.trexpsd:before{position: absolute;content:'';background: url("+chrome.extension.getURL("tl.png")+") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
+	  css.innerHTML += "span.trexpsds:before{position: absolute;content:'';background: url("+chrome.extension.getURL("td.png")+") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
+	  css.innerHTML += 'span.trexpsd:empty, span.trexpsds:empty, span[title="trexpsdspnelm"]:empty, span[title="trexpsdspnelm"] :not(img){display:none !important;}';
+	  css.innerHTML += "a.trexpsdl:hover{cursor: url("+chrome.extension.getURL("tlc.png")+"), auto; !important;}";
+	  css.setAttribute("id", styleSheetId);
+	  document.body.appendChild(css);
+	}
+}
 
 var inRefractoryPeriod = false;
 checkAndDoYourDuty = function(){
@@ -57,8 +70,10 @@ checkAndDoYourDuty = function(){
 		//if (trockerEnable) {
 			chrome.extension.sendMessage({method: "loadVariable", key: 'exposeLinks'}, function(response) {
 				var exposeTrackers = response.varValue;
-				var trackerCount = countTrackers({exposeTrackers: exposeTrackers});				
-				chrome.extension.sendMessage({method: "reportTrackerCount", value: trackerCount}, function(response) {});
+				chrome.extension.sendMessage({method: "getTrackerLists"}, function(response) {
+					var trackerCount = countTrackers({exposeTrackers: exposeTrackers, openTrackers: response.openTrackers, clickTrackers: response.clickTrackers});				
+					chrome.extension.sendMessage({method: "reportTrackerCount", value: trackerCount}, function(response) {});
+				});
 			});
 		//}
 	});
@@ -68,15 +83,19 @@ checkAndDoYourDuty = function(){
 
 
 countTrackers = function(options){
+	prepareCSSRules();
+
 	var trackerCount = 0;
 	
-	var YWOpenDomains = ["t.yesware.com/t"];
-	var YWClickDomains = ["t.yesware.com/tl"];
-	var SKDomains = ["t.sigopn01.com", "t.senaluno.com", "t.senaldos.com", "t.senaltres.com", "t.senalquatro.com", "t.senalcinco.com", "t.sigopn02.com", "t.sigopn03.com", "t.sigopn04.com", "t.sigopn05.com", "t.signauxun.com", "t.signauxdeux.com", "t.signauxtrois.com", "t.signauxquatre.com", "t.signauxcinq.com", "t.signauxsix.com", "t.signauxsept.com", "t.signauxhuit.com", "t.signauxdix.com", "t.signauxneuf.com", "t.signaleuna.com", "t.signaledue.com", "t.signaletre.com", "t.signalequattro.com", "t.signalecinque.com", "t.strk01.email", "t.strk02.email", "t.strk03.email", "t.strk04.email", "t.strk05.email", "t.strk06.email", "t.strk07.email", "t.strk08.email", "t.strk09.email", "t.strk10.email", "t.strk11.email", "t.strk12.email", "t.strk13.email", "t.sidekickopen01.com", "t.sidekickopen02.com", "t.sidekickopen03.com", "t.sidekickopen04.com", "t.sidekickopen05.com"];
-	
-	var openDomains = YWOpenDomains.concat(SKDomains);
-	var clickDomains = YWClickDomains.concat(SKDomains);
+	var openTrackers = options.openTrackers;
+	var openDomains = []; 
+	for (var i=0; i<openTrackers.length; i++) openDomains = openDomains.concat(openTrackers[i].domains);
 
+	var clickTrackers = options.clickTrackers;
+	var clickDomains = []; 
+	for (var i=0; i<clickTrackers.length; i++) clickDomains = clickDomains.concat(clickTrackers[i].domains);
+
+	
 	var images = document.getElementsByTagName('img');
 	for (var i = 0; i < images.length; i++)	{
 		var img = images[i];
@@ -92,18 +111,24 @@ countTrackers = function(options){
 					span.setAttribute("width","0");
 					span.setAttribute("height","0");
 					span.setAttribute("title","trexpsdspnelm"); // We add this because gmail changes classes but looks like it doesn't change titles
+					span.setAttribute("class","trexpsd");
+					/*
 					if (img.src.indexOf('https://t.yesware.com/t/')>-1) {
 						span.setAttribute("class","trexpsds");
 					} else {
 						span.setAttribute("class","trexpsd");
 					}
+					*/
 					wrap(span, img);
 				} else if (parent.getAttribute("title") == "trexpsdspnelm") { // If already wrapped in an exposer
+					parent.setAttribute("class","trexpsd");
+					/*
 					if (img.src.indexOf('http://t.yesware.com/t/')>-1) {
 						parent.setAttribute("class","trexpsd");
 					} else {
 						parent.setAttribute("class","trexpsds");
 					}
+					*/
 				}
 			}
 		}
@@ -129,25 +154,9 @@ countTrackers = function(options){
 	return trackerCount;
 }
 
-prepareCSSRules();
 window.addEventListener("hashchange", function(){
 	//alert('hash changed!');
 	checkAndDoYourDuty();
 }, false);
 
 checkAndDoYourDuty();
-
-function prepareCSSRules(){
-	var styleSheetId = "trexpsdstlsht";
-	var currentStyleSheet = document.getElementById(styleSheetId);
-	if (currentStyleSheet === null) {
-	  var css = document.createElement("style");
-	  css.type = "text/css";
-	  css.innerHTML += "span.trexpsd:before{position: absolute;content:'';background: url("+chrome.extension.getURL("tl.png")+") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
-	  css.innerHTML += "span.trexpsds:before{position: absolute;content:'';background: url("+chrome.extension.getURL("td.png")+") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
-	  css.innerHTML += 'span.trexpsd:empty, span.trexpsds:empty, span[title="trexpsdspnelm"]:empty, span[title="trexpsdspnelm"] :not(img){display:none !important;}';
-	  css.innerHTML += "a.trexpsdl:hover{cursor: url("+chrome.extension.getURL("tlc.png")+"), auto; !important;}";
-	  css.setAttribute("id", styleSheetId);
-	  document.body.appendChild(css);
-	}
-}

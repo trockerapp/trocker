@@ -60,6 +60,8 @@ function loadVariable(varName){
 	if ((varName == 'blockedSKOpenTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'allowedYWClickTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'bypassedYWClickTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
+	if ((varName == 'openTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
+	if ((varName == 'clickTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
 	if ((varName == 'statsSinceDate') && ((varValue === undefined) || (new Date(varValue) == "Invalid Date"))) { varValue = new Date(); cacheObject(varName, varValue); }
 	
 	return varValue;
@@ -71,6 +73,24 @@ function saveVariable(varName, varValue){
 	return loadVariable(varName);
 }
 
+
+function getStat(statObjName, statName, fieldName){
+	var statObj = loadVariable(statObjName); 
+	if (statObj[statName] === undefined) statObj[statName] = {};
+	if (isNaN(statObj[statName][fieldName])) statObj[statName][fieldName] = 0;
+	return statObj[statName][fieldName];
+}
+
+function setStat(statObjName, statName, fieldName, fieldValue){
+	getStat(statObjName, statName, fieldName); // Make sure stat exists
+	var statObj = loadVariable(statObjName); 
+	statObj[statName][fieldName] = fieldValue;
+	saveVariable(statObjName, statObj);
+}
+
+function statPlusPlus(statObjName, statName, fieldName){
+	setStat(statObjName, statName, fieldName, getStat(statObjName, statName, fieldName) + 1);
+}
 
 function parseUrlParams(url){
   var match,
