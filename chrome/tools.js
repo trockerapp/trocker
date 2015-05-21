@@ -77,7 +77,10 @@ function saveVariable(varName, varValue){
 function getStat(statObjName, statName, fieldName){
 	var statObj = loadVariable(statObjName); 
 	if (statObj[statName] === undefined) statObj[statName] = {};
-	if (isNaN(statObj[statName][fieldName])) statObj[statName][fieldName] = 0;
+	if (isNaN(statObj[statName][fieldName])) {
+		statObj[statName][fieldName] = 0;
+		saveVariable(statObjName, statObj);
+	}
 	return statObj[statName][fieldName];
 }
 

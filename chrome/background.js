@@ -158,7 +158,12 @@ function handleOnBeforeRequestClickTracker(details){
 	      var redirectUrl = urlParams['ytl'];
 	      statPlusPlus('clickTrackerStats', openTrackers[i].name, 'bypassed');
 		  return {redirectUrl: redirectUrl};
-		}      
+		} else if (openTrackers[i].name == 'SK') {
+		  var urlParams = parseUrlParams(details.url);
+	      var redirectUrl = urlParams['t'];
+	      statPlusPlus('clickTrackerStats', openTrackers[i].name, 'bypassed');
+		  return {redirectUrl: redirectUrl};
+		}
 	  }	
 	  
 	  statPlusPlus('clickTrackerStats', openTrackers[i].name, 'allowed');
