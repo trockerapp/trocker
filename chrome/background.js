@@ -83,6 +83,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 		sendResponse({openTrackers: getOpenTrackerList(), clickTrackers: getClickTrackerList()});
 	} else if (request.method == "addLimitedOpenPermission") {
 		limitedPermissions.addOpenPermission(request.key);
+		sendResponse({}); 
 	} else
       sendResponse({}); // snub them.
 });
@@ -139,25 +140,25 @@ for (var i=0; i<clickTrackers.length; i++) clickListenDomains = clickListenDomai
 var clickListenURLs = [];
 for (var i=0; i<clickListenDomains.length; i++) clickListenURLs.push("*://"+clickListenDomains[i]+"/*");
 var clickRequestTypes = ["main_frame", "sub_frame", "stylesheet", "script", "object", "xmlhttprequest", "other"];
-chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestClickTracker, {urls: clickListenURLs, types: clickRequestTypes}, ["blocking"]);
+chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestClickTracker, {urls: clickListenURLs, types: clickRequestTypes}, ["blocking", "requestBody"]);
 
 function handleOnBeforeRequestClickTracker(details){
   // details.tabId -> the tab that's the origin of request 
   // details.url -> the url of request 
-  
-  for (var i=0; i<clickTrackers.length; i++){
-	if (multiMatch(details.url, clickTrackers[i].domains)){
-	  if (loadVariable('trockerEnable')==true){
-		if (!limitedPermissions.hasOpenPermission(details.url)) {
-	      var redirectUrl = chrome.extension.getURL("bypasser.html")+'#'+details.url;
-		  return {redirectUrl: redirectUrl};
-		} else {
-		  limitedPermissions.removeOpenPermission(details.url);
-		}
-	  }	
-	  
-	  statPlusPlus('clickTrackerStats', openTrackers[i].name, 'allowed');
-	  break; // No need to check the rest, break out of the for loop
+  if ((details['requestBody'] === undefined)||(details['requestBody'] ==={})) { // Don't filter form submits
+    for (var i=0; i<clickTrackers.length; i++){
+	  if (multiMatch(details.url, clickTrackers[i].domains)){
+	    if (loadVariable('trockerEnable')==true){
+		  if (!limitedPermissions.hasOpenPermission(details.url)) {
+	        var redirectUrl = chrome.extension.getURL("bypasser.html")+'#'+details.url;
+		    return {redirectUrl: redirectUrl};
+		  } else {
+		    limitedPermissions.removeOpenPermission(details.url);
+		  }
+	    }	  
+	    statPlusPlus('clickTrackerStats', openTrackers[i].name, 'allowed');
+	    break; // No need to check the rest, break out of the for loop
+	  }
 	}
   }
 
@@ -165,7 +166,7 @@ function handleOnBeforeRequestClickTracker(details){
 }
 
 
-limitedPermissions = {
+limitedPermissions = { // An object that would allow limited, temporary tracked url access (mainly to allow clicking on tracked urls from the bypasser page)
   allowedURLs: [],
   hasOpenPermission: function(url){
 	if (limitedPermissions.allowedURLs.indexOf(url) > -1) return true;
@@ -178,87 +179,3 @@ limitedPermissions = {
 	limitedPermissions.allowedURLs.push(url);
   }
 };
-
-
-
-
-
-/*
-
-// TO DO:
-// Add  toutapp.com, mailtrack.io
-var YWOpenDomains = ["t.yesware.com/t"];
-var YWClickDomains = ["t.yesware.com/tl"];
-var SKDomains = ["t.sigopn01.com", "t.senaluno.com", "t.senaldos.com", "t.senaltres.com", "t.senalquatro.com", "t.senalcinco.com", "t.sigopn02.com", "t.sigopn03.com", "t.sigopn04.com", "t.sigopn05.com", "t.signauxun.com", "t.signauxdeux.com", "t.signauxtrois.com", "t.signauxquatre.com", "t.signauxcinq.com", "t.signauxsix.com", "t.signauxsept.com", "t.signauxhuit.com", "t.signauxdix.com", "t.signauxneuf.com", "t.signaleuna.com", "t.signaledue.com", "t.signaletre.com", "t.signalequattro.com", "t.signalecinque.com", "t.strk01.email", "t.strk02.email", "t.strk03.email", "t.strk04.email", "t.strk05.email", "t.strk06.email", "t.strk07.email", "t.strk08.email", "t.strk09.email", "t.strk10.email", "t.strk11.email", "t.strk12.email", "t.strk13.email", "t.sidekickopen01.com", "t.sidekickopen02.com", "t.sidekickopen03.com", "t.sidekickopen04.com", "t.sidekickopen05.com"];
-
-var listenDomains = ["*.googleusercontent.com/proxy"];
-listenDomains = listenDomains.concat(YWOpenDomains);
-listenDomains = listenDomains.concat(YWClickDomains);
-listenDomains = listenDomains.concat(SKDomains);
-
-//var listenURLs = ["*://t.yesware.com/t/*", "*://t.yesware.com/tl/*", "*://*.googleusercontent.com/proxy/*"];
-var listenURLs = [];
-for (var i=0; i<listenDomains.length; i++) listenURLs.push("*://"+listenDomains[i]+"/*");
-
-
-
-chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequest, {urls: listenURLs}, ["blocking"]);
-
-
-function handleOnBeforeRequest(details){
-  // details.tabId -> the tab that's the origin of request 
-  // details.url -> the url of request 
-  var shouldBeCanceled = false; // By default we don't block anything
-  
-  // All urls that we are concerned with
-  if ( multiMatch(details.url, YWOpenDomains) ||
-       multiMatch(details.url, YWClickDomains) ||
-	   multiMatch(details.url, SKDomains) )
-	 {
-	// If you know the tab, run the content script
-    if (details.tabId > -1) { // If the request comes from a tab
-	  if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
-	    chrome.tabs.executeScript(details.tabId, {file: "countTrackers.js"}, function(ret){});
-	  }
-	}
-	
-	// SK Email Open Tracker
-    if ((details.type == "image") && multiMatch(details.url, SKDomains)) {
-      if (loadVariable('trockerEnable')==true){
-        shouldBeCanceled = true;
-        saveVariable('blockedSKOpenTrackers', loadVariable('blockedSKOpenTrackers') + 1); // Stat ++
-      } else {
-        shouldBeCanceled = false;
-  	    saveVariable('allowedSKOpenTrackers', loadVariable('allowedSKOpenTrackers') + 1); // Stat ++
-      }	
-    }
-	
-	
-	// YW Email Open Tracker
-    if (multiMatch(details.url, YWOpenDomains)) {
-      if (loadVariable('trockerEnable')==true){
-        shouldBeCanceled = true;
-        saveVariable('blockedYWOpenTrackers', loadVariable('blockedYWOpenTrackers') + 1); // Stat ++
-      } else {
-        shouldBeCanceled = false;
-  	    saveVariable('allowedYWOpenTrackers', loadVariable('allowedYWOpenTrackers') + 1); // Stat ++
-      }	
-    }	
-  
-    // YW Click Tracker
-    if (multiMatch(details.url, YWClickDomains)) {
-	  if (loadVariable('trockerEnable')==true){
-	    var urlParams = parseUrlParams(details.url);
-	    var redirectUrl = urlParams['ytl'];
-	    saveVariable('bypassedYWClickTrackers', loadVariable('bypassedYWClickTrackers') + 1); // Stat ++
-	    return {redirectUrl: redirectUrl}; 	  
-	  } else {
-	    shouldBeCanceled = false;	
-	    saveVariable('allowedYWClickTrackers', loadVariable('allowedYWClickTrackers') + 1); // Stat ++
-	  }
-	}
-  }
-  return {cancel: shouldBeCanceled}; 
-}
-
-*/

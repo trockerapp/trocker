@@ -11,7 +11,7 @@
     <div>Extension Options</div>
   </div>
   <form name="options_form" action="">
-    <div class="option_row">
+    <div class="centeredsec">
       <div class="option_name">Block Trackers:</div>
       <div class="option_value">
         <div class="option_value_primary">
@@ -20,7 +20,7 @@
         </div>
       </div>
 	</div>
-	<div class="option_row">
+	<div class="centeredsec">
       <div class="option_name">Show Current Tab Trackers Count:</div>
       <div class="option_value">
         <div class="option_value_primary">
@@ -33,31 +33,43 @@
         </div>
       </div>
 	</div>
-	<div class="option_row">
+	<div class="centeredsec">
 	  <div class="option_name">Expose Trackers:</div>
       <div class="option_value">
         <div class="option_value_primary">
           <input type="checkbox" name="exposeLinks" id="exposeLinksOpt">
           <label for="exposeLinks">Enable</label> <br/>
-		  <p> <ul>
+		  <ul>
 		    <li> Mouse pointer turns into <img src="tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
 		    <li>
 		    Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> <!--(http links) or <img src="td.png" style="width:10px; height:10px;"> (https links)--><br/>
 		    This will not affect how other people will see the tracked emails you send them. <br/>
 		    It only helps you visually track where tracker softwares inject their tracking images. </li>
-		  </ul></p>
+		  </ul>
         </div>
       </div>
     </div>	  
-    <div class="option_row">
+    <div class="centeredsec">
       <div class="option_name">Some statistics: <br/><span class="statsSinceDate" id="statsSinceDate"></span></div>
       <div class="option_value">
-        <div class="option_value_primary"><span class="stat_name">Blocked Email Open Trackers: </span><span class="stat_value" id="blockedOpenTrackers"></span></div>
-        <div class="option_value_primary"><span class="stat_name">Allowed Email Open Trackers: </span><span class="stat_value" id="allowedOpenTrackers"></span></div>
-		<div class="option_value_primary"><span class="stat_name">Bypassed Link Click Trackers: </span><span class="stat_value" id="bypassedClickTrackers"></span></div>
-        <div class="option_value_primary"><span class="stat_name">Allowed Link Click Trackers: </span><span class="stat_value" id="allowedClickTrackers"></span></div>
+        <div class="option_value_primary">
+		  <ul>
+		    <li><span class="stat_name">Email Open Trackers: </span><span class="stat_value" id="blockedOpenTrackers"></span> Blocked. <span class="stat_value" id="allowedOpenTrackers"></span> Allowed.</li>
+            <li><span class="stat_name">Link Click Trackers: </span><span class="stat_value" id="bypassedClickTrackers"></span> Bypassed. <span class="stat_value" id="allowedClickTrackers"></span> Allowed.</li>
+		  </ul>
+		</div>
       </div>
     </div>
+	<div class="centeredsec">
+	  <div class="option_name">Help us improve: </div>
+      <div class="option_value">
+	    <div class="option_value_primary">
+          <p>
+	        Think an Email is tracked but Trocker doesn't block it? Remove your personal info and forward it to us at <a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">trockerapp@gmail.com</a>.
+		  </p>
+		</div>
+      </div>
+	</div>
     <div class="message"><div id="status">Status!</div></div>
   </form>
   <div id="contactus"><a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">Contact Us</a></div>

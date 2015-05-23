@@ -1,13 +1,24 @@
 This extension is an email Tracker Blocker, hence the name: Trocker!
 
-Tracking your emails to know if the receiver has seen them or not is awesome, so is being immune to it! 
+Tracking your emails to know if the receiver has seen them or not is awesome, so is being immune to it! Trocker gives you the latter!
+
+Trocker is Open Source. Source Code available at: https://github.com/trockerapp/trocker
+
+Trocker keeps you safe in most webmails, including Gmail, Yahoo! and Outlook.com.
+
+Trocker is very efficient as it only gets activated when a tracker is detected.
 
 Feel free to send us your feedback at: trockerapp@gmail.com
 
 Change log:
-1.1.1:
-- Do open changelog on small updates 
-- Bugfix for new installations.
+1.2.0:
+- Blocking more Trackers! (now Sidekick in addition to Yesware)
+- Support Outlook.com's image proxy
+- Trocker now also bypasses tracked links (links that inform the sender when you click on them) as well as tracked emails (emails that inform the sender when you open them).
+- All new click tracker bypasser page
+- Exposing link trackers by adding a "T" to the mouse pointer
+- Improvement in exposing open trackers (specially in compose window).
+- Improved options page.
 1.1.1:
 - Do open changelog on small updates
 - Bugfix for new installations.
@@ -19,10 +30,10 @@ Change log:
 - Icon only shows the number of trackers found on the current tab.
 - New options page (for chrome v42 and later)
 1.0.5:
-- Exposing Tracker Links is disabled by default. You can enable it from the options page if you like!
+- Exposing Trackers is disabled by default. You can enable it from the options page if you like!
 - Updated Icon for disabled extension.
 1.0.4:
-- Improvements in exposing tracker links.
+- Improvements in exposing trackers.
 1.0.3:
 - The extension can now make tracking images visible. You can disable this feature in the options page.
 
