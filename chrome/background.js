@@ -1,4 +1,4 @@
-function switchNowareState(){
+function switchTrockerState(){
   if (loadVariable('trockerEnable')==true) saveVariable('trockerEnable', false);
   else saveVariable('trockerEnable', true);
 
@@ -42,6 +42,10 @@ chrome.runtime.onInstalled.addListener(function(details){
 	    }
       }
 	}
+	if ((prevVer.major <= 1) && (prevVer.minor<2)) { // Migrate stats to the new form in version 2
+		setStat('openTrackerStats', 'YW', 'blocked', loadVariable('blockedYWOpenTrackers'));
+		setStat('openTrackerStats', 'YW', 'allowed', loadVariable('allowedYWOpenTrackers'));
+	}
 	
 	if ((prevVer.major < newVer.major) || (prevVer.minor < newVer.minor)) {
       // Open updated page in a new tab
@@ -74,34 +78,103 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 		} else {
 		  updateBrowserActionButton(tabId, 0);
 		}
+	} else if (request.method == "getTrackerLists") {
+		sendResponse({openTrackers: getOpenTrackerList(), clickTrackers: getClickTrackerList()});
+	} else if (request.method == "addLimitedOpenPermission") {
+		limitedPermissions.addOpenPermission(request.key);
+		sendResponse({}); 
 	} else
       sendResponse({}); // snub them.
 });
 
+// Webmail image proxy domains we have to listen on
+// Gmail Example: https://ci5.googleusercontent.com/proxy/c98MiCwnx8WKJGocCSAHkb-hELC6NR1lEjYmgXearhWHPiAwdbhTHIriCpYAJF38AQ0hW8nU2fpxNpRcfX7WlIO5uQzoqUWv9hLk-tywdbEOkabGvgH83LRQK0cZqzoA_WMkHvFIJ6eF8aDzNAncocBmT48JP_KGGN8KjNaAxrYxtrmp6qx9YNGY__LPXhQs66jEYIgh1cnPrcTG9rQhAYLnAN1Tyi-aNfmFyTb2W0x8fD7jGjuhX-v7YpbAnXtUI2_wY9wowlYD7Q=s0-d-e1-ft#http://t.sidekickopen04.com/e1t/o/5/f18dQhb0S7ks8dDMPbW2n0x6l2B9gXrN7sKj6v5dwdFW7gs8107d-cvzW5vws_W3LvrVvW6fVgD81k1H6H0?si=5353798341492736&pi=e20e388a-468f-4643-9ab3-9a162c205522
+// Outlook Example: https://dub121.mail.live.com/Handlers/ImageProxy.mvc?bicild=&canary=CZchR4mnfhxj7s0LgOeyVm90Hy2KbEDkiuDHIBKoGGU%3d0&url=http%3a%2f%2ft.sidekickopen04.com%2fe1t%2fo%2f5%2ff18dQhb0S7ks8dDMPbW2n0x6l2B9gXrN7sKj6v5dwdFW7gs8107d-cvzW5vws_W3LvrVvW6fVgD81k1H6H0%3fsi%3d5353798341492736%26pi%3de20e388a-468f-4643-9ab3-9a162c205522
 
-function handleOnBeforeRequest(details){
+var webmailProxyDomains = ["*.googleusercontent.com/proxy", // Google's image proxy
+						   "*.mail.live.com/Handlers" // Outlook's image proxy
+						   ]; 
+
+						   
+// Handle open trackers
+var openTrackers = getOpenTrackerList();
+var openListenDomains = webmailProxyDomains;
+for (var i=0; i<openTrackers.length; i++) openListenDomains = openListenDomains.concat(openTrackers[i].domains);
+var openListenURLs = [];
+for (var i=0; i<openListenDomains.length; i++) openListenURLs.push("*://"+openListenDomains[i]+"/*");
+var openRequestTypes = ["image"];
+chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestOpenTracker, {urls: openListenURLs, types: openRequestTypes}, ["blocking"]);
+
+function handleOnBeforeRequestOpenTracker(details){
   // details.tabId -> the tab that's the origin of request 
   // details.url -> the url of request 
-  var shouldBeCanceled = false; // By default we don't block anything
-  if (details.url.indexOf('t.yesware.com/t/')>-1) {
-    if (loadVariable('trockerEnable')==true){
-      shouldBeCanceled = true;
-      saveVariable('blockedTrackerLinks', loadVariable('blockedTrackerLinks') + 1); // Stat ++
-    } else {
-      shouldBeCanceled = false;
-  	  saveVariable('allowedTrackerLinks', loadVariable('allowedTrackerLinks') + 1); // Stat ++
-    }
-	  
-	if (details.tabId > -1) { // If the request comes from a tab
-	  if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
-	    chrome.tabs.executeScript(details.tabId, {file: "countTrackers.js"}, function(ret){});
+  
+  for (var i=0; i<openTrackers.length; i++){
+	if (multiMatch(details.url, openTrackers[i].domains)){
+	  // If you know the tab, run the content script
+      if (details.tabId > -1) { // If the request comes from a tab
+	    if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
+	      chrome.tabs.executeScript(details.tabId, {file: "countTrackers.js"}, function(ret){});
+	    }
+	  }
+		
+	  if (loadVariable('trockerEnable')==true){
+		statPlusPlus('openTrackerStats', openTrackers[i].name, 'blocked');
+		return {cancel: true};
+	  }
+	
+	  statPlusPlus('openTrackerStats', openTrackers[i].name, 'allowed');
+      break; // No need to check the rest, break out of the for loop
+	}
+  }
+
+  // Don't return anything to leave the request untouched
+}
+
+
+// Handle click trackers
+var clickTrackers = getClickTrackerList();
+var clickListenDomains = []; // No need for Google's proxy because google doesn't proxy links
+for (var i=0; i<clickTrackers.length; i++) clickListenDomains = clickListenDomains.concat(clickTrackers[i].domains);
+var clickListenURLs = [];
+for (var i=0; i<clickListenDomains.length; i++) clickListenURLs.push("*://"+clickListenDomains[i]+"/*");
+var clickRequestTypes = ["main_frame", "sub_frame", "stylesheet", "script", "object", "xmlhttprequest", "other"];
+chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestClickTracker, {urls: clickListenURLs, types: clickRequestTypes}, ["blocking", "requestBody"]);
+
+function handleOnBeforeRequestClickTracker(details){
+  // details.tabId -> the tab that's the origin of request 
+  // details.url -> the url of request 
+  if ((details['requestBody'] === undefined)||(details['requestBody'] ==={})) { // Don't filter form submits
+    for (var i=0; i<clickTrackers.length; i++){
+	  if (multiMatch(details.url, clickTrackers[i].domains)){
+	    if (loadVariable('trockerEnable')==true){
+		  if (!limitedPermissions.hasOpenPermission(details.url)) {
+	        var redirectUrl = chrome.extension.getURL("bypasser.html")+'#'+details.url;
+		    return {redirectUrl: redirectUrl};
+		  } else {
+		    limitedPermissions.removeOpenPermission(details.url);
+		  }
+	    }	  
+	    statPlusPlus('clickTrackerStats', openTrackers[i].name, 'allowed');
+	    break; // No need to check the rest, break out of the for loop
 	  }
 	}
   }
-  return {cancel: shouldBeCanceled}; 
+
+  // Don't return anything to leave the request untouched
 }
 
-chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequest, 
-  {urls: ["*://t.yesware.com/t/*", "*://*.googleusercontent.com/proxy/*"]},
-  ["blocking"]);
 
+limitedPermissions = { // An object that would allow limited, temporary tracked url access (mainly to allow clicking on tracked urls from the bypasser page)
+  allowedURLs: [],
+  hasOpenPermission: function(url){
+	if (limitedPermissions.allowedURLs.indexOf(url) > -1) return true;
+	else return false;
+  },
+  removeOpenPermission: function(url){
+	while (limitedPermissions.allowedURLs.indexOf(url) > -1) limitedPermissions.allowedURLs.splice(limitedPermissions.allowedURLs.indexOf(url), 1);
+  },
+  addOpenPermission: function(url){
+	limitedPermissions.allowedURLs.push(url);
+  }
+};

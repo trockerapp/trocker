@@ -2,16 +2,16 @@
 <html>
 <head>
   <title>Trocker Extension Options</title>
-  <link rel="stylesheet" type="text/css" href="options.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-<div id="content">
-  <div id="title">
+<div class="content">
+  <div class="title">
     <img src="header.png" title="Trocker" alt="Trocker">
     <div>Extension Options</div>
   </div>
   <form name="options_form" action="">
-    <div class="option_row">
+    <div class="centeredsec">
       <div class="option_name">Block Trackers:</div>
       <div class="option_value">
         <div class="option_value_primary">
@@ -20,44 +20,62 @@
         </div>
       </div>
 	</div>
-	<div class="option_row">
-      <div class="option_name">Show Current Tab Trackers:</div>
+	<div class="centeredsec">
+      <div class="option_name">Show Current Tab Trackers Count:</div>
       <div class="option_value">
         <div class="option_value_primary">
           <input type="checkbox" name="showTrackerCount" id="showTrackerCountOpt">
           <label for="showTrackerCount">Enable</label> <br/>
-		  <p>
+		  <p> 
 		    Shows the number of tracking links found in the current tab on the Trocker icon. <br/>
-			(The number includes invisible trackers loaded in the background)
+			<small>(The number includes invisible trackers loaded in the background)</small>
 		  </p>
         </div>
       </div>
 	</div>
-	<div class="option_row">
-	  <div class="option_name">Make Tracking Images Visible:</div>
+	<div class="centeredsec">
+	  <div class="option_name">Expose Trackers:</div>
       <div class="option_value">
         <div class="option_value_primary">
           <input type="checkbox" name="exposeLinks" id="exposeLinksOpt">
           <label for="exposeLinks">Enable</label> <br/>
-		  <p>  
-		    Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> (http links) or <img src="td.png" style="width:10px; height:10px;"> (https links)<br/>
+		  <ul>
+		    <li> Mouse pointer turns into <img src="tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
+		    <li>
+		    Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> <!--(http links) or <img src="td.png" style="width:10px; height:10px;"> (https links)--><br/>
 		    This will not affect how other people will see the tracked emails you send them. <br/>
-		    It only helps you visually track where tracker softwares inject their tracking images.
-		  </p>
+		    It only helps you visually track where tracker softwares inject their tracking images. </li>
+		  </ul>
         </div>
       </div>
     </div>	  
-    <div class="option_row">
+    <div class="centeredsec">
       <div class="option_name">Some statistics: <br/><span class="statsSinceDate" id="statsSinceDate"></span></div>
       <div class="option_value">
-        <div class="option_value_primary"><span class="stat_name">Blocked Tracking links: </span><span class="stat_value" id="blockedTrackerLinks"></span></div>
-        <div class="option_value_primary"><span class="stat_name">Allowed Tracking links: </span><span class="stat_value" id="allowedTrackerLinks"></span></div>
+        <div class="option_value_primary">
+		  <ul>
+		    <li><span class="stat_name">Email Open Trackers: </span><span class="stat_value" id="blockedOpenTrackers"></span> Blocked. <span class="stat_value" id="allowedOpenTrackers"></span> Allowed.</li>
+            <li><span class="stat_name">Link Click Trackers: </span><span class="stat_value" id="bypassedClickTrackers"></span> Bypassed. <span class="stat_value" id="allowedClickTrackers"></span> Allowed.</li>
+		  </ul>
+		</div>
       </div>
     </div>
-    <div class="message"><div id="status"></div></div>
+	<div class="centeredsec">
+	  <div class="option_name">Help us improve: </div>
+      <div class="option_value">
+	    <div class="option_value_primary">
+          <p>
+	        Think an Email is tracked but Trocker doesn't block it? Remove your personal info and forward it to us at <a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">trockerapp@gmail.com</a>.
+		  </p>
+		</div>
+      </div>
+	</div>
+    <div class="message"><div id="status">Status!</div></div>
   </form>
+  <div id="contactus"><a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">Contact Us</a></div>
 </div>
 </body>
+<script src="lists.js"></script>
 <script src="tools.js"></script>
 <script src="options.js"></script>
 </html>

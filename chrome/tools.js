@@ -31,6 +31,23 @@ function updateBrowserActionButton(tabId, trackerCount){
   setBrowserActions(browserActionOptions);
 }
 
+function findOriginalLink(trackedURL){
+	var origLink = '';
+	var clickTrackers = getClickTrackerList();
+	for (var i=0; i<clickTrackers.length; i++) {
+		if (multiMatch(trackedURL, clickTrackers[i].domains)) {
+			if (clickTrackers[i]['param'] !== undefined) {
+				var urlParams = parseUrlParams(trackedURL);
+				if (urlParams[clickTrackers[i]['param']] !== undefined) {
+					var origLink = urlParams[clickTrackers[i]['param']];
+					return origLink;
+				}
+			}
+			break;
+		}
+	}
+	return origLink;	
+}
 
 function loadObjectFromCache(objName){
 	var dataCache = JSON.parse(localStorage['dataCache']);
@@ -54,6 +71,14 @@ function loadVariable(varName){
 	if ((varName == 'exposeLinks') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
 	if ((varName == 'allowedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'blockedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
+	if ((varName == 'allowedYWOpenTrackers') && isNaN(varValue)) { varValue = loadVariable('allowedTrackerLinks'); cacheObject(varName, varValue); }
+	if ((varName == 'blockedYWOpenTrackers') && isNaN(varValue)) { varValue = loadVariable('blockedTrackerLinks'); cacheObject(varName, varValue); }
+	if ((varName == 'allowedSKOpenTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
+	if ((varName == 'blockedSKOpenTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
+	if ((varName == 'allowedYWClickTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
+	if ((varName == 'bypassedYWClickTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
+	if ((varName == 'openTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
+	if ((varName == 'clickTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
 	if ((varName == 'statsSinceDate') && ((varValue === undefined) || (new Date(varValue) == "Invalid Date"))) { varValue = new Date(); cacheObject(varName, varValue); }
 	
 	return varValue;
@@ -63,6 +88,41 @@ function saveVariable(varName, varValue){
 	loadVariable(varName); // This make sure dataCache exists
 	cacheObject(varName, varValue);
 	return loadVariable(varName);
+}
+
+function getStat(statObjName, statName, fieldName){
+	var statObj = loadVariable(statObjName); 
+	if (statObj[statName] === undefined) statObj[statName] = {};
+	if (isNaN(statObj[statName][fieldName])) {
+		statObj[statName][fieldName] = 0;
+		saveVariable(statObjName, statObj);
+	}
+	return statObj[statName][fieldName];
+}
+
+function setStat(statObjName, statName, fieldName, fieldValue){
+	getStat(statObjName, statName, fieldName); // Make sure stat exists
+	var statObj = loadVariable(statObjName); 
+	statObj[statName][fieldName] = fieldValue;
+	saveVariable(statObjName, statObj);
+}
+
+function statPlusPlus(statObjName, statName, fieldName){
+	setStat(statObjName, statName, fieldName, getStat(statObjName, statName, fieldName) + 1);
+}
+
+function parseUrlParams(url){
+  var match,
+	  pl     = /\+/g,  // Regex for replacing addition symbol with a space
+	  search = /([^&=]+)=?([^&]*)/g,
+	  decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+	  query  = url.slice(url.indexOf('?') + 1); // The query part of the url
+
+  urlParams = {};
+  while (match = search.exec(query))
+    urlParams[decode(match[1])] = decode(match[2]);
+
+  return urlParams;
 }
 
 function parseVersionString(str) {
@@ -77,4 +137,12 @@ function parseVersionString(str) {
         minor: min,
         patch: pat
     }
+}
+
+// returns true if str contains any of patterns in it
+function multiMatch(str, patterns){
+	for (var i = 0; i<patterns.length; i++){
+		if (str.indexOf(patterns[i])>-1) return true;
+	}
+	return false;
 }
