@@ -13,10 +13,10 @@ Feel free to send us your feedback at: trockerapp@gmail.com
 Change log:
 1.2.0:
 - Blocking more Trackers! (now Sidekick in addition to Yesware)
-- Support Outlook.com's image proxy
 - Trocker now also bypasses tracked links (links that inform the sender when you click on them) as well as tracked emails (emails that inform the sender when you open them).
 - All new click tracker bypasser page
 - Exposing link trackers by adding a "T" to the mouse pointer
+- Support Outlook.com's image proxy
 - Improvement in exposing open trackers (specially in compose window).
 - Improved options page.
 1.1.1:
