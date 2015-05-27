@@ -11,8 +11,10 @@ Trocker is very efficient as it only gets activated when a tracker is detected.
 Feel free to send us your feedback at: trockerapp@gmail.com
 
 Change log:
+1.2.1:
+- Stoping tracking extensions from reloading the tracking url in background
 1.2.0:
-- Blocking more Trackers! (now Sidekick in addition to Yesware)
+- Blocking more Trackers!
 - Trocker now also bypasses tracked links (links that inform the sender when you click on them) as well as tracked emails (emails that inform the sender when you open them).
 - All new click tracker bypasser page
 - Exposing link trackers by adding a "T" to the mouse pointer
