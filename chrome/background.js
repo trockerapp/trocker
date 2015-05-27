@@ -102,7 +102,7 @@ var openListenDomains = webmailProxyDomains;
 for (var i=0; i<openTrackers.length; i++) openListenDomains = openListenDomains.concat(openTrackers[i].domains);
 var openListenURLs = [];
 for (var i=0; i<openListenDomains.length; i++) openListenURLs.push("*://"+openListenDomains[i]+"/*");
-var openRequestTypes = ["image"];
+var openRequestTypes = ["image", "xmlhttprequest"];
 chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestOpenTracker, {urls: openListenURLs, types: openRequestTypes}, ["blocking"]);
 
 function handleOnBeforeRequestOpenTracker(details){
