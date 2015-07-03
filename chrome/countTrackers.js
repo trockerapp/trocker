@@ -1,6 +1,9 @@
-/* Here we want to find all the img tags with yesware link in the current tab and expose them */
+/* Here we want to find all the img tags with a tracker link in the current tab and expose them */
 // Example YW target: <img src="https://ci6.googleusercontent.com/proxy/C-ENSN58vhPeLlIsUcFVEmzulIrhDKRHI3gvGPbXJMcDsLeFlwAxNXBzrcAgfkHxrOlM_F1WT11K-XhxjIROZl5keeQD0Uv-_7R54KRtt5t40F6rlvbgdwchmDahbo4til5h7AGetmG3pS9t34dyEmcvb77QiA8MB40a5-p8UV9rsQ=s0-d-e1-ft#https://t.yesware.com/t/9753ac6e46810c884c8c008a53991032923afab3/c01311adc69f53dd4f8cbe6cf718b64b/spacer.gif" style="border:0px;width:0px;min-height:0px" width="0" height="0" class="CToWUd">
 // Example SK target: <img src="https://ci4.googleusercontent.com/proxy/AaE-nmOW6Wl6ss-TPJ4rUWZkQuZ9OaR0YGvDDasY5PptQziqrDpf7N_Y4DMnHlo9fEa-z9NfU5-hg9NiHW8NpIfdbc1J56UXR67jEf4cGBFTw2lQCAX47RsHAv4zBTvI-_TA9svdYsKW00lmLhmmxiiorMgmqiIVcbZLls99Y9h8ZykJshQk8PXQh76B9AKdnlQ2uoHiAEJMgVVBLaZiMm027xHzNVIkHAt-zm-dI8_bnUJYSR26duNUhlREjXp9t3xZ-SAWCqgXEw=s0-d-e1-ft#http://t.sidekickopen04.com/e1t/o/5/f18dQhb0S7ks8dDMPbW2n0x6l2B9gXrN7sKj6v5dwdFW7gs8107d-cvzW5vws_W3LvrVvW6fVgD81k1H6H0?si=5353798341492736&amp;pi=4227e036-57e8-4305-a449-e1239aec2122" style="display:none!important" height="1" width="1" class="CToWUd">
+// Example MA target: <img src="https://ci4.googleusercontent.com/proxy/VX7MQFMWtTLgqn_c7QBIJWHGjsnH7lp_xbZOms9SPXXQUJsaZUJTcjKIvfwL5sKbuIIETx9Okk3arH0Z-sjmF96MuuRXOHc1246ROgrRDoy3QJf_6DILPWtTZAXI6hd34jlBEk7Yi7BpLA=s0-d-e1-ft#http://mandrillapp.com/track/open.php?u=30205832&amp;id=623ff9f9f38a45d9845fe0f757d33067" height="1" width="1" class="CToWUd" tracker="true" style="display: none;">
+// Example MT target: <img width="0" height="0" src="https://ci5.googleusercontent.com/proxy/c6k7cnJGJV7cGNDyMwXWEJpeSbQtrb5NXbz6v-MfJRUpUISCDoXmxzYAQUg5Tqb4Wulwt2Gx8ChIFM1HHVeGooHBE-zwxlEfKQugiRZ2tDZQ6xwErf0EdUD6SM1W_5K3194=s0-d-e1-ft#https://mailtrack.io/trace/mail/05b5c4fd75690a3b77108e689a10c1182efe5eac.png" class="CToWUd" tracker="true" style="display: none;">
+
 
 
 // returns true if str contains any of patterns in it
@@ -97,38 +100,37 @@ countTrackers = function(options){
 
 	
 	var images = document.getElementsByTagName('img');
+	var isTracker = false;
+	var isTiny = false;
 	for (var i = 0; i < images.length; i++)	{
 		var img = images[i];
-		if (  multiMatch(img.src, openDomains) ) {
+		
+		// Check if it is a known tracker
+		if (  multiMatch(img.src, openDomains) ) isTracker = true;
+		else isTracker = false;
+		
+		// Any 1x1 or smaller image is suspicious, let's expose them
+		// We might not be blocking them...
+		//if (img.naturalWidth <= 1 && img.naturalHeight <= 1) isTiny = true;
+		//else isTiny = false;
+        
+		if ( isTracker || isTiny ) {
 			trackerCount++;
 			if (options.exposeTrackers){
-				// Expose links (wrap the link in a specific span element. Because pseudo elems can't be used with the images themselves.)
+				// Expose image (wrap the link in a specific span element. Because pseudo elems can't be used with the images themselves.)
 				var parent = img.parentNode;
 				if ((parent.className != "trexpsd") && (parent.className != "trexpsds") && parent.getAttribute("title") != "trexpsdspnelm") {
 					var span = document.createElement('span');
-					//span.style.cssText="border:0px;width:0px;min-height:0px;margin:0 5px;";
 					span.setAttribute("style","border:0px;width:0px;min-height:0px;margin:0 5px;");
 					span.setAttribute("width","0");
 					span.setAttribute("height","0");
 					span.setAttribute("title","trexpsdspnelm"); // We add this because gmail changes classes but looks like it doesn't change titles
 					span.setAttribute("class","trexpsd");
-					/*
-					if (img.src.indexOf('https://t.yesware.com/t/')>-1) {
-						span.setAttribute("class","trexpsds");
-					} else {
-						span.setAttribute("class","trexpsd");
-					}
-					*/
+					//if (isTiny && !isTracker) span.setAttribute("class","trexpsds"); // If unknown tracker but suspicious
 					wrap(span, img);
 				} else if (parent.getAttribute("title") == "trexpsdspnelm") { // If already wrapped in an exposer
 					parent.setAttribute("class","trexpsd");
-					/*
-					if (img.src.indexOf('http://t.yesware.com/t/')>-1) {
-						parent.setAttribute("class","trexpsd");
-					} else {
-						parent.setAttribute("class","trexpsds");
-					}
-					*/
+					//if (isTiny && !isTracker) span.setAttribute("class","trexpsds"); // If unknown tracker but suspicious
 				}
 			}
 		}

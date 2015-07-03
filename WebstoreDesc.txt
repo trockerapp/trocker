@@ -11,8 +11,10 @@ Trocker is very efficient as it only gets activated when a tracker is detected.
 Feel free to send us your feedback at: trockerapp@gmail.com
 
 Change log:
+1.2.2:
+- Block even more trackers (now 4 major ones)
 1.2.1:
-- Stoping tracking extensions from reloading the tracking url in background
+- Stop tracking extensions from reloading the tracking url in background
 1.2.0:
 - Blocking more Trackers!
 - Trocker now also bypasses tracked links (links that inform the sender when you click on them) as well as tracked emails (emails that inform the sender when you open them).

@@ -119,10 +119,12 @@ function handleOnBeforeRequestOpenTracker(details){
 	  }
 		
 	  if (loadVariable('trockerEnable')==true){
+		console.log((new Date()).toLocaleString() +' A '+openTrackers[i].name+' open tracker '+details.type+' request was blocked!');
 		statPlusPlus('openTrackerStats', openTrackers[i].name, 'blocked');
 		return {cancel: true};
 	  }
-	
+	  
+	  console.log((new Date()).toLocaleString() + 'A '+openTrackers[i].name+' open tracker '+details.type+' request was allowed!');
 	  statPlusPlus('openTrackerStats', openTrackers[i].name, 'allowed');
       break; // No need to check the rest, break out of the for loop
 	}
@@ -149,12 +151,14 @@ function handleOnBeforeRequestClickTracker(details){
 	  if (multiMatch(details.url, clickTrackers[i].domains)){
 	    if (loadVariable('trockerEnable')==true){
 		  if (!limitedPermissions.hasOpenPermission(details.url)) {
+			console.log((new Date()).toLocaleString() + 'A '+openTrackers[i].name+' click tracker '+details.type+' request was redirected!');
 	        var redirectUrl = chrome.extension.getURL("bypasser.html")+'#'+details.url;
 		    return {redirectUrl: redirectUrl};
 		  } else {
 		    limitedPermissions.removeOpenPermission(details.url);
 		  }
-	    }	  
+	    }	 
+		console.log((new Date()).toLocaleString() + 'A '+openTrackers[i].name+' click tracker '+details.type+' request was allowed!');		
 	    statPlusPlus('clickTrackerStats', openTrackers[i].name, 'allowed');
 	    break; // No need to check the rest, break out of the for loop
 	  }
