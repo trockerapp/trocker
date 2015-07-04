@@ -65,6 +65,39 @@ function prepareCSSRules(){
 	}
 }
 
+function injectJSScript(elemName, src, elemId, cb){
+	var currentElem = document.getElementById(elemId);
+	if (currentElem === null) {
+	  var j = document.createElement(elemName);
+	  j.src = src;
+	  j.setAttribute("id", elemId);
+	  (document.body || document.head || document.documentElement).appendChild(j);
+	}
+}
+
+function injectProactiveAgent(){
+	if (document.location.host.indexOf("mail.google.com") > -1){
+		injectJSScript('script', 'https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', 'tragntjq');
+		injectJSScript('script', chrome.extension.getURL('vendor/gmail.min.js'), 'tragntgjs');
+		injectJSScript('script', chrome.extension.getURL('gmailagent.js'), 'tragntgajs');
+		
+		var trackedSignId = "red-eye";
+		var trackedSign = document.getElementById(trackedSignId);
+		if (trackedSign === null) {
+			var redEye = document.createElement('img');
+			redEye.src = chrome.extension.getURL('tl.png');
+			redEye.id = trackedSignId;
+			redEye.style.display = 'none';
+			redEye.height = 14;
+			redEye.width = 14;
+			redEye.style.verticalAlign = "0px";
+			redEye.style.paddingLeft = '5px';
+			redEye.style.cursor = 'pointer';
+			document.getElementsByTagName('body')[0].appendChild(redEye);
+		}
+	}
+}
+
 var inRefractoryPeriod = false;
 checkAndDoYourDuty = function(){
 	if (inRefractoryPeriod) return; // In order to avoid back to back function calls triggered by fake hashchange events
@@ -162,3 +195,4 @@ window.addEventListener("hashchange", function(){
 }, false);
 
 checkAndDoYourDuty();
+injectProactiveAgent();

@@ -114,7 +114,7 @@ function handleOnBeforeRequestOpenTracker(details){
 	  // If you know the tab, run the content script
       if (details.tabId > -1) { // If the request comes from a tab
 	    if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
-	      chrome.tabs.executeScript(details.tabId, {file: "countTrackers.js"}, function(ret){});
+	      chrome.tabs.executeScript(details.tabId, {file: "trocker.js"}, function(ret){});
 	    }
 	  }
 		

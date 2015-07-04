@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "1.2.1",
+  "version": "2.0.0",
   "name": "__MSG_extension_name__",
   "short_name": "__MSG_extension_name__",
   "default_locale": "en",
@@ -22,7 +22,17 @@
     "page": "options.html",
     "chrome_style": true
   },
-  "web_accessible_resources": ["tl.png", "td.png", "tlc.png", "bypasser.html"],
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["trocker.js"]
+    }
+  ],
+  "web_accessible_resources": [
+	"tl.png", "td.png", "tlc.png", 
+	"bypasser.html", 
+	"vendor/gmail.min.js", "gmailagent.js"
+  ],
   "permissions": [
     "alarms",
     "tabs",
