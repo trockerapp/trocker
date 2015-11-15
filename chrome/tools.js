@@ -69,6 +69,13 @@ function loadVariable(varName){
 	if ((varName == 'trockerEnable') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); }
 	if ((varName == 'showTrackerCount') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); }
 	if ((varName == 'exposeLinks') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
+	if ((varName == 'openTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
+	if ((varName == 'clickTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
+	if ((varName == 'statsSinceDate') && ((varValue === undefined) || (new Date(varValue) == "Invalid Date"))) { varValue = new Date(); cacheObject(varName, varValue); }
+	if ((varName == 'suspDomains') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
+	if ((varName == 'advanced') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
+
+	// Obsolete
 	if ((varName == 'allowedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'blockedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'allowedYWOpenTrackers') && isNaN(varValue)) { varValue = loadVariable('allowedTrackerLinks'); cacheObject(varName, varValue); }
@@ -77,9 +84,7 @@ function loadVariable(varName){
 	if ((varName == 'blockedSKOpenTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'allowedYWClickTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'bypassedYWClickTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
-	if ((varName == 'openTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
-	if ((varName == 'clickTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
-	if ((varName == 'statsSinceDate') && ((varValue === undefined) || (new Date(varValue) == "Invalid Date"))) { varValue = new Date(); cacheObject(varName, varValue); }
+	
 	
 	return varValue;
 }
@@ -109,6 +114,43 @@ function setStat(statObjName, statName, fieldName, fieldValue){
 
 function statPlusPlus(statObjName, statName, fieldName){
 	setStat(statObjName, statName, fieldName, getStat(statObjName, statName, fieldName) + 1);
+}
+
+function logSuspURL(url){
+	if (loadVariable('advanced')){
+		var suspDomainsObj = loadVariable('suspDomains'); // This make sure dataCache exists
+		var urlDomain = extractDomain(url);
+		if (suspDomainsObj[urlDomain] === undefined) suspDomainsObj[urlDomain] = {
+			"loads": 0, 
+			"sampleUrls": []
+		};	
+		suspDomainsObj[urlDomain].loads++;
+		if (suspDomainsObj[urlDomain].sampleUrls.indexOf(url) == -1){
+			suspDomainsObj[urlDomain].sampleUrls.push(url);
+			suspDomainsObj[urlDomain].sampleUrls = suspDomainsObj[urlDomain].sampleUrls.slice(Math.max(suspDomainsObj[urlDomain].sampleUrls.length - 5, 0)); // Only keep the last 5 elements
+		}
+		var keys = Object.keys(suspDomainsObj);
+		var maxKeysToKeep = 15;
+		if (keys.length > maxKeysToKeep)  // Only keep the last 100 elements
+			for (var i = 0; i<(keys.length-maxKeysToKeep); i++) 
+				delete(suspDomainsObj[keys[i]]);
+		saveVariable('suspDomains', suspDomainsObj);	
+	}
+}
+
+function extractDomain(url) {
+    var domain;
+    //find & remove protocol (http, ftp, etc.) and get domain
+    if (url.indexOf("://") > -1) {
+        domain = url.split('/')[2];
+    } else {
+        domain = url.split('/')[0];
+    }
+
+    //find & remove port number
+    domain = domain.split(':')[0];
+
+    return domain;
 }
 
 function parseUrlParams(url){

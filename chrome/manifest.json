@@ -20,18 +20,20 @@
   "options_page": "options.html",
   "options_ui": {
     "page": "options.html",
-    "chrome_style": true
+    "chrome_style": true,
+	"open_in_tab": false
   },
   "content_scripts": [
     {
-      "matches": ["https://mail.google.com/*"],
+      "all_frames" : false,
+      "run_at" : "document_end",
+      "matches": ["*://mail.google.com/*"],
       "js": ["trocker.js"]
     }
   ],
   "web_accessible_resources": [
-	"tl.png", "td.png", "tlc.png", 
-	"bypasser.html", 
-	"vendor/gmail.min.js", "gmailagent.js"
+	"tl.png", "td.png", "tlc.png", "tracked.png",
+	"bypasser.html"
   ],
   "permissions": [
     "alarms",

@@ -30,6 +30,7 @@ padding: 0 20px;
 .text_disabled{color:#999}
 .message{text-align:center; clear:both;padding:20px 10px 10px}
 #status{background-color:white;color:black;font-weight:bold;margin-left:10px;opacity:0;padding:3px}
+#advancedswitch{float: left;position: relative;left: 10px;bottom: 20px;}
 #contactus{float: right;position: relative;right: 10px;bottom: 20px;}
 .footer{margin-top:10px;text-align:center;clear: both;}
 .centeredsec{clear:left; margin: 5px auto; padding: 5px 10px;}

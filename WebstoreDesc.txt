@@ -4,13 +4,19 @@ Tracking your emails to know if the receiver has opened them or not is awesome, 
 
 Trocker is Open Source. Source Code available at: https://github.com/trockerapp/trocker
 
-Trocker keeps you safe in most webmails, including Gmail, Yahoo! and Outlook.com.
+Trocker keeps you safe in most webmails, including Gmail, Yahoo! and Outlook.com. In Gmail, Trocker has a heuristic tracker detection that detects and blocks almost any tracker.
 
 Trocker is very efficient as it only gets activated when a tracker is detected.
 
 Feel free to send us your feedback at: trockerapp@gmail.com
 
 Change log:
+2.0.0:
+- Special Gmail treatment. In Gmail, an icon is shown on top of each email that is found to have a tracker in it.
+- Context aware in Gmail; won't expose trackers in print view or compose windows.
+- Heuristic tracker detection. Now any tiny image that looks like a tracker is blocked in Gmail. 
+- New advanced options for those who want to swim deeper!
+- Block even more trackers (now 7 major ones). 
 1.2.2:
 - Block even more trackers (now 4 major ones)
 1.2.1:
@@ -49,7 +55,8 @@ Some email tracker track emails by injecting an invisible small image in the mai
 Trocker (as a lovely Tracker Blocker) stops this simply by blocking those image links from being loaded. It finds those injected images by looking at the url and matching the url pattern with the tracking servers that host injected images.
 If you yourself are a user of these tracking services (you track emails you send others), your service wouldn't be affected and will work fine. Trocker would only defend you from OTHERS tracking you.
 Moreover, some links are click tracked meaning that if you click on them, your clicks are logged and tracked. Trocker tries to bypass those links and redirect you directly to the original target without you being tracked. If not possible, Trocker will inform you that the link you've clicked on is tracked.
-No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. Ofcourse we are currently supporting only a limited (but growing) set of trackers and if someone uses other services we won't be able to stop them from tracking you.
+No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. Ofcourse we are currently supporting only a limited (but growing) set of trackers and if someone uses other services we won't be able to stop them from tracking you. 
+In Gmail, Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
 
 Trocker needs permission to all tabs in order to be able to detect and prevent any tracking images or tracked links from being loaded from any of the tabs. 
 But you are safe! There is absolutely no outbound internet access and we neither gather nor use any data about you or your browsing behaviour. 

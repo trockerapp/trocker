@@ -8,8 +8,20 @@
 <div class="content">
   <div class="title">
     <img src="header.png" title="Trocker" alt="Trocker">
-	<div><small>(Formerly known as Noware)</small><br /><br /></div>
+	<!--<div><small>(Formerly known as Noware)</small><br /><br /></div>-->
     <div>Trocker has been updated! Here are the changes:</div>
+  </div>
+  <div class="centeredsec">
+    <div class="changlog_name">v2.0.0:</div>
+    <div class="changlog_value">
+      <ul>
+	  	<li>Special Gmail treatment. In Gmail, an icon is shown on top of each email that is found to have a tracker in it.</li>
+		<li>Context aware in Gmail; won't expose trackers in print view or compose windows.</li>
+		<li>Heuristic tracker detection. Now any tiny image that looks like a tracker is blocked in Gmail. </li>
+		<li>New advanced options for those who want to swim deeper. Now only enables logging and shows the log of heuristic detections.</li>
+		<li>Block even more trackers (now MailChimp, SendGrid and iContact in addition to MailTrack, Mandrill, Yesware and SideKick)</li>
+	  </ul>
+    </div>
   </div>
   <div class="centeredsec">
     <div class="changlog_name">v1.2.2:</div>
@@ -23,7 +35,7 @@
     <div class="changlog_name">v1.2.1:</div>
     <div class="changlog_value">
       <ul>
-	    <li>Stop tracking extensions from reloading the tracking url in background</li>
+	    <li><strike>Stop tracking extensions from reloading the tracking url in background</strike> (not possible if extensions use their background page to reroute their tracking)</li>
 	  </ul>
     </div>
   </div>

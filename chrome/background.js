@@ -100,34 +100,65 @@ var webmailProxyDomains = ["*.googleusercontent.com/proxy", // Google's image pr
 var openTrackers = getOpenTrackerList();
 var openListenDomains = webmailProxyDomains;
 for (var i=0; i<openTrackers.length; i++) openListenDomains = openListenDomains.concat(openTrackers[i].domains);
-var openListenURLs = [];
+var openListenPatterns = [];
+for (var i=0; i<openTrackers.length; i++) openListenPatterns = openListenPatterns.concat(openTrackers[i].patterns);
+openListenURLs = openListenPatterns;
 for (var i=0; i<openListenDomains.length; i++) openListenURLs.push("*://"+openListenDomains[i]+"/*");
-var openRequestTypes = ["image", "xmlhttprequest", "other"];
+var openRequestTypes = ["image", "xmlhttprequest", "other"]; 
 chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestOpenTracker, {urls: openListenURLs, types: openRequestTypes}, ["blocking"]);
 
 function handleOnBeforeRequestOpenTracker(details){
   // details.tabId -> the tab that's the origin of request 
   // details.url -> the url of request 
   
+  // Gmail Related
+  var gmailProxyURL = "googleusercontent.com/proxy";
+  var nonSuspMark = "trnonsuspmrk"; // This should be added to non-suspicious images
+  var suspMark = "trsuspmrk"; // This should be added to suspicious images
+  var fromGmail = (details.url.indexOf(gmailProxyURL) > -1);
+  var hasNonSuspPattern = (details.url.indexOf(nonSuspMark) > -1);
+  var hasSuspPattern = (details.url.indexOf(suspMark) > -1);
+  
+  var outlookProxyURL = "mail.live.com/Handlers";
+  var fromOutlook = (details.url.indexOf(outlookProxyURL) > -1);
+  if (fromOutlook && (details.url.indexOf('&url=')>-1)) 
+	  details.url = parseUrlParams(details.url).url; // Make things easy in case of Outlook
+  
+  
   for (var i=0; i<openTrackers.length; i++){
-	if (multiMatch(details.url, openTrackers[i].domains)){
+	var hasKnownTracker = multiMatch(details.url, openTrackers[i].domains);
+	var allKnownTrackersChecked = (i==(openTrackers.length-1));
+	if (  hasKnownTracker || (allKnownTrackersChecked && fromGmail && !hasNonSuspPattern)) { // If is a known tracker Or is a suspicious image inside a Gmail email
 	  // If you know the tab, run the content script
       if (details.tabId > -1) { // If the request comes from a tab
 	    if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
-	      chrome.tabs.executeScript(details.tabId, {file: "trocker.js"}, function(ret){});
+	      chrome.tabs.get(details.tabId, function(tab){
+			if (tab.url.indexOf("://mail.google.com") == -1) // Already running in gmail
+		      chrome.tabs.executeScript(tab.id, {file: "trocker.js"}, function(ret){});
+		  });	      
 	    }
 	  }
+	  
+	  // If from Gmail and suspicious, log the suspicious url 
+	  if (fromGmail && hasSuspPattern) logSuspURL(details.url.split("#")[1]); // First remove the gmail proxy server
+	  
+	  if (hasKnownTracker) var trackerName = openTrackers[i].name;
+	  else var trackerName = "UK"; // Unknown tracker
 		
 	  if (loadVariable('trockerEnable')==true){
-		console.log((new Date()).toLocaleString() +' A '+openTrackers[i].name+' open tracker '+details.type+' request was blocked!');
-		statPlusPlus('openTrackerStats', openTrackers[i].name, 'blocked');
+		if (!fromGmail || hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail
+	      console.log((new Date()).toLocaleString() +': A '+trackerName+' open tracker '+details.type+' request was blocked!');
+		  statPlusPlus('openTrackerStats', trackerName, 'blocked');
+		}
 		return {cancel: true};
 	  }
 	  
-	  console.log((new Date()).toLocaleString() + 'A '+openTrackers[i].name+' open tracker '+details.type+' request was allowed!');
-	  statPlusPlus('openTrackerStats', openTrackers[i].name, 'allowed');
+	  if (!fromGmail || hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail
+	    console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed!');
+	    statPlusPlus('openTrackerStats', trackerName, 'allowed');
+	  }
       break; // No need to check the rest, break out of the for loop
-	}
+	}    
   }
 
   // Don't return anything to leave the request untouched
@@ -138,7 +169,9 @@ function handleOnBeforeRequestOpenTracker(details){
 var clickTrackers = getClickTrackerList();
 var clickListenDomains = []; // No need for Google's proxy because google doesn't proxy links
 for (var i=0; i<clickTrackers.length; i++) clickListenDomains = clickListenDomains.concat(clickTrackers[i].domains);
-var clickListenURLs = [];
+var clickListenPatterns = [];
+for (var i=0; i<clickTrackers.length; i++) clickListenPatterns = clickListenPatterns.concat(clickTrackers[i].patterns);
+var clickListenURLs = clickListenPatterns;
 for (var i=0; i<clickListenDomains.length; i++) clickListenURLs.push("*://"+clickListenDomains[i]+"/*");
 var clickRequestTypes = ["main_frame", "sub_frame", "stylesheet", "script", "object", "xmlhttprequest", "other"];
 chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestClickTracker, {urls: clickListenURLs, types: clickRequestTypes}, ["blocking", "requestBody"]);
@@ -151,14 +184,14 @@ function handleOnBeforeRequestClickTracker(details){
 	  if (multiMatch(details.url, clickTrackers[i].domains)){
 	    if (loadVariable('trockerEnable')==true){
 		  if (!limitedPermissions.hasOpenPermission(details.url)) {
-			console.log((new Date()).toLocaleString() + 'A '+openTrackers[i].name+' click tracker '+details.type+' request was redirected!');
+			console.log((new Date()).toLocaleString() + ': A '+openTrackers[i].name+' click tracker '+details.type+' request was redirected!');
 	        var redirectUrl = chrome.extension.getURL("bypasser.html")+'#'+details.url;
 		    return {redirectUrl: redirectUrl};
 		  } else {
 		    limitedPermissions.removeOpenPermission(details.url);
 		  }
 	    }	 
-		console.log((new Date()).toLocaleString() + 'A '+openTrackers[i].name+' click tracker '+details.type+' request was allowed!');		
+		console.log((new Date()).toLocaleString() + ': A '+openTrackers[i].name+' click tracker '+details.type+' request was allowed!');		
 	    statPlusPlus('clickTrackerStats', openTrackers[i].name, 'allowed');
 	    break; // No need to check the rest, break out of the for loop
 	  }
@@ -182,3 +215,6 @@ limitedPermissions = { // An object that would allow limited, temporary tracked 
 	limitedPermissions.allowedURLs.push(url);
   }
 };
+
+
+//chrome.webRequest.handlerBehaviorChanged(); // To make sure that chrome follows our blocking rules
