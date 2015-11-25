@@ -16,14 +16,9 @@ function getOpenTrackerList(){
 			"patterns": []
 		},
 		{
-			"name": "MA", 
-			"domains": ["mandrillapp.com/track"],
-			"patterns": []			
-		},
-		{
 			"name": "MC",
-			"domains": ["list-manage.com/track"],
-			"patterns": ["*://*.list-manage.com/track/open*"]
+			"domains": ["mandrillapp.com/track","list-manage.com/track","list-manage1.com/track"],
+			"patterns": ["*://*.mandrillapp.com/track/open*","*://*.list-manage.com/track/open*","*://*.list-manage1.com/track/open*"]
 		},
 		{
 			"name": "SG",
@@ -34,7 +29,17 @@ function getOpenTrackerList(){
 			"name": "IC",
 			"domains": ["icptrack.com/icp"],
 			"patterns": ["*://*.icptrack.com/icp/track*"]
-		}		
+		},
+		{
+			"name": "BT",
+			"domains": ["bl-1.com"],
+			"patterns": ["*://*.bl-1.com/*"]
+		},
+		{
+			"name": "MM",
+			"domains": ["app.mixmax.com/api/track"],
+			"patterns": []
+		}
 	];
 	return openTrackers;
 }
@@ -44,6 +49,7 @@ function getClickTrackerList(){
 		{
 			"name": "YW", 
 			"domains": ["t.yesware.com/tl"],
+			"patterns": [],
 			"param": "ytl"
 		},
 		{
@@ -53,14 +59,9 @@ function getClickTrackerList(){
 			"param": "t"
 		},
 		{
-			"name": "SK", 
-			"domains": ["mandrillapp.com/track"],
-			"patterns": []
-		},
-		{
 			"name": "MC",
-			"domains": ["list-manage.com/track"],
-			"patterns": ["*://*.list-manage.com/track/click*"]
+			"domains": ["mandrillapp.com/track","list-manage.com/track","list-manage1.com/track"],
+			"patterns": ["*://*.mandrillapp.com/track/click*","*://*.list-manage.com/track/click*","*://*.list-manage1.com/track/click*"]
 		},
 		{
 			"name": "SG",
@@ -69,9 +70,21 @@ function getClickTrackerList(){
 		},
 		{
 			"name": "IC",
-			"domains": ["icptrack.com/icp"],
-			"patterns": ["*://*.icptrack.com/icp/relay*"]
-		}			
+			"domains": ["click.icptrack.com/icp"],
+			"patterns": ["*://*.icptrack.com/icp/relay*"],
+			"param": "destination"
+		},
+		{
+			"name": "BT",
+			"domains": ["bl-1.com"],
+			"patterns": ["*://*.bl-1.com/*"],
+			"param": "url"
+		},
+		{
+			"name": "MM",
+			"domains": ["links.mixmax.com/b"],
+			"patterns": []
+		}
 	];
 	return clickTrackers;
 }

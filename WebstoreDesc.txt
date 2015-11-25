@@ -1,16 +1,27 @@
-This extension is an email Tracker Blocker, hence the name: Trocker!
+Tracking your emails to know if the receiver has opened them or not is awesome, so is being immune to it! Trocker gives you the latter! It blocks attempts by email tracking extensions and won't let them track what you do with the emails you receive.
 
-Tracking your emails to know if the receiver has opened them or not is awesome, so is being immune to it! Trocker gives you the latter!
+You will be amazed to see how many of the emails you receive have trackers in them!
 
-Trocker is Open Source. Source Code available at: https://github.com/trockerapp/trocker
+Trocker is Open Source so you can trust it. Source Code available at: https://github.com/trockerapp/trocker
 
-Trocker keeps you safe in most webmails, including Gmail, Yahoo! and Outlook.com. In Gmail, Trocker has a heuristic tracker detection that detects and blocks almost any tracker.
+Trocker keeps you safe in all webmails, including Gmail™, Yahoo! and Outlook.com. It has additional capabilities in Gmail. In Gmail, it has a heuristic tracker detection that detects and blocks almost any email tracking attempt!
 
 Trocker is very efficient as it only gets activated when a tracker is detected.
 
 Feel free to send us your feedback at: trockerapp@gmail.com
 
+And follow us on twitter: https://twitter.com/trockerapp
+
 Change log:
+2.0.3:
+- Improvements in how Trocker works in Gmail
+2.0.2:
+- Bug fix
+2.0.1:
+- Block even more trackers (now Bananatag and Mixmax in addition to others)
+- Improvements in click tracker blocking in Gmail
+- Bug fix in link tracking prevention
+- Twitter link added to the options page (Follow @trockerapp)
 2.0.0:
 - Special Gmail treatment. In Gmail, an icon is shown on top of each email that is found to have a tracker in it.
 - Context aware in Gmail; won't expose trackers in print view or compose windows.
@@ -19,8 +30,6 @@ Change log:
 - Block even more trackers (now 7 major ones). 
 1.2.2:
 - Block even more trackers (now 4 major ones)
-1.2.1:
-- Stop tracking extensions from reloading the tracking url in background
 1.2.0:
 - Blocking more Trackers!
 - Trocker now also bypasses tracked links (links that inform the sender when you click on them) as well as tracked emails (emails that inform the sender when you open them).
@@ -48,10 +57,10 @@ Change log:
 - The extension can now make tracking images visible. You can disable this feature in the options page.
 
 Short Explanation:
-You can trust us! We won't let hidden trackers track your emails. We don't in any way collect or store information about you or how you use the internet. The source code is available at https://github.com/trockerapp/trocker and you are more tyan welcome to check it out for yourself.
+You can trust us! We won't let hidden trackers track your emails. We don't in any way collect or store information about you or how you use the internet. The source code is available at https://github.com/trockerapp/trocker and you are more than welcome to check it out for yourself.
 
 Long Explanation:
-Some email tracker track emails by injecting an invisible small image in the mail that is hosted in a specific address in their server. They know when the email is opened by looking at the download requests of the injected images on their servers. 
+Some email trackers track emails by injecting an invisible small image in the mail that is hosted in a specific address in their server. They know when the email is opened by looking at the download requests of the injected images on their servers. 
 Trocker (as a lovely Tracker Blocker) stops this simply by blocking those image links from being loaded. It finds those injected images by looking at the url and matching the url pattern with the tracking servers that host injected images.
 If you yourself are a user of these tracking services (you track emails you send others), your service wouldn't be affected and will work fine. Trocker would only defend you from OTHERS tracking you.
 Moreover, some links are click tracked meaning that if you click on them, your clicks are logged and tracked. Trocker tries to bypass those links and redirect you directly to the original target without you being tracked. If not possible, Trocker will inform you that the link you've clicked on is tracked.

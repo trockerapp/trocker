@@ -28,7 +28,7 @@
           <label for="showTrackerCount">Enable</label> <br/>
 		  <p> 
 		    Shows the number of tracking links found in the current tab on the Trocker icon. <br/>
-			<small>(The number includes invisible trackers loaded in the background)</small>
+			<small>(The number includes invisible trackers loaded in the background and also tracked links)</small>
 		  </p>
         </div>
       </div>
@@ -40,11 +40,8 @@
           <input type="checkbox" name="exposeLinks" id="exposeLinksOpt">
           <label for="exposeLinks">Enable</label> <br/>
 		  <ul>
-		    <li> Mouse pointer turns into <img src="tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
-		    <li>
-		    Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> or <img src="td.png" style="width:10px; height:10px;"> (for known trackers) <br/>
-		    This will not affect how other people will see the tracked emails you send them. <br/>
-		    It only helps you visually track where tracker softwares inject their tracking images. </li>
+		    <li>Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> or <img src="td.png" style="width:10px; height:10px;"> (for unknown trackers)</li>
+			<li>Mouse pointer turns into <img src="tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
 		  </ul>
         </div>
       </div>
@@ -73,7 +70,10 @@
     <div class="message"><div id="status">Status!</div></div>
   </form>
   <div id="advancedswitch"><input type="checkbox" name="advanced" id="advancedOpt"><label for="showTrackerCount"> Advanced</label></div>
-  <div id="contactus"><a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">Contact Us</a></div>  
+  <div id="contactus">
+  <a href="https://twitter.com/trockerapp" class="tfbtn"><i class="twtrimg"></i><span>Follow <b>@trockerapp</b></span></a>
+  <a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">Contact Us</a>
+  </div>  
 </div>
 </body>
 <script src="lists.js"></script>
