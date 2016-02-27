@@ -1,48 +1,35 @@
 {
-  "manifest_version": 2,
-  "version": "2.0.3",
-  "name": "__MSG_extension_name__",
-  "short_name": "__MSG_extension_name__",
-  "default_locale": "en",
-  "background": {
-    "persistent": true,
-    "page": "background.html"
-  },
-  "browser_action": {
-    "default_icon": "icon_128.png"
-  },
-  "description": "__MSG_extension_description__",
-  "icons": {
-    "16": "icon_16.png",
-    "48": "icon_48.png",
-    "128": "icon_128.png"
-  },
-  "options_page": "options.html",
-  "options_ui": {
-    "page": "options.html",
-    "chrome_style": true,
-	"open_in_tab": false
-  },
-  "content_scripts": [
-    {
-      "all_frames" : false,
-      "run_at" : "document_end",
-      "matches": ["*://mail.google.com/*"],
-      "js": ["trocker.js"]
-    }
-  ],
-  "web_accessible_resources": [
-	"tl.png", "td.png", "tlc.png", "tracked.png",
-	"bypasser.html"
-  ],
-  "permissions": [
-    "alarms",
-    "tabs",
-    "webNavigation",
-    "webRequest",
-    "webRequestBlocking",
-    "<all_urls>",
-    "*://*.google.com/*",
-    "*://*.yahoo.com/*"
-   ]
+   "background": {
+      "page": "background.html",
+      "persistent": true
+   },
+   "browser_action": {
+      "default_icon": "icon_128.png"
+   },
+   "content_scripts": [ {
+      "all_frames": false,
+      "js": [ "trocker.js" ],
+      "matches": [ "*://mail.google.com/*", "*://inbox.google.com/*" , "*://*.mail.live.com/*" ],
+      "run_at": "document_end"
+   } ],
+   "default_locale": "en",
+   "description": "__MSG_extension_description__",
+   "icons": {
+      "128": "icon_128.png",
+      "16": "icon_16.png",
+      "48": "icon_48.png"
+   },
+   "manifest_version": 2,
+   "name": "__MSG_extension_name__",
+   "options_page": "options.html",
+   "options_ui": {
+      "chrome_style": true,
+      "open_in_tab": false,
+      "page": "options.html"
+   },
+   "permissions": [ "alarms", "tabs", "webNavigation", "webRequest", "webRequestBlocking", "\u003Call_urls>", "*://*.google.com/*", "*://*.live.com/*" ],
+   "short_name": "__MSG_extension_name__",
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "2.1.0",
+   "web_accessible_resources": [ "tl.png", "td.png", "tlc.png", "tracked.png", "bypasser.html" ]
 }

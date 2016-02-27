@@ -39,6 +39,11 @@ function getOpenTrackerList(){
 			"name": "MM",
 			"domains": ["app.mixmax.com/api/track"],
 			"patterns": []
+		},
+		{
+			"name": "MTA",
+			"domains": ["ping.answerbook.com"],
+			"patterns": []
 		}
 	];
 	return openTrackers;
@@ -83,6 +88,11 @@ function getClickTrackerList(){
 		{
 			"name": "MM",
 			"domains": ["links.mixmax.com/b"],
+			"patterns": []
+		},
+		{
+			"name": "MTA",
+			"domains": ["ping.answerbook.com"],
 			"patterns": []
 		}
 	];

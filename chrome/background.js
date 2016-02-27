@@ -121,19 +121,21 @@ function handleOnBeforeRequestOpenTracker(details){
   
   var outlookProxyURL = "mail.live.com/Handlers";
   var fromOutlook = (details.url.indexOf(outlookProxyURL) > -1);
+  
+  /*
   if (fromOutlook && (details.url.indexOf('&url=')>-1)) 
 	  details.url = parseUrlParams(details.url).url; // Make things easy in case of Outlook
-  
+  */
   
   for (var i=0; i<openTrackers.length; i++){
 	var hasKnownTracker = multiMatch(details.url, openTrackers[i].domains);
 	var allKnownTrackersChecked = (i==(openTrackers.length-1));
-	if (  hasKnownTracker || (allKnownTrackersChecked && fromGmail && !hasNonSuspPattern)) { // If is a known tracker Or is a suspicious image inside a Gmail email
+	if (  hasKnownTracker || (allKnownTrackersChecked && (fromGmail||fromOutlook) && !hasNonSuspPattern)) { // If is a known tracker Or is a suspicious image inside a Gmail/Inbox and Outlook email
 	  // If you know the tab, run the content script
       if (details.tabId > -1) { // If the request comes from a tab
 	    if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
 	      chrome.tabs.get(details.tabId, function(tab){
-			if (tab.url.indexOf("://mail.google.com") == -1) // Already running in gmail
+			if ((tab.url.indexOf("://mail.google.com") == -1)&&(tab.url.indexOf("://inbox.google.com") == -1)&&(tab.url.indexOf("mail.live.com") == -1)) // Already running in Gmail/Inbox and Outlook
 		      chrome.tabs.executeScript(tab.id, {file: "trocker.js"}, function(ret){});
 		  });	      
 	    }
@@ -141,19 +143,20 @@ function handleOnBeforeRequestOpenTracker(details){
 	  
 	  // If from Gmail and suspicious, log the suspicious url 
 	  if (fromGmail && hasSuspPattern) logSuspURL(details.url.split("#")[1]); // First remove the gmail proxy server
+	  if (fromOutlook && hasSuspPattern) logSuspURL(parseUrlParams(details.url).url); // First remove the outlook proxy server
 	  
 	  if (hasKnownTracker) var trackerName = openTrackers[i].name;
 	  else var trackerName = "UK"; // Unknown tracker
 		
 	  if (loadVariable('trockerEnable')==true){
-		if (!fromGmail || hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail
+		if (!(fromGmail||fromOutlook) || hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail/Inbox and Outlook
 	      console.log((new Date()).toLocaleString() +': A '+trackerName+' open tracker '+details.type+' request was blocked!');
 		  statPlusPlus('openTrackerStats', trackerName, 'blocked');
 		}
 		return {cancel: true};
 	  }
 	  
-	  if (!fromGmail || hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail
+	  if (!(fromGmail||fromOutlook) || hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail/Inbox and Outlook
 	    console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed!');
 	    statPlusPlus('openTrackerStats', trackerName, 'allowed');
 	  }

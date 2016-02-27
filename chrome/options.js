@@ -86,6 +86,11 @@ function restoreOptions() {
 		if (node) node.parentElement.removeChild(node);
 	}
 	
+	if ( (allOpenTrackerBlocks+allClickTrackerBypasses)>100 ){
+		var tweetmsg = '@trockerapp has blocked '+(allOpenTrackerBlocks+allClickTrackerBypasses)+" trackers in my emails! It's free and opensource! Get it from the chrome web store: https://t.co/ZUB5twChit";
+		document.getElementById("spreadtheword").innerHTML = 'So Trocker has blocked '+(allOpenTrackerBlocks+allClickTrackerBypasses)+' trackers in your emails. <a href="https://twitter.com/intent/tweet?text='+tweetmsg+'">Tweet this to spread the word!</a>';	
+	}
+	
 	setTimeout(restoreOptions, 30*1000); // Update stats every few seconds
 }
 
