@@ -99,6 +99,7 @@ function getEnv(){
 // This function returns the part of the Gmail UI we are in
 function getGmailUI(){
 	if (document.location.search.indexOf('view=pt') > -1) return 'print';
+	if (document.location.search.indexOf('view=lg') > -1) return 'print';
 	if (document.location.search.indexOf('view=dom') > -1) return 'dom';
 	return 'main';
 }
@@ -323,26 +324,35 @@ countTrackers = function(options){
 			var email = emails[ei];
 			var newFindings = false;
 			var openTrackersProcessed = false;
-			var clickTrackersProcessed = false;			
+			var clickTrackersProcessed = false;		
+			var imagesProcessed = false;
 			if (email.getAttribute("trotrckrs") !== null) {openTrackersProcessed = true; } // Already processed open trackers
+			if (email.getAttribute("trimgs") !== null) {imagesProcessed = email.getAttribute("trimgs"); } // Images available in email when processed open trackers
 			if (email.getAttribute("trctrckrs") !== null) {clickTrackersProcessed = true; } // Already processed click trackers
+			
+			var images = getEmailImages(email);
 			
 			var mailTrackers = 0;
 			// Open Trackers
 			var openTrackerURLs = [];
-			if (openTrackersProcessed){
+			if (openTrackersProcessed && (images.length == imagesProcessed)){
 				mailTrackers+=parseInt(email.getAttribute("trotrckrs"));
 			} else { // Process Open Trackers
 				var mailOpenTrackers = 0;
-				var images = getEmailImages(email);
+				var imagesSrcs = [];
+				for (var j = 0; j < images.length; j++) imagesSrcs[j] = images[j].src; // Store src for all images
 				var isKnownTracker = false;
 				for (var i = 0; i < images.length; i++)	{ // Loop over all images in the email
 					var img = images[i];
+					// Count repetitions of image URL among images in email -> good for dinstingushing design 1x1 images from tracking images
+					var reps = 0;
+					for (var j = 0; j < imagesSrcs.length; j++)	if (imagesSrcs[j] == img.src) reps++;
+					//console.log('Image '+img.src+' has '+reps+ 'reps!');
 					
 					isProxified = ((proxyURL!='')&&(img.src.indexOf(proxyURL) > -1)); // Check if it is proxified
 					isKnownTracker = multiMatch(img.src, openDomains); // Check if it is a known tracker
 					
-					if ( isKnownTracker || (isProxified && isTiny(img)) ) {
+					if ( isKnownTracker || (isProxified && isTiny(img)) && (reps < 5) ) {
 						if (!isKnownTracker) { // If an unknown tracker
 							img.setAttribute("known","0");
 						}
@@ -357,8 +367,9 @@ countTrackers = function(options){
 						//if (img.src.indexOf(nonSuspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+nonSuspMark+'#');
 					}
 				}
-				if (mailOpenTrackers || ((env==='gmail') && email.querySelector('div.ado') === null) ){ // If <Images are displayed>, save this. Otherwise don't save so that we process images later
+				if (images.length || ((env==='gmail') && email.querySelector('div.ado') === null) ){ // If <Images are displayed>, save this. Otherwise don't save so that we process images later
 					email.setAttribute("trotrckrs", mailOpenTrackers);
+					email.setAttribute("trimgs", images.length);
 					clickTrackersProcessed = false; // Redo click tracker analysis
 					newFindings = true;
 				}
