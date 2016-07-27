@@ -280,11 +280,19 @@ checkAndDoYourDuty = function(){
 	window.setTimeout(function(){inRefractoryPeriod = false;}, 90);	
 }
 
-function isTiny(img){
+function getSize(img){
 	var h = (img.style.height || img.style.minHeight || img.style.maxHeight)?parseInt(img.style.height || img.style.minHeight || img.style.maxHeight):-1;
 	if ((img.getAttribute("height")!==null)&&!isNaN(img.height)) h = img.height;
 	var w = (img.style.width || img.style.minWidth || img.style.maxWidth)?parseInt(img.style.width || img.style.minWidth || img.style.maxWidth):-1;
 	if ((img.getAttribute("width")!==null)&&!isNaN(img.width)) w = img.width;
+	
+	return {h:h,w:w};	
+}
+
+function isTiny(img){
+	var s = getSize(img);
+	var h = s.h;
+	var w = s.w;
 	
 	if ( (w > -1 && h > -1 && (w*h<3) )||(w == -1 && h > -1 && (h<3))||(w > -1 && h == -1 && (w<3) ) ) {
 		//console.log('Img detected as tiny because w='+w+', h='+h+' ('+img.src+')');
@@ -347,10 +355,11 @@ countTrackers = function(options){
 					// Count repetitions of image URL among images in email -> good for dinstingushing design 1x1 images from tracking images
 					var reps = 0;
 					for (var j = 0; j < imagesSrcs.length; j++)	if (imagesSrcs[j] == img.src) reps++;
-					//console.log('Image '+img.src+' has '+reps+ 'reps!');
 					
 					isProxified = ((proxyURL!='')&&(img.src.indexOf(proxyURL) > -1)); // Check if it is proxified
 					isKnownTracker = multiMatch(img.src, openDomains); // Check if it is a known tracker
+					
+					//console.log('Trocker: Image '+img.src+' has '+reps+ 'reps!'+(isKnownTracker?' is known':' is NOT known')+' - '+(isTiny(img)?' is tiny!':' is NOT tiny.')+' - w:'+getSize(img).w+' - h:'+getSize(img).h);
 					
 					if ( isKnownTracker || (isProxified && isTiny(img)) && (reps < 5) ) {
 						if (!isKnownTracker) { // If an unknown tracker
