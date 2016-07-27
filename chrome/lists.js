@@ -48,17 +48,17 @@ function getOpenTrackerList(){
 		{
 			"name": "CC",
 			"domains": ["constantcontact.com/images"],
-			"patterns": ["*constantcontact.com/images/p1x1.gif*"]
+			"patterns": ["*://*.constantcontact.com/images/p1x1.gif*"]
 		},
 		{
 			"name": "GA",
 			"domains": ["google-analytics.com/collect"],
-			"patterns": ["*google-analytics.com/collect*"]
+			"patterns": ["*://*.google-analytics.com/collect*"]
 		},
 		{
 			"name": "IB",
 			"domains": ["mkt4477.com/open"],
-			"patterns": ["*mkt4477.com/open*"]
+			"patterns": ["*://*.mkt4477.com/open*"]
 		}
 	];
 	return openTrackers;
@@ -113,7 +113,7 @@ function getClickTrackerList(){
 		{
 			"name": "IB",
 			"domains": ["mkt4477.com/ctt"],
-			"patterns": ["*mkt4477.com/ctt*"]
+			"patterns": ["*://*.mkt4477.com/ctt*"]
 		}
 	];
 	return clickTrackers;
