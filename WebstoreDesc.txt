@@ -13,6 +13,8 @@ Feel free to send us your feedback and reports any problems at: trockerapp@gmail
 And follow us on twitter: https://twitter.com/trockerapp
 
 Change log:
+2.1.2:
+- 4 trackers were added to block list.
 2.1.1:
 - Better handling of "view entire message" in Gmail and "view full email" in Inbox.
 - Improvements in heuristic tracker detection.
