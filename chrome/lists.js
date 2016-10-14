@@ -59,6 +59,11 @@ function getOpenTrackerList(){
 			"name": "IB",
 			"domains": ["mkt4477.com/open"],
 			"patterns": ["*://*.mkt4477.com/open*"]
+		},
+		{
+			"name": "MP",
+			"domains": ["mixpanel.com/track"],
+			"patterns": ["*://*.mixpanel.com/track*"]
 		}
 	];
 	return openTrackers;
