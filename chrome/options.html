@@ -26,38 +26,50 @@
         <div class="option_value_primary">
           <input type="checkbox" name="showTrackerCount" id="showTrackerCountOpt">
           <label for="showTrackerCount">Enable</label> <br/>
-		  <p> 
-		    Shows the number of tracking links found in the current tab on the Trocker icon. <br/>
-			<small>(The number includes invisible trackers loaded in the background and also tracked links)</small>
-		  </p>
+					<p> 
+						Shows the number of tracking links found in the current tab on the Trocker icon. <br/>
+					<small>(The number includes invisible trackers loaded in the background and also tracked links)</small>
+					</p>
         </div>
       </div>
 	</div>
 	<div class="centeredsec">
-	  <div class="option_name">Expose Trackers:</div>
-      <div class="option_value">
-        <div class="option_value_primary">
-          <input type="checkbox" name="exposeLinks" id="exposeLinksOpt">
-          <label for="exposeLinks">Enable</label> <br/>
-		  <ul>
-		    <li>Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> or <img src="td.png" style="width:10px; height:10px;"> (for unknown trackers)</li>
-			<li>Mouse pointer turns into <img src="tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
-		  </ul>
-        </div>
-      </div>
-    </div>	  
-    <div class="centeredsec">
-      <div class="option_name">Some statistics: <br/><span class="statsSinceDate" id="statsSinceDate"></span></div>
-      <div class="option_value">
-        <div class="option_value_primary">
-		  <ul>
-		    <li><span class="stat_name">Email Open Trackers: </span><span class="stat_value" id="blockedOpenTrackers"></span> Blocked. <span class="stat_value" id="allowedOpenTrackers"></span> Allowed.</li>
-            <li><span class="stat_name">Link Click Trackers: </span><span class="stat_value" id="bypassedClickTrackers"></span> Bypassed. <span class="stat_value" id="allowedClickTrackers"></span> Allowed.</li>
-		  </ul>
-		  <span class="stat_name" id="spreadtheword"></span>
+		<div class="option_name">Expose Trackers:</div>
+		<div class="option_value">
+			<div class="option_value_primary">
+				<input type="checkbox" name="exposeLinks" id="exposeLinksOpt">
+				<label for="exposeLinks">Enable</label> <br/>
+				<ul>
+					<li>Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> or <img src="td.png" style="width:10px; height:10px;"> (for unknown trackers)</li>
+					<li>Mouse pointer turns into <img src="tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
+				</ul>
+			</div>
 		</div>
-      </div>
-    </div>
+	</div>
+	<div class="centeredsec hidden advancedItem">
+		<div class="option_name">Verbose Log:</div>
+		<div class="option_value">
+			<div class="option_value_primary">
+				<input type="checkbox" name="verbose" id="verboseOpt">
+				<label for="verbose">Enable</label> <br/>
+				<p>
+					Extensively logs activities in console.
+				</p>
+			</div>
+		</div>
+	</div>	
+	<div class="centeredsec">
+		<div class="option_name">Some statistics: <br/><span class="statsSinceDate" id="statsSinceDate"></span></div>
+		<div class="option_value">
+			<div class="option_value_primary">
+				<ul>
+					<li><span class="stat_name">Email Open Trackers: </span><span class="stat_value" id="blockedOpenTrackers"></span> Blocked. <span class="stat_value" id="allowedOpenTrackers"></span> Allowed.</li>
+							<li><span class="stat_name">Link Click Trackers: </span><span class="stat_value" id="bypassedClickTrackers"></span> Bypassed. <span class="stat_value" id="allowedClickTrackers"></span> Allowed.</li>
+				</ul>
+				<span class="stat_name" id="spreadtheword"></span>
+			</div>
+		</div>
+	</div>
 	<div class="centeredsec">
 	  <div class="option_name">Help us improve: </div>
       <div class="option_value">

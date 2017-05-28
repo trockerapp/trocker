@@ -74,6 +74,7 @@ function loadVariable(varName){
 	if ((varName == 'statsSinceDate') && ((varValue === undefined) || (new Date(varValue) == "Invalid Date"))) { varValue = new Date(); cacheObject(varName, varValue); }
 	if ((varName == 'suspDomains') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
 	if ((varName == 'advanced') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
+	if ((varName == 'verbose') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
 
 	// Obsolete
 	if ((varName == 'allowedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }

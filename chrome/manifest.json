@@ -9,7 +9,7 @@
    "content_scripts": [ {
       "all_frames": false,
       "js": [ "trocker.js" ],
-      "matches": [ "*://mail.google.com/*", "*://inbox.google.com/*" , "*://*.mail.live.com/*" ],
+      "matches": [ "*://mail.google.com/*", "*://inbox.google.com/*" , "*://*.mail.live.com/*", "*://*.outlook.live.com/*" ],
       "run_at": "document_end"
    } ],
    "default_locale": "en",
@@ -30,6 +30,6 @@
    "permissions": [ "alarms", "tabs", "webNavigation", "webRequest", "webRequestBlocking", "\u003Call_urls>", "*://*.google.com/*", "*://*.live.com/*" ],
    "short_name": "__MSG_extension_name__",
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "2.1.4",
+   "version": "2.2.0",
    "web_accessible_resources": [ "tl.png", "td.png", "tlc.png", "tracked.png", "bypasser.html" ]
 }

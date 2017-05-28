@@ -3,6 +3,7 @@ function saveOptions() {
   saveVariable('trockerEnable', document.getElementById("trockerEnableOpt").checked);
   saveVariable('showTrackerCount', document.getElementById("showTrackerCountOpt").checked);
   saveVariable('exposeLinks', document.getElementById("exposeLinksOpt").checked);
+  saveVariable('verbose', (document.getElementById("verboseOpt").checked && document.getElementById("advancedOpt").checked));
   
   updateBrowserActionButton();
   
@@ -29,6 +30,9 @@ function restoreOptions() {
 
 	document.getElementById("exposeLinksOpt").checked = loadVariable('exposeLinks');
 	document.getElementById("exposeLinksOpt").onchange = saveOptions;
+	
+	document.getElementById("verboseOpt").checked = loadVariable('verbose');
+	document.getElementById("verboseOpt").onchange = saveOptions;
 	
 	document.getElementById("advancedOpt").checked = loadVariable('advanced');
 	document.getElementById("advancedOpt").onchange = saveOptions;
@@ -64,6 +68,10 @@ function restoreOptions() {
 	document.getElementById("statsSinceDate").innerHTML = "(Since "+(new Date(loadVariable('statsSinceDate')).toLocaleDateString())+")";
 	
 	if (loadVariable('advanced')){
+		let a = document.getElementsByClassName("advancedItem");
+		for (let a0 of a) a0.classList.remove("hidden");
+		
+		// Extra stats
 		if (!document.getElementById("suspDomains")){
 			document.getElementById("allowedClickTrackers").parentElement.innerHTML+='<li><span class="stat_name">Suspicious Domains: </span><span class="stat_value" id="suspDomains">Nothing in the log!</span>';
 		}
@@ -80,14 +88,16 @@ function restoreOptions() {
 		listHTML += '</ol></div>';
 		document.getElementById("suspDomains").innerHTML = listHTML;
 		//document.getElementById('removeDomain').onchange = removeSuspDomain;
-		
 	} else {
+		let a = document.getElementsByClassName("advancedItem");
+		for (let a0 of a) a0.classList.add("hidden");
+		// Extra stats
 		var node = document.getElementById("suspDomains");
 		if (node) node.parentElement.removeChild(node);
 	}
 	
 	if ( (allOpenTrackerBlocks+allClickTrackerBypasses)>100 ){
-		var tweetmsg = '@trockerapp has blocked '+(allOpenTrackerBlocks+allClickTrackerBypasses)+" trackers in my emails! It's free and opensource! Get it from the chrome web store: https://t.co/ZUB5twChit";
+		var tweetmsg = '.@trockerapp has blocked '+(allOpenTrackerBlocks+allClickTrackerBypasses)+" trackers in my emails! It's free and opensource! Get it from the chrome web store: https://t.co/ZUB5twChit";
 		document.getElementById("spreadtheword").innerHTML = 'So Trocker has blocked '+(allOpenTrackerBlocks+allClickTrackerBypasses)+' trackers in your emails. <a href="https://twitter.com/intent/tweet?text='+tweetmsg+'">Tweet this to spread the word!</a>';	
 	}
 	
