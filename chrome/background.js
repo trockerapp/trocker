@@ -131,7 +131,7 @@ function handleOnBeforeRequestOpenTracker(details){
   for (var i=0; i<openTrackers.length; i++){
 		var hasKnownTracker = multiMatch(details.url, openTrackers[i].domains);
 		var allKnownTrackersChecked = (i==(openTrackers.length-1));
-		if (  hasKnownTracker || (allKnownTrackersChecked && (fromGmail||fromOutlook) && !hasNonSuspPattern)) { // If is a known tracker Or is a suspicious image inside a Gmail/Inbox and Outlook email
+		if (  hasKnownTracker || hasSuspPattern || (allKnownTrackersChecked && (fromGmail||fromOutlook) && !hasNonSuspPattern)) { // If is a known tracker Or is a suspicious image inside a Gmail/Inbox and Outlook email
 			// If you know the tab, run the content script
 				if (details.tabId > -1) { // If the request comes from a tab
 				if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
