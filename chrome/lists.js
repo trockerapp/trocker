@@ -64,6 +64,11 @@ function getOpenTrackerList(){
 			"name": "MP",
 			"domains": ["mixpanel.com/track"],
 			"patterns": ["*://*.mixpanel.com/track*"]
+		},
+		{
+			"name": "GN",
+			"domains": ["email81.com"],
+			"patterns": ["*://*.email81.com/*","*://*.email81.com/*"]
 		}
 	];
 	return openTrackers;
