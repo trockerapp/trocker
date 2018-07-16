@@ -115,9 +115,12 @@ function handleOnBeforeRequestOpenTracker(details){
   var gmailProxyURL = "googleusercontent.com/proxy";
   var nonSuspMark = "trnonsuspmrk"; // This should be added to non-suspicious images
   var suspMark = "trsuspmrk"; // This should be added to suspicious images
+  var trIgnoreMark = "trfcallwmrk"; // Any previous judgment will be replaced by this when user forces allowing the trackers
+  
   var fromGmail = (details.url.indexOf(gmailProxyURL) > -1);
   var hasNonSuspPattern = (details.url.indexOf(nonSuspMark) > -1);
   var hasSuspPattern = (details.url.indexOf(suspMark) > -1);
+  var hasForceAllowPattern = (details.url.indexOf(trIgnoreMark) > -1);
   
   var outlookProxyURL = "mail.live.com/Handlers";
   var outlookProxyURL2 = "outlook.live.com/Handlers";
@@ -131,7 +134,7 @@ function handleOnBeforeRequestOpenTracker(details){
   for (var i=0; i<openTrackers.length; i++){
 		var hasKnownTracker = multiMatch(details.url, openTrackers[i].domains);
 		var allKnownTrackersChecked = (i==(openTrackers.length-1));
-		if (  hasKnownTracker || hasSuspPattern || (allKnownTrackersChecked && (fromGmail||fromOutlook) && !hasNonSuspPattern)) { // If is a known tracker Or is a suspicious image inside a Gmail/Inbox and Outlook email
+		if (  hasKnownTracker || hasSuspPattern || (allKnownTrackersChecked && (fromGmail||fromOutlook) && (!hasNonSuspPattern||hasForceAllowPattern))) { // If is a known tracker Or is a suspicious image inside a Gmail/Inbox and Outlook email
 			// If you know the tab, run the content script
 				if (details.tabId > -1) { // If the request comes from a tab
 				if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
@@ -149,7 +152,7 @@ function handleOnBeforeRequestOpenTracker(details){
 			if (hasKnownTracker) var trackerName = openTrackers[i].name;
 			else var trackerName = "UK"; // Unknown tracker
 			
-			if (loadVariable('trockerEnable')==true){
+			if (loadVariable('trockerEnable')==true && !hasForceAllowPattern){
 				if (!(fromGmail||fromOutlook) || hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail/Inbox and Outlook
 						console.log((new Date()).toLocaleString() +': A '+trackerName+' open tracker '+details.type+' request was blocked!');
 					statPlusPlus('openTrackerStats', trackerName, 'blocked');
@@ -157,8 +160,12 @@ function handleOnBeforeRequestOpenTracker(details){
 				return {cancel: true};
 			}
 			
-			if (!(fromGmail||fromOutlook) || hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail/Inbox and Outlook
-				console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed!');
+			if (!(fromGmail||fromOutlook) || hasSuspPattern || hasForceAllowPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail/Inbox and Outlook
+				if (!hasForceAllowPattern){
+					console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed!');
+				} else {
+					console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed per specific user request!');
+				}
 				statPlusPlus('openTrackerStats', trackerName, 'allowed');
 			}
 				break; // No need to check the rest, break out of the for loop
