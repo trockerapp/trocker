@@ -130,7 +130,8 @@ function getOpenEmails(){
 	} else if (env==='outlook'){
 		emails = document.querySelectorAll('.ReadMsgContainer'); // Opened emails in outlook
 	} else if (env==='outlook2'){
-		emails = document.querySelectorAll('div._rp_X4'); // Opened emails in outlook2
+		emails = document.querySelectorAll('div[autoid="_rp_3"]'); // Opened emails in outlook2
+		if (!emails || !emails.length) emails = document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE'); // Opened emails in outlook2, new beta
 	}
 	if (emails.length) logEvent('detected '+emails.length+' open emails (env: "'+env+'")', false);
 	return emails;
@@ -184,7 +185,11 @@ function getEmailImages(email){
 	} else if ((env==='outlook')||(env==='outlook2')){
 		var proxyURL = "mail.live.com/Handlers";
 		//images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
-		images = email.querySelectorAll('img'); // Opened emails in inbox
+		if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // beta
+			images = email.querySelectorAll('img'); // Opened emails in inbox
+		} else {
+			images = email.parentElement.parentElement.parentElement.parentElement.querySelectorAll('img'); // Opened emails in inbox
+		}
 	}
 	// if (images.length) logEvent(images.length+' images were found in the email', true);
 	return images;
@@ -237,11 +242,21 @@ function getEmailTrackedSign(email, showSign){
 			email.querySelector('.SenderLineLeft').appendChild(trackedSign);
 		}
 	} else if (env==='outlook2'){
-		var trackedSign = email.parentElement.querySelector('div._rp_L4 div._rp_Q7 img.'+trackedSignClass);
+		if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
+			var trackedSign = email.querySelector('div.EnHwYkExLYficI2goh5Zx img.'+trackedSignClass);
+		} else {
+			var trackedSign = email.querySelector('div._rp_m1 div._rp_38._rp_48 img.'+trackedSignClass);
+		}
+		
 		if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
 			trackedSign = createTrackedSign();
 			//trackedSign.style.cursor = 'pointer';
-			let e = email.parentElement.querySelector('div._rp_L4 div._rp_Q7');
+			let e = null;
+			if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
+				e = email.querySelector('div.EnHwYkExLYficI2goh5Zx');
+			} else {
+				e = email.querySelector('div._rp_m1 div._rp_38._rp_48');
+			}
 			if (e !== null) e.appendChild(trackedSign);
 		}
 	}
@@ -349,9 +364,9 @@ checkAndDoYourDuty = function(){
 
 function getSize(img){
 	var h = (img.style.height || img.style.minHeight || img.style.maxHeight)?parseInt(img.style.height || img.style.minHeight || img.style.maxHeight):-1;
-	if ((img.getAttribute("height")!==null)&&!isNaN(img.height)) h = img.height;
+	if ((img.getAttribute("height")!==null)&&!isNaN(img.height)) h = (img.height || img.getAttribute("height"));
 	var w = (img.style.width || img.style.minWidth || img.style.maxWidth)?parseInt(img.style.width || img.style.minWidth || img.style.maxWidth):-1;
-	if ((img.getAttribute("width")!==null)&&!isNaN(img.width)) w = img.width;
+	if ((img.getAttribute("width")!==null)&&!isNaN(img.width)) w = (img.width || img.getAttribute("width"));
 	
 	return {h:h,w:w};	
 }
@@ -361,7 +376,7 @@ function isTiny(img){
 	var h = s.h;
 	var w = s.w;
 	
-	if ( (w > -1 && h > -1 && (w*h<3) )||(w == -1 && h > -1 && (h<3))||(w > -1 && h == -1 && (w<3) ) ) {
+	if ( (w > -1 && h > -1 && (w*h<=3) )||(w == -1 && h > -1 && (h<=3))||(w > -1 && h == -1 && (w<=3) ) ) {
 		//console.log('Img detected as tiny because w='+w+', h='+h+' ('+img.src+')');
 		return true;
 	}
