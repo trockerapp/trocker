@@ -9,51 +9,45 @@
 </div>
 
 <div>
-<h3>Test Images:</h3>
-<div class="tinyImages">
-<img width="0" height="0" class="yiv-img" src="" id="yui">
-<img src="" height="0" width="0" alt="Rocket Fuel" class="CToWUd">
-<img src="" height="0" alt="Rocket Fuel" class="CToWUd">
-<img src="" width="0" alt="Rocket Fuel" class="CToWUd">
+	<h3>Test Images:</h3>
 
-</div>
-<div class="normalImages">
-<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd" known="0">
-<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd">
-<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd" known="0">
-<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd">
-<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd" known="0">
-<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd">
-<img src="werwe" width="830" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:830px" class="CToWUd">
-<img src="werwe" width height="" border="0" style="display:block;width:100%;min-height:auto;max-width:830px" class="CToWUd">
-<img src="werwer" width="32" height="32" style="display:block;border:none" alt="" class="CToWUd">
-<img src="erter" style="display:block" width="15" height="15" class="CToWUd">
+	<div class="tinyImages">
 
+		<h4>Detectable prior to loading:</h4>
+		<div title="Detectable prior to loading" failColor="#e55353">
+			<img width="0" height="0" class="yiv-img" src="" id="yui">
+			<img src="" height="0" width="0" alt="Rocket Fuel" class="CToWUd">
+			<img src="" height="0" alt="Rocket Fuel" class="CToWUd">
+			<img src="" width="0" alt="Rocket Fuel" class="CToWUd">
+			<img height="1" width="3" src="img/3pixel.gif" class="CToWUd">
+		</div>
+
+		<h4>Undetectable prior to loading:</h4>
+		<div title="Undetectable prior to loading" failColor="orange">
+			<img src="http://somecompany.example.com/track/745610937846502345/4583749587345/email.gif" border="0" alt="" class="CToWUd">
+		</div>
+
+	</div>
+
+	<div class="normalImages">
+		<h4>Visible non-tracking images:</h4>
+		<div title="Visible non-tracking images" failColor="#e55353">
+			<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd" known="0">
+			<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd">
+			<img src="werwe" width="830" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:830px" class="CToWUd">
+			<img src="werwe" width height="" border="0" style="display:block;width:100%;min-height:auto;max-width:830px" class="CToWUd">
+			<img src="werwer" width="32" height="32" style="display:block;border:none" alt="" class="CToWUd">
+			<img src="erter" style="display:block" width="15" height="15" class="CToWUd">
+			<img src="someicon.png" alt="Logo" width="24" height="24" style="display: inline-block; font-family: Helvetica, Arial, sans-serif; color: rgb(89, 89, 89); font-size: 16px;" border="0">
+		</div>
+		<h4>Invisible non-tracking images:</h4>
+		<div title="Invisible non-tracking images" failColor="orange">
+		
+		</div>
+	</div>
 </div>
-</div>
-<script>
-var resBox = document.getElementsByClassName('resBox')[0];
-var images = document.querySelectorAll('.tinyImages img');
-var fails = 0;
-for (var i=0; i<images.length; i++) {
-	if (isTiny(images[i])) resBox.innerHTML += '<span style="background:green;">'+i+') Correctly detected as tiny!</span><br />';
-	else {
-		resBox.innerHTML += '<span style="background:red;">'+i+') Incorrectly detected as non-tiny!</span><br />';
-		fails++;
-	}
-}
-resBox.innerHTML += fails+' (of '+images.length+') tiny detection tests failed!<br /><hr />';
-var fails = 0;
-var images = document.querySelectorAll('.normalImages img');
-for (var i=0; i<images.length; i++) {
-	if (isTiny(images[i])==false) resBox.innerHTML += '<span style="background:green;">'+i+') Correctly detected as non-tiny!</span><br />';
-	else {
-		resBox.innerHTML += '<span style="background:red;">'+i+') Incorrectly detected as tiny!</span><br />';
-		fails++;
-	}
-}
-resBox.innerHTML += fails+' (of '+images.length+') non-tiny detection tests failed!<br /><hr />';
-</script>
+
+<script src="./test1.js"></script>
 
 </body>
 </html>
