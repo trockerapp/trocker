@@ -14,6 +14,7 @@
    } ],
    "default_locale": "en",
    "description": "__MSG_extension_description__",
+   "homepage_url": "https://trockerapp.github.io",
    "icons": {
       "128": "icon_128.png",
       "16": "icon_16.png",
