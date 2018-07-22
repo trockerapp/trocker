@@ -119,6 +119,7 @@ function statPlusPlus(statObjName, statName, fieldName){
 
 function logSuspURL(url){
 	if (loadVariable('advanced')){
+		if (!url) return;
 		var suspDomainsObj = loadVariable('suspDomains'); // This make sure dataCache exists
 		var urlDomain = extractDomain(url);
 		if (suspDomainsObj[urlDomain] === undefined) suspDomainsObj[urlDomain] = {
