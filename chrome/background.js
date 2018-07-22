@@ -91,6 +91,59 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 // Gmail Example: https://ci5.googleusercontent.com/proxy/c98MiCwnx8WKJGocCSAHkb-hELC6NR1lEjYmgXearhWHPiAwdbhTHIriCpYAJF38AQ0hW8nU2fpxNpRcfX7WlIO5uQzoqUWv9hLk-tywdbEOkabGvgH83LRQK0cZqzoA_WMkHvFIJ6eF8aDzNAncocBmT48JP_KGGN8KjNaAxrYxtrmp6qx9YNGY__LPXhQs66jEYIgh1cnPrcTG9rQhAYLnAN1Tyi-aNfmFyTb2W0x8fD7jGjuhX-v7YpbAnXtUI2_wY9wowlYD7Q=s0-d-e1-ft#http://t.sidekickopen04.com/e1t/o/5/f18dQhb0S7ks8dDMPbW2n0x6l2B9gXrN7sKj6v5dwdFW7gs8107d-cvzW5vws_W3LvrVvW6fVgD81k1H6H0?si=5353798341492736&pi=e20e388a-468f-4643-9ab3-9a162c205522
 // Outlook Example: https://dub121.mail.live.com/Handlers/ImageProxy.mvc?bicild=&canary=CZchR4mnfhxj7s0LgOeyVm90Hy2KbEDkiuDHIBKoGGU%3d0&url=http%3a%2f%2ft.sidekickopen04.com%2fe1t%2fo%2f5%2ff18dQhb0S7ks8dDMPbW2n0x6l2B9gXrN7sKj6v5dwdFW7gs8107d-cvzW5vws_W3LvrVvW6fVgD81k1H6H0%3fsi%3d5353798341492736%26pi%3de20e388a-468f-4643-9ab3-9a162c205522
 
+// Handle special webmail requests from webmails that don't always use proxies
+var nonProxyWebmails = ['outlook.live.com'];
+var nonProxyWebmailUIImageWhitelists = [['https://c.live.com/', 'https://c.bing.com/', 'https://outlook.live.com/', 'https://avatar.skype.com', 
+										 'http://c.live.com/' , 'http://c.bing.com/' , 'http://outlook.live.com/' , 'http://avatar.skype.com' ,
+										 'office365.com', 'storage.live.com']];
+
+function isFromNonProxiedWebmail(details){
+	for (var i=0; i<nonProxyWebmails.length; i++){
+		if (details.initiator && (details.initiator.indexOf(nonProxyWebmails[i]) > -1)) {
+			for (var j=0; j<nonProxyWebmailUIImageWhitelists[i].length; j++){
+				if (details.url.indexOf(nonProxyWebmailUIImageWhitelists[i][j]) > -1) return false; // Should be allowed by default
+			}
+			return true; // Should be blocked be default 
+		}
+	}
+	return false;
+}
+
+var webmailOpenRequestTypes = ["image"]; 
+chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestNonProxyWebmails, {urls: ["http://*/*", "https://*/*"], types: webmailOpenRequestTypes}, ["blocking"]);
+function handleOnBeforeRequestNonProxyWebmails(details){ // For non-proxy webmails such as outlook
+	if (isFromNonProxiedWebmail(details)){
+		// Block all images by default, unless they have some trocker mark
+		var nonSuspMark = "trnonsuspmrk"; // This should be added to non-suspicious images
+		var suspMark = "trsuspmrk"; // This should be added to suspicious images
+		var trIgnoreMark = "trfcallwmrk"; // Any previous judgment will be replaced by this when user forces allowing the trackers
+
+		var hasNonSuspPattern = (details.url.indexOf(nonSuspMark) > -1);
+		var hasSuspPattern = (details.url.indexOf(suspMark) > -1);
+		var hasForceAllowPattern = (details.url.indexOf(trIgnoreMark) > -1);
+		
+		var trackerName = "UK"; // For efficiency, don't try to find tracker name, assume unknown
+		
+		if (loadVariable('trockerEnable')==true && (!hasNonSuspPattern && !hasForceAllowPattern)){
+			if (hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Outlook
+				console.log((new Date()).toLocaleString() +': A '+trackerName+' open tracker '+details.type+' request was blocked!');
+				statPlusPlus('openTrackerStats', trackerName, 'blocked');
+			}
+			return {cancel: true};
+		}
+		
+		if (hasSuspPattern || hasForceAllowPattern){
+			if (!hasForceAllowPattern){
+				console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed!');
+			} else {
+				console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed per specific user request!');
+			}
+			statPlusPlus('openTrackerStats', trackerName, 'allowed');
+		}			
+	}
+	// Don't return anything to leave the request untouched
+}
+
 var webmailProxyDomains = [
 	"*.googleusercontent.com/proxy", // Google's image proxy
 	"*.mail.live.com/Handlers" // Outlook's image proxy
@@ -108,6 +161,9 @@ var openRequestTypes = ["image", "xmlhttprequest", "other"];
 chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestOpenTracker, {urls: openListenURLs, types: openRequestTypes}, ["blocking"]);
 
 function handleOnBeforeRequestOpenTracker(details){
+	
+	if (isFromNonProxiedWebmail(details)) return; // These webmail requests are handled in the "handleOnBeforeRequestNonProxyWebmails" listener
+	
   // details.tabId -> the tab that's the origin of request 
   // details.url -> the url of request 
   
@@ -174,7 +230,6 @@ function handleOnBeforeRequestOpenTracker(details){
 
   // Don't return anything to leave the request untouched
 }
-
 
 // Handle click trackers
 var clickTrackers = getClickTrackerList();
