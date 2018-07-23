@@ -92,18 +92,30 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 // Outlook Example: https://dub121.mail.live.com/Handlers/ImageProxy.mvc?bicild=&canary=CZchR4mnfhxj7s0LgOeyVm90Hy2KbEDkiuDHIBKoGGU%3d0&url=http%3a%2f%2ft.sidekickopen04.com%2fe1t%2fo%2f5%2ff18dQhb0S7ks8dDMPbW2n0x6l2B9gXrN7sKj6v5dwdFW7gs8107d-cvzW5vws_W3LvrVvW6fVgD81k1H6H0%3fsi%3d5353798341492736%26pi%3de20e388a-468f-4643-9ab3-9a162c205522
 
 // Handle special webmail requests from webmails that don't always use proxies
-var nonProxyWebmails = ['outlook.live.com'];
-var nonProxyWebmailUIImageWhitelists = [['https://c.live.com/', 'https://c.bing.com/', 'https://outlook.live.com/', 'https://avatar.skype.com', 
-										 'http://c.live.com/' , 'http://c.bing.com/' , 'http://outlook.live.com/' , 'http://avatar.skype.com' ,
-										 'office365.com', 'storage.live.com']];
+var webmails = [
+	{
+		name: 'google', 
+		matchUrls: ['://mail.google.com', '://inbox.google.com'],
+		whiteList: [], 
+		whiteListExcept: ['.googleusercontent.com/proxy'] // Google's image proxy
+	},
+	{
+		name: 'outlook', 
+		matchUrls: ['outlook.live.com'],
+		whiteList: ['https://c.live.com/', 'https://c.bing.com/', 'https://outlook.live.com/', 'https://avatar.skype.com', 
+				 'http://c.live.com/' , 'http://c.bing.com/' , 'http://outlook.live.com/' , 'http://avatar.skype.com' ,
+				 'office365.com', 'storage.live.com'], 
+		whiteListExcept: []
+	}
+];
 
-function isFromNonProxiedWebmail(details){
-	for (var i=0; i<nonProxyWebmails.length; i++){
-		if (details.initiator && (details.initiator.indexOf(nonProxyWebmails[i]) > -1)) {
-			for (var j=0; j<nonProxyWebmailUIImageWhitelists[i].length; j++){
-				if (details.url.indexOf(nonProxyWebmailUIImageWhitelists[i][j]) > -1) return false; // Should be allowed by default
+function findWebmailSource(details){
+	if (!details.initiator) return false;
+	for (var i=0; i<webmails.length; i++){
+		for (var j=0; j<webmails[i].matchUrls.length; j++){
+			if (details.initiator.indexOf(webmails[i].matchUrls[j]) > -1) {
+				return webmails[i];
 			}
-			return true; // Should be blocked be default 
 		}
 	}
 	return false;
@@ -112,7 +124,24 @@ function isFromNonProxiedWebmail(details){
 var webmailOpenRequestTypes = ["image"]; 
 chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestNonProxyWebmails, {urls: ["http://*/*", "https://*/*"], types: webmailOpenRequestTypes}, ["blocking"]);
 function handleOnBeforeRequestNonProxyWebmails(details){ // For non-proxy webmails such as outlook
-	if (isFromNonProxiedWebmail(details)){
+	var webmail = findWebmailSource(details);
+	if (webmail !== false){ // is from webmail
+	
+		for (var j=0; j<webmail.whiteList.length; j++){
+			if (details.url.indexOf(webmail.whiteList[j]) > -1) return; // Should be allowed 
+		}
+		if (webmail.whiteListExcept.length > 0){
+			var mustBeChecked = false;
+			for (var j=0; j<webmail.whiteListExcept.length; j++){
+				if (details.url.indexOf(webmail.whiteListExcept[j]) > -1) {
+					mustBeChecked = true; // Should be allowed by default
+					break;
+				}
+			}
+			if (!mustBeChecked) return; // Not in the checklist
+		}
+		// Must be checked for explicit non-susp mark from the content script
+		
 		// Block all images by default, unless they have some trocker mark
 		var nonSuspMark = "trnonsuspmrk"; // This should be added to non-suspicious images
 		var suspMark = "trsuspmrk"; // This should be added to suspicious images
@@ -121,6 +150,10 @@ function handleOnBeforeRequestNonProxyWebmails(details){ // For non-proxy webmai
 		var hasNonSuspPattern = (details.url.indexOf(nonSuspMark) > -1);
 		var hasSuspPattern = (details.url.indexOf(suspMark) > -1);
 		var hasForceAllowPattern = (details.url.indexOf(trIgnoreMark) > -1);
+		
+		// If from Gmail and suspicious, log the suspicious url 
+		if ((webmail.name === 'google') && hasSuspPattern) logSuspURL(details.url.split("#")[1]); // First remove the google proxy server
+		if ((webmail.name === 'outlook') && hasSuspPattern) logSuspURL(parseUrlParams(details.url).url); // First remove the outlook proxy server
 		
 		var trackerName = "UK"; // For efficiency, don't try to find tracker name, assume unknown
 		
@@ -144,14 +177,9 @@ function handleOnBeforeRequestNonProxyWebmails(details){ // For non-proxy webmai
 	// Don't return anything to leave the request untouched
 }
 
-var webmailProxyDomains = [
-	"*.googleusercontent.com/proxy", // Google's image proxy
-	"*.mail.live.com/Handlers" // Outlook's image proxy
-]; 
-
 // Handle open trackers
 var openTrackers = getOpenTrackerList();
-var openListenDomains = webmailProxyDomains;
+var openListenDomains = [];
 for (var i=0; i<openTrackers.length; i++) openListenDomains = openListenDomains.concat(openTrackers[i].domains);
 var openListenPatterns = [];
 for (var i=0; i<openTrackers.length; i++) openListenPatterns = openListenPatterns.concat(openTrackers[i].patterns);
@@ -162,7 +190,8 @@ chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestOpenTracker, 
 
 function handleOnBeforeRequestOpenTracker(details){
 	
-	if (isFromNonProxiedWebmail(details)) return; // These webmail requests are handled in the "handleOnBeforeRequestNonProxyWebmails" listener
+	var webmail = findWebmailSource(details);
+	if (webmail !== false) return; // These webmail requests are handled in the "handleOnBeforeRequestNonProxyWebmails" listener
 	
   // details.tabId -> the tab that's the origin of request 
   // details.url -> the url of request 
@@ -173,24 +202,14 @@ function handleOnBeforeRequestOpenTracker(details){
   var suspMark = "trsuspmrk"; // This should be added to suspicious images
   var trIgnoreMark = "trfcallwmrk"; // Any previous judgment will be replaced by this when user forces allowing the trackers
   
-  var fromGmail = (details.url.indexOf(gmailProxyURL) > -1);
   var hasNonSuspPattern = (details.url.indexOf(nonSuspMark) > -1);
   var hasSuspPattern = (details.url.indexOf(suspMark) > -1);
   var hasForceAllowPattern = (details.url.indexOf(trIgnoreMark) > -1);
   
-  var outlookProxyURL = "mail.live.com/Handlers";
-  var outlookProxyURL2 = "outlook.live.com/Handlers";
-  var fromOutlook = (details.url.indexOf(outlookProxyURL) > -1)||(details.url.indexOf(outlookProxyURL2) > -1);
-  
-  /*
-  if (fromOutlook && (details.url.indexOf('&url=')>-1)) 
-	  details.url = parseUrlParams(details.url).url; // Make things easy in case of Outlook
-  */
-  
   for (var i=0; i<openTrackers.length; i++){
 		var hasKnownTracker = multiMatch(details.url, openTrackers[i].domains);
 		var allKnownTrackersChecked = (i==(openTrackers.length-1));
-		if (  hasKnownTracker || hasSuspPattern || (allKnownTrackersChecked && (fromGmail||fromOutlook) && (!hasNonSuspPattern||hasForceAllowPattern))) { // If is a known tracker Or is a suspicious image inside a Gmail/Inbox and Outlook email
+		if ( hasKnownTracker || hasSuspPattern ) { // If is a known tracker Or is a suspicious image inside a Gmail/Inbox and Outlook email
 			// If you know the tab, run the content script
 				if (details.tabId > -1) { // If the request comes from a tab
 				if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
@@ -201,30 +220,22 @@ function handleOnBeforeRequestOpenTracker(details){
 				}
 			}
 			
-			// If from Gmail and suspicious, log the suspicious url 
-			if (fromGmail && hasSuspPattern) logSuspURL(details.url.split("#")[1]); // First remove the gmail proxy server
-			if (fromOutlook && hasSuspPattern) logSuspURL(parseUrlParams(details.url).url); // First remove the outlook proxy server
-			
 			if (hasKnownTracker) var trackerName = openTrackers[i].name;
 			else var trackerName = "UK"; // Unknown tracker
 			
 			if (loadVariable('trockerEnable')==true && !hasForceAllowPattern){
-				if (!(fromGmail||fromOutlook) || hasSuspPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail/Inbox and Outlook
-						console.log((new Date()).toLocaleString() +': A '+trackerName+' open tracker '+details.type+' request was blocked!');
-					statPlusPlus('openTrackerStats', trackerName, 'blocked');
-				}
+				console.log((new Date()).toLocaleString() +': A '+trackerName+' open tracker '+details.type+' request was blocked!');
+				statPlusPlus('openTrackerStats', trackerName, 'blocked');
 				return {cancel: true};
 			}
 			
-			if (!(fromGmail||fromOutlook) || hasSuspPattern || hasForceAllowPattern){ // A fix to avoid counting first attempt to load non-tracking images from Gmail/Inbox and Outlook
-				if (!hasForceAllowPattern){
-					console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed!');
-				} else {
-					console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed per specific user request!');
-				}
-				statPlusPlus('openTrackerStats', trackerName, 'allowed');
+			if (!hasForceAllowPattern){
+				console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed!');
+			} else {
+				console.log((new Date()).toLocaleString() + ': A '+trackerName+' open tracker '+details.type+' request was allowed per specific user request!');
 			}
-				break; // No need to check the rest, break out of the for loop
+			statPlusPlus('openTrackerStats', trackerName, 'allowed');
+			break; // No need to check the rest, break out of the for loop
 		}    
   }
 
