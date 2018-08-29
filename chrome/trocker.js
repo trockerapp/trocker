@@ -156,6 +156,17 @@ function getDraftEmails(){
 	
 	return emails;
 }
+function getUIWhitelistElems(){
+	var elems = [];
+	var env = getEnv();
+	if (env==='gmail'){
+		var gmailUI = getGmailUI();
+		if (gmailUI == 'main') {
+			elems = document.querySelectorAll('.bq9, .brC-aT5-aOt-Jw'); // Normal view of conversations in Gmail
+		}		
+	}
+	return elems;
+}
 // This function gets return the proxy url of the environment
 function getProxyURL(){
 	var env = getEnv();
@@ -290,8 +301,18 @@ function addJudgment(img, judgment){
 	
 	var env = getEnv();
 	if ((env==='gmail')||(env==='inbox')){
-		srcUrl = img.src.split("#")[1]; // Get the non-proxied src
-		if (img.src.indexOf(markToAdd) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+markToAdd+'#');
+		if (img.src.indexOf('#') > -1){
+			srcUrl = img.src.split("#")[1]; // Get the non-proxied src
+			if (img.src.indexOf(markToAdd) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+markToAdd+'#');
+		} else {
+			if (img.src.indexOf(markToAdd) == -1) {
+				if (img.src.indexOf('?') > -1){
+					img.src = img.src.replace('?', '?'+markToAdd+'&');
+				} else {
+					img.src += '?'+markToAdd;
+				}
+			}
+		}
 	} else if ((env==='outlook') || (env==='outlook2')){
 		var proxyURL = "mail.live.com/Handlers";
 		if (img.src.indexOf(proxyURL) > -1) {
@@ -303,6 +324,47 @@ function addJudgment(img, judgment){
 	}
 	
 	return srcUrl;
+}
+
+// This function adds judgment url to an image's src, it also returns the non proxied src
+function addJudgmentToSrc(src, judgment){
+	var nonSuspMark = "trnonsuspmrk"; // This will be added to non-suspicious images
+	var suspMark = "trsuspmrk"; // This will be added to suspicious images
+	
+	var trIgnoreMark = "trfcallwmrk"; // Any previous ignored judgment should also be removed
+	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
+
+	if (src.indexOf('data:image')==0) return src; // Don't modify if a data image
+	
+	var markToAdd = '';
+	if (judgment === 'suspicious'){
+		markToAdd = suspMark;
+	} else if (judgment === 'non-suspicious'){
+		markToAdd = nonSuspMark;
+	} else if (judgment === 'allowTracking'){
+		markToAdd = trIgnoreMark;
+	} else {
+		return src;
+	}
+	
+	var env = getEnv();
+	if ((env==='gmail')||(env==='inbox')){
+		if (src.indexOf('#') > -1){
+			if (src.indexOf(markToAdd) == -1) src = src.replace('#', (((src.indexOf('?')==-1) || (src.indexOf('?') > src.indexOf('#')))?'?':'&')+markToAdd+'#');
+		} else {
+			if (src.indexOf(markToAdd) == -1) {
+				if (src.indexOf('?') > -1){
+					src = src.replace('?', '?'+markToAdd+'&');
+				} else if (src.indexOf('")') > -1){
+					src = src.replace('")', '?'+markToAdd+'")');
+				} else {
+					src += '?'+markToAdd;
+				}
+			}
+		}
+	}
+	
+	return src;
 }
 
 function removeJudgments(img){
@@ -569,6 +631,25 @@ countTrackers = function(options){
 			}
 		}
 		if (suspCount) logEvent(suspCount+' suspicious images were found in the compose windows', false);
+		
+		// Whitelist UI elements that are blocked by default and are not separable via address
+		var elems = getUIWhitelistElems();
+		for (var ei = 0; ei < elems.length; ei++){
+			var elem = elems[ei];
+			var images = elem.querySelectorAll('img'); 
+			for (var i = 0; i < images.length; i++)	{ // Loop over all images in the ui segment
+				var img = images[i];
+				// removeJudgments(img); // Remove any previous judgment
+				addJudgment(img, 'non-suspicious');
+			}
+			var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw');
+			for (var i = 0; i < bgDivs.length; i++)	{ // Loop over all divs with bg images in the ui segment
+				var dv = bgDivs[i];
+				if (dv.style.hasOwnProperty('background-image')){
+					dv.style['background-image'] = addJudgmentToSrc(dv.style['background-image'], 'non-suspicious');
+				}
+			}
+		}
 	} else { // The general case
 		// Open Trackers
 		var images = document.getElementsByTagName('img');
