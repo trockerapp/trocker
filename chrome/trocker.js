@@ -161,8 +161,9 @@ function getUIWhitelistElems(){
 	var env = getEnv();
 	if (env==='gmail'){
 		var gmailUI = getGmailUI();
-		if (gmailUI == 'main') {
-			elems = document.querySelectorAll('.bq9, .brC-aT5-aOt-Jw'); // Normal view of conversations in Gmail
+		if (gmailUI == 'main') { // Normal view of conversations in Gmail
+			// Some selectors: .nH.oy8Mbf.qp: Header, .nH.oy8Mbf.aeN: Left bar, .nH.bAw: Right add-on bar with add-on icons, .bq9: right add-on load area
+			elems = document.querySelectorAll('.nH.bAw, .bq9'); // Header, Left Bar, Right add-on bar
 		}		
 	}
 	return elems;
@@ -192,7 +193,7 @@ function getEmailImages(email){
 	} else if (env==='inbox'){
 		var proxyURL = "googleusercontent.com/proxy";
 		//images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
-		images = email.querySelectorAll('img'); // Opened emails in inbox
+		images = email.querySelectorAll('.he.s2 img'); // Opened emails in inbox
 	} else if ((env==='outlook')||(env==='outlook2')){
 		var proxyURL = "mail.live.com/Handlers";
 		//images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
@@ -384,6 +385,25 @@ function removeJudgments(img){
 	img.src = img.src.split(trIgnoreMarkRem+'&').join(''); // replace all
 }
 
+function hasJudgments(img){
+	var nonSuspMark = "trnonsuspmrk"; // This will be added to non-suspicious images
+	var suspMark = "trsuspmrk"; // This will be added to suspicious images
+	
+	var trIgnoreMark = "trfcallwmrk"; // Any previous judgment will be replaced by this
+	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
+	
+	var srcUrl = img.src;
+	if (srcUrl.indexOf('data:image')==0) return true; // Don't modify if a data image
+	if ((srcUrl.indexOf(nonSuspMark) > -1) || 
+		(srcUrl.indexOf(suspMark) > -1) || 
+		(srcUrl.indexOf(trIgnoreMark) > -1) || 
+		(srcUrl.indexOf(trIgnoreMarkRem) > -1) ) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 function logEvent(txt, verbose){
 	if ((verbose) || (trockerOptions && trockerOptions.verbose)){
 		console.log('[Trocker] '+txt);
@@ -393,6 +413,7 @@ function logEvent(txt, verbose){
 var inRefractoryPeriod = false;
 var inOptionPersistancePeriod = false;
 var trockerOptions = {};
+var uiWhitelistCounter = 0;
 checkAndDoYourDuty = function(){
 	if (inRefractoryPeriod) return; // In order to avoid back to back function calls triggered by fake hashchange events
 	if (inOptionPersistancePeriod){ // We have recently loaded the options, let's use them
@@ -493,6 +514,11 @@ countTrackers = function(options){
 			var openTrackerURLs = [];
 			if (openTrackersProcessed && (images.length == imagesProcessed)){
 				mailTrackers+=parseInt(email.getAttribute("trotrckrs"));
+				// Double check that the images still have the judgment (in case the webmail has changes the src again, this happens in Gmail for unread messages)
+				if (images.length > 0 && !hasJudgments(images[0])){
+					email.setAttribute("trimgs", 0); // To force reevaluation of images
+					logEvent('Images will be reevaluated for this email!', true);
+				}
 			} else { // Process Open Trackers
 				var mailOpenTrackers = 0;
 				var imagesSrcs = [];
@@ -633,20 +659,24 @@ countTrackers = function(options){
 		if (suspCount) logEvent(suspCount+' suspicious images were found in the compose windows', false);
 		
 		// Whitelist UI elements that are blocked by default and are not separable via address
-		var elems = getUIWhitelistElems();
-		for (var ei = 0; ei < elems.length; ei++){
-			var elem = elems[ei];
-			var images = elem.querySelectorAll('img'); 
-			for (var i = 0; i < images.length; i++)	{ // Loop over all images in the ui segment
-				var img = images[i];
-				// removeJudgments(img); // Remove any previous judgment
-				addJudgment(img, 'non-suspicious');
-			}
-			var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw');
-			for (var i = 0; i < bgDivs.length; i++)	{ // Loop over all divs with bg images in the ui segment
-				var dv = bgDivs[i];
-				if (dv.style.hasOwnProperty('background-image')){
-					dv.style['background-image'] = addJudgmentToSrc(dv.style['background-image'], 'non-suspicious');
+		// This does not need to repeat with the same period as the rest
+		uiWhitelistCounter += 1;
+		if (uiWhitelistCounter%10 == 0) {	
+			var elems = getUIWhitelistElems();
+			for (var ei = 0; ei < elems.length; ei++){
+				var elem = elems[ei];
+				var images = elem.querySelectorAll('img'); 
+				for (var i = 0; i < images.length; i++)	{ // Loop over all images in the ui segment
+					var img = images[i];
+					// removeJudgments(img); // Remove any previous judgment
+					addJudgment(img, 'non-suspicious');
+				}
+				var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw');
+				for (var i = 0; i < bgDivs.length; i++)	{ // Loop over all divs with bg images in the ui segment
+					var dv = bgDivs[i];
+					if (dv.style.hasOwnProperty('background-image')){
+						dv.style['background-image'] = addJudgmentToSrc(dv.style['background-image'], 'non-suspicious');
+					}
 				}
 			}
 		}

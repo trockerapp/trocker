@@ -13,6 +13,9 @@ Feel free to send us your feedback and reports any problems at: trockerapp@gmail
 And follow us on twitter: https://twitter.com/trockerapp
 
 Change log:
+2.3.4:
+- Fixes bug that blocked contact images in Inbox.
+- Add workaround for Gmail's email auto-refresh for unread messages that could lead to breaking images.
 2.3.3:
 - Fixes bug that blocked images in Gmail side add-ons.
 2.3.2:
