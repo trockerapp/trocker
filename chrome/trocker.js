@@ -287,7 +287,7 @@ function addJudgment(img, judgment){
 	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
 
 	var srcUrl = img.src;
-	if (srcUrl.indexOf('data:image')==0) return srcUrl; // Don't modify if a data image
+	if ((srcUrl.indexOf('data:image')==0)||(srcUrl.indexOf('blob:')==0)) return srcUrl; // Don't modify if a data image
 	
 	var markToAdd = '';
 	if (judgment === 'suspicious'){
@@ -335,7 +335,7 @@ function addJudgmentToSrc(src, judgment){
 	var trIgnoreMark = "trfcallwmrk"; // Any previous ignored judgment should also be removed
 	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
 
-	if (src.indexOf('data:image')==0) return src; // Don't modify if a data image
+	if ((src.indexOf('data:image')==0)||(src.indexOf('blob:')==0)) return src; // Don't modify if a data image
 	
 	var markToAdd = '';
 	if (judgment === 'suspicious'){
@@ -376,7 +376,7 @@ function removeJudgments(img){
 	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
 	
 	var srcUrl = img.src;
-	if (srcUrl.indexOf('data:image')==0) return srcUrl; // Don't modify if a data image
+	if ((srcUrl.indexOf('data:image')==0)||(srcUrl.indexOf('blob:')==0)) return srcUrl; // Don't modify if a data image
 	
 	// Remove all previous marks
 	img.src = img.src.split(nonSuspMark).join(trIgnoreMarkRem); // replace all
@@ -393,7 +393,7 @@ function hasJudgments(img){
 	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
 	
 	var srcUrl = img.src;
-	if (srcUrl.indexOf('data:image')==0) return true; // Don't modify if a data image
+	if ((srcUrl.indexOf('data:image')==0)||(srcUrl.indexOf('blob:')==0)) return true; // Don't modify if a data image
 	if ((srcUrl.indexOf(nonSuspMark) > -1) || 
 		(srcUrl.indexOf(suspMark) > -1) || 
 		(srcUrl.indexOf(trIgnoreMark) > -1) || 
