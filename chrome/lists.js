@@ -124,6 +124,12 @@ function getClickTrackerList(){
 			"name": "IB",
 			"domains": ["mkt4477.com/ctt"],
 			"patterns": ["*://*.mkt4477.com/ctt*"]
+		},
+  {
+			"name": "SL", 
+			"domains": ["signl.live/tracker"],
+			"patterns": ["*://*.sendgrid.net/wf/click*"],
+			"param": "redirect"
 		}
 	];
 	return clickTrackers;
