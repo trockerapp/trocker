@@ -13,6 +13,11 @@ Feel free to send us your feedback and reports any problems at: trockerapp@gmail
 And follow us on twitter: https://twitter.com/trockerapp
 
 Change log:
+2.3.5:
+- Fixes broken inline image bug in Gmail.
+- Fixes compose window bug that rechecked for trackers even if draft had not changed.
+- Fixes compose bug that blocked contact images in Inbox.
+- Blocks additional click trackers.
 2.3.4:
 - Fixes bug that blocked contact images in Inbox.
 - Add workaround for Gmail's email auto-refresh for unread messages that could lead to breaking images.
