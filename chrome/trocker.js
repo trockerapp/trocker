@@ -206,6 +206,20 @@ function getEmailImages(email){
 	// if (images.length) logEvent(images.length+' images were found in the email', true);
 	return images;
 }
+
+function getDraftEmailImages(email){
+	var images = [];
+	var env = getEnv();
+	if (env==='inbox'){
+		var proxyURL = "googleusercontent.com/proxy";
+		images = email.querySelectorAll('.n7 img'); // Text part of draft emails in inbox
+	} else {
+  images = email.querySelectorAll('img');
+	}
+	// if (images.length) logEvent(images.length+' images were found in the email', true);
+	return images;
+}
+
 // This function gets an email and returns all the links that are in it
 function getEmailLinks(email){
 	var links = email.querySelectorAll('a');
@@ -506,7 +520,6 @@ countTrackers = function(options){
 			if (email.getAttribute("trctrckrs") !== null) {clickTrackersProcessed = true; } // Already processed click trackers
 			if (email.getAttribute("trAllowTracking") !== null) {trAllowTracking = true; } // User has allowed tracking for this email, and this time
 			
-			
 			var images = getEmailImages(email);
 			
 			var mailTrackers = 0;
@@ -639,22 +652,45 @@ countTrackers = function(options){
 		var suspCount = 0;
 		for (var ei = 0; ei < emails.length; ei++){
 			var email = emails[ei];
-			var images = email.querySelectorAll('img');
-			// Only Mark the no suspicious images and leave the suspicious one unmarked so that we don't expose them in compose window
-			for (var i = 0; i < images.length; i++)	{ // Loop over all images in the email
-				var img = images[i];
-				// Check if it is a known tracker
-				if (  multiMatch(img.src, openDomains) ) isKnownTracker = true;
-				else isKnownTracker = false;
-				if ( isKnownTracker || isTiny(img) ) {
-					// Do nothing
-					suspCount++;
-				} else { // Mark non-tracking images
-					removeJudgments(img); // Remove any previous judgment
-					addJudgment(img, 'non-suspicious');
-				    //if (img.src.indexOf(nonSuspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+nonSuspMark+'#');
+   
+   var openTrackersProcessed = false;
+   var imagesProcessed = false;
+   if (email.getAttribute("trotrckrs") !== null) {openTrackersProcessed = true; } // Already processed open trackers
+   if (email.getAttribute("trimgs") !== null) {imagesProcessed = email.getAttribute("trimgs"); } // Images available in email when processed open trackers
+
+			var images = getDraftEmailImages(email);
+   if (openTrackersProcessed && (images.length == imagesProcessed)){
+    mailOpenTrackers+=parseInt(email.getAttribute("trotrckrs"));
+				// Double check that the images still have the judgment (in case the webmail has changes the src again, this happens in Gmail for unread messages)
+				if (images.length > 0 && !hasJudgments(images[0])){
+					email.setAttribute("trimgs", 0); // To force reevaluation of images
+					logEvent('Images will be reevaluated for this draft email!', true);
 				}
+   } else {
+    var mailOpenTrackers = 0;
+    // Only Mark the no suspicious images and leave the suspicious one unmarked so that we don't expose them in compose window
+    for (var i = 0; i < images.length; i++)	{ // Loop over all images in the email
+     var img = images[i];
+     // Check if it is a known tracker
+     if (  multiMatch(img.src, openDomains) ) isKnownTracker = true;
+     else isKnownTracker = false;
+     
+     removeJudgments(img); // Remove any previous judgment
+     if ( isKnownTracker || isTiny(img) ) {
+      addJudgment(img, 'suspicious');
+      mailOpenTrackers += 1;
+     } else { // Mark non-tracking images
+      addJudgment(img, 'non-suspicious');
+         //if (img.src.indexOf(nonSuspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+nonSuspMark+'#');
+     }
+    }
+    if (images.length) { // save this
+     email.setAttribute("trotrckrs", mailOpenTrackers);
+     email.setAttribute("trimgs", images.length);
+    }
+    suspCount+=mailOpenTrackers;
 			}
+   trackerCount+=mailOpenTrackers;
 		}
 		if (suspCount) logEvent(suspCount+' suspicious images were found in the compose windows', false);
 		
