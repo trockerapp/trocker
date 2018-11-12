@@ -210,18 +210,19 @@ function handleOnBeforeRequestOpenTracker(details){
 		var hasKnownTracker = multiMatch(details.url, openTrackers[i].domains);
 		var allKnownTrackersChecked = (i==(openTrackers.length-1));
 		if ( hasKnownTracker || hasSuspPattern ) { // If is a known tracker Or is a suspicious image inside a Gmail/Inbox and Outlook email
-			// If you know the tab, run the content script
-				if (details.tabId > -1) { // If the request comes from a tab
+			
+   if (hasKnownTracker) var trackerName = openTrackers[i].name;
+			else var trackerName = "UK"; // Unknown tracker
+			
+   // If you know the tab, run the content script
+   if ((details.tabId > -1) && (trackerName !== 'GA')) { // If the request comes from a tab (and is not a GA link)
 				if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
 					chrome.tabs.get(details.tabId, function(tab){
-				if ((tab.url.indexOf("://mail.google.com") == -1)&&(tab.url.indexOf("://inbox.google.com") == -1)&&(tab.url.indexOf("mail.live.com") == -1)&&(tab.url.indexOf("outlook.live.com") == -1)) // Already running in Gmail/Inbox and Outlook
-						chrome.tabs.executeScript(tab.id, {file: "trocker.js"}, function(ret){});
-				});	      
+      if ((tab.url.indexOf("://mail.google.com") == -1)&&(tab.url.indexOf("://inbox.google.com") == -1)&&(tab.url.indexOf("mail.live.com") == -1)&&(tab.url.indexOf("outlook.live.com") == -1)) // Already running in Gmail/Inbox and Outlook
+        chrome.tabs.executeScript(tab.id, {file: "trocker.js"}, function(ret){});
+     });	      
 				}
 			}
-			
-			if (hasKnownTracker) var trackerName = openTrackers[i].name;
-			else var trackerName = "UK"; // Unknown tracker
 			
 			if (loadVariable('trockerEnable')==true && !hasForceAllowPattern){
 				console.log((new Date()).toLocaleString() +': A '+trackerName+' open tracker '+details.type+' request was blocked!');

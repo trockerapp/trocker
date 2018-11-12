@@ -2,17 +2,29 @@ Tracking your emails to know if the receiver has opened them or not is awesome, 
 
 You will be amazed to see how many of the emails you receive have trackers in them!
 
-Trocker is open source so you can trust it. Source code available at: https://github.com/trockerapp/trocker
+Feel free to send us your feedback and reports any problems at: trockerapp@gmail.com
+
+And follow us on twitter: https://twitter.com/trockerapp
+
+More information:
+You can trust Trocker! Trocker runs locally on your machine and does not send or receive any information from the Internet. It needs permission to all tabs in order to be able to detect and prevent any tracking images or tracked links from being loaded from any of the tabs. But it makes absolutely no outbound Internet access and we neither gather nor use any data about you or your browsing behavior.
+
+Trocker is also open source with the source code available at https://github.com/trockerapp/trocker and we encourage everyone to check it out from there or from Chrome Dev tools to confirm that there are no suspicious activities being done.
 
 Trocker keeps you safe in all webmails, including Gmail™, Yahoo! and Outlook.com. It has additional capabilities in Gmail, Inbox and Outlook.com. In these 3 webmails, it has a heuristic tracker detection that detects and blocks almost any email tracking attempt, even from not well-known trackers!
 
 Trocker is very efficient as it only gets activated when a tracker is detected.
 
-Feel free to send us your feedback and reports any problems at: trockerapp@gmail.com
-
-And follow us on twitter: https://twitter.com/trockerapp
+Technical details:
+Some email trackers track emails by injecting an invisible small image in the mail that is hosted in a specific address in their server. They know when the email is opened by looking at the download requests of the injected images on their servers. 
+Trocker (as a lovely Tracker Blocker) stops this by simply blocking those image links from being loaded. It finds those injected images by looking at the url and matching the url pattern with the tracking servers that host injected images.
+If you yourself are a user of these tracking services (you track emails you send others), your service wouldn't be affected and will work fine. Trocker would only defend you from OTHERS tracking you.
+Moreover, some links are click tracked meaning that if you click on them, your clicks are logged and tracked. Trocker tries to bypass those links and redirect you directly to the original target without you being tracked. If not possible, Trocker will inform you that the link you've clicked on is tracked.
+No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. In Gmail, Inbox and Outlook.com, Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if it is unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
 
 Change log:
+2.3.6:
+- Adds a small fix to improve efficiency.
 2.3.5:
 - Fixes broken inline image bug in Gmail.
 - Fixes compose window bug that rechecked for trackers even if draft had not changed.
@@ -88,21 +100,3 @@ Change log:
 - Improvements in exposing trackers.
 1.0.3:
 - The extension can now make tracking images visible. You can disable this feature in the options page.
-
-Short Explanation:
-You can trust us! We won't let hidden trackers track your emails. We don't in any way collect or store information about you or how you use the Internet. The source code is available at https://github.com/trockerapp/trocker and you are more than welcome to check it out for yourself.
-
-Long Explanation:
-Some email trackers track emails by injecting an invisible small image in the mail that is hosted in a specific address in their server. They know when the email is opened by looking at the download requests of the injected images on their servers. 
-Trocker (as a lovely Tracker Blocker) stops this simply by blocking those image links from being loaded. It finds those injected images by looking at the url and matching the url pattern with the tracking servers that host injected images.
-If you yourself are a user of these tracking services (you track emails you send others), your service wouldn't be affected and will work fine. Trocker would only defend you from OTHERS tracking you.
-Moreover, some links are click tracked meaning that if you click on them, your clicks are logged and tracked. Trocker tries to bypass those links and redirect you directly to the original target without you being tracked. If not possible, Trocker will inform you that the link you've clicked on is tracked.
-No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. Of-course we are currently supporting only a limited (but growing) set of trackers and if someone uses other services we won't be able to stop them from tracking you. 
-In Gmail, Inbox and Outlook.com, Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
-
-Trocker needs permission to all tabs in order to be able to detect and prevent any tracking images or tracked links from being loaded from any of the tabs. 
-But you are safe! There is absolutely no outbound Internet access and we neither gather nor use any data about you or your browsing behavior. 
-The source code is available at https://github.com/trockerapp/trocker and we encourage you to check it out and make sure there are no suspicious activities being done.
-We created Trocker because we wanted to be able to say "No" to trackers and you are more than welcome to use it!
-
-Feel free to send us your feedback at: trockerapp@gmail.com
