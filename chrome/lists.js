@@ -69,6 +69,11 @@ function getOpenTrackerList(){
 			"name": "GN",
 			"domains": ["email81.com"],
 			"patterns": ["*://*.email81.com/*","*://*.email81.com/*"]
+		},
+		{
+			"name": "SF",
+			"domains": ["salesforceiq.com"],
+			"patterns": []
 		}
 	];
 	return openTrackers;
