@@ -1,15 +1,32 @@
 <html>
 <script type="text/javascript" src="../trocker.js"></script>
+<script type="text/javascript" src="../lists.js"></script>
 <body>
+
 <div>
-<h1>Tiny Image Detection Test</h1>
-<h2>Results:</h2>
-<div class="resBox">
-</div>
+<h2>Test tracker lists match url samples for each tracker</h2>
+<h3>Results:</h3>
+<div class="urlMatchRes"></div>
+<hr />
 </div>
 
 <div>
-	<h3>Test Images:</h3>
+<h2>Test that tiny images are detected as tiny</h2>
+<h3>Results:</h3>
+<div class="tinyImagesRes"></div>
+<hr />
+</div>
+
+<div>
+<h2>Test that normal images are detected as normal [not tiny]</h2>
+<h3>Results:</h3>
+<div class="normalImagesRes"></div>
+<hr />
+</div>
+
+<hr />
+<div>
+	<h3>Test Images [ignore everything below this]:</h3>
 
 	<div class="tinyImages">
 
@@ -56,6 +73,7 @@
 	</div>
 </div>
 
+<script src="./samples.js"></script>
 <script src="./test1.js"></script>
 
 </body>
