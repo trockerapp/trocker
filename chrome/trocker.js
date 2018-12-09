@@ -434,20 +434,20 @@ checkAndDoYourDuty = function(){
 		var trackerCount = countTrackers(trockerOptions);
 	} else {
 		//logEvent('fetching options', true);
-		chrome.extension.sendMessage({method: "loadVariable", key: 'trockerEnable'}, function(response) {
+		chrome.runtime.sendMessage({method: "loadVariable", key: 'trockerEnable'}, function(response) {
 			if (response) trockerOptions.trockerEnable = response.varValue;
 			//if (trockerOptions.trockerEnable) {
-				chrome.extension.sendMessage({method: "loadVariable", key: 'exposeLinks'}, function(response) {
+				chrome.runtime.sendMessage({method: "loadVariable", key: 'exposeLinks'}, function(response) {
 					if (response) trockerOptions.exposeTrackers =  response.varValue;
-					chrome.extension.sendMessage({method: "getTrackerLists"}, function(response) {
+					chrome.runtime.sendMessage({method: "getTrackerLists"}, function(response) {
 						if (response) trockerOptions.openTrackers = response.openTrackers;
 						if (response) trockerOptions.clickTrackers = response.clickTrackers;
 						var trackerCount = countTrackers(trockerOptions);
-						chrome.extension.sendMessage({method: "reportTrackerCount", value: trackerCount}, function(response) {});
+						chrome.runtime.sendMessage({method: "reportTrackerCount", value: trackerCount}, function(response) {});
 						
 					});
 				});
-				chrome.extension.sendMessage({method: "loadVariable", key: 'verbose'}, function(response) {
+				chrome.runtime.sendMessage({method: "loadVariable", key: 'verbose'}, function(response) {
 					trockerOptions.verbose = response.varValue;
 				});
 			//}

@@ -60,7 +60,7 @@ chrome.runtime.onInstalled.addListener(function(details){
   updateBrowserActionButton();
 });
 
-chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.method == "loadVariable") {
 		var varName = request.key;
 		var varValue = loadVariable(varName);

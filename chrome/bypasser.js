@@ -50,7 +50,7 @@ bypasserUI = {
     }	
   },
   loadTrackedURL: function (){
-	chrome.extension.sendMessage({method: "addLimitedOpenPermission", key: bypasserUI.trackedURL}, function() {
+	chrome.runtime.sendMessage({method: "addLimitedOpenPermission", key: bypasserUI.trackedURL}, function() {
 	  window.location.replace(bypasserUI.trackedURL);
 	});
   }
