@@ -1,26 +1,33 @@
 window.addEventListener('load', function() {
- // Test set 1: matching urls as expected
- var resBox = document.getElementsByClassName('urlMatchRes')[0];
- var openTrackers = getOpenTrackerList();
- var openTrackerSamples = getOpenTrackerSamples();
- runUrlMatchTests(resBox, openTrackers, openTrackerSamples, 'Open');
- 
- var clickTrackers = getClickTrackerList();
- var clickTrackerSamples = getClickTrackerSamples();
- runUrlMatchTests(resBox, clickTrackers, clickTrackerSamples, 'Click');
- 
- 
- // Test set 2: detection of tiny images as tiny
- var resBox = document.getElementsByClassName('tinyImagesRes')[0];
- var images = document.querySelectorAll('.tinyImages img');
- runTinyImageTests(images, resBox, true);
-
- // Test set 3: detection of normal images as non-tiny
- var resBox = document.getElementsByClassName('normalImagesRes')[0];
- var images = document.querySelectorAll('.normalImages img');
- runTinyImageTests(images, resBox, false);
- 
+ runTests();
+ document.getElementById("showDetailsOpt").onchange = runTests;
 });
+
+function runTests(){
+    // Test set 1: matching urls as expected
+    var resBox = document.getElementsByClassName('urlMatchRes')[0];
+    resBox.innerHTML = '';
+    var openTrackers = getOpenTrackerList();
+    var openTrackerSamples = getOpenTrackerSamples();
+    runUrlMatchTests(resBox, openTrackers, openTrackerSamples, 'Open');
+
+    var clickTrackers = getClickTrackerList();
+    var clickTrackerSamples = getClickTrackerSamples();
+    runUrlMatchTests(resBox, clickTrackers, clickTrackerSamples, 'Click');
+
+
+    // Test set 2: detection of tiny images as tiny
+    var resBox = document.getElementsByClassName('tinyImagesRes')[0];
+    resBox.innerHTML = '';
+    var images = document.querySelectorAll('.tinyImages img');
+    runTinyImageTests(images, resBox, true);
+
+    // Test set 3: detection of normal images as non-tiny
+    var resBox = document.getElementsByClassName('normalImagesRes')[0];
+    resBox.innerHTML = '';
+    var images = document.querySelectorAll('.normalImages img');
+    runTinyImageTests(images, resBox, false);
+}
 
 function runTinyImageTests(images, resBox, correctAns){
  var correctAnsText = correctAns ? 'tiny' : 'non-tiny';
@@ -30,10 +37,19 @@ function runTinyImageTests(images, resBox, correctAns){
   var img = images[i];
   var category = img.parentElement.title;
   var failColor = (img.parentElement.getAttribute('failColor'))?(img.parentElement.getAttribute('failColor')):'#e55353';
-  if (isTiny(img) == correctAns) resBox.innerHTML += '<span style="background:limegreen;">'+i+') ['+category+'] Correctly detected as '+correctAnsText+'!</span><br />';
+  if (isTiny(img) == correctAns) resBox.innerHTML += '<span style="background:limegreen;">'+(i+1)+') ['+category+'] Correctly detected as '+correctAnsText+'!</span><br />';
   else {
    resBox.innerHTML += '<span style="background:'+failColor+';">'+(i+1)+') ['+category+'] Incorrectly detected as '+wrongAnsText+'!</span><br />';
    fails++;
+  }
+  if (showDetails()) {
+    resBox.innerHTML += '<div>HTML: <textarea disabled style="width:100%">'+img.outerHTML+'</textarea></div>';
+    var s = getSize(img);
+    resBox.innerHTML += '<div>Interpreted size: width = "' + s.w + '", height: "'+ s.h +'"</div>';
+    resBox.innerHTML += '<div>DOM sizes:';
+    resBox.innerHTML += 'img.style.width = "' + img.style.width + '", img.style.minWidth: "'+ img.style.minWidth + '", img.style.maxWidth: "'+ img.style.maxWidth + '", img.getAttribute("width"): "'+ img.getAttribute("width") + '", img.width: "'+ img.width + '" <br />';
+    resBox.innerHTML += 'img.style.height = "' + img.style.height + '", img.style.minHeight: "'+ img.style.minHeight + '", img.style.minHeight: "'+ img.style.maxHeight + '", img.getAttribute("height"): "'+ img.getAttribute("height") + '", img.height: "'+ img.height + '"';
+    resBox.innerHTML += '</div><br />';
   }
  }
  resBox.innerHTML += fails+' (of '+images.length+') '+correctAnsText+' detection tests failed!<br />';
@@ -125,4 +141,8 @@ function checkPatternMatches(patterns, url){
   }
  }
  return hitCnt;
+}
+
+function showDetails() {
+    return document.getElementById("showDetailsOpt").checked;
 }
