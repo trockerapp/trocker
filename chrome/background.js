@@ -6,21 +6,7 @@ function switchTrockerState(){
 }
 
 function openOptionsPage(){
-  var chromeVersionFull = /Chrome\/([0-9.]+)/.exec(navigator.userAgent)[1];
-  var chromeVersion = parseInt(/([0-9]+)/.exec(chromeVersionFull)[0]);
-  if (chromeVersion >= 42) 
-	var url = 'chrome://extensions/?options=' + chrome.runtime.id;
-  else
-	var url = "options.html";
-  
-  chrome.tabs.query({url: url}, function(matchingTabs){
-	if (matchingTabs.length < 1)
-	  chrome.tabs.create({ url: url, active: true});
-	else {
-	  var tabId = matchingTabs[0].id;
-	  chrome.tabs.update(tabId, {active: true});
-	}
-  });	
+	chrome.runtime.openOptionsPage();
 }
 
 chrome.browserAction.onClicked.addListener(openOptionsPage);
@@ -110,10 +96,11 @@ var webmails = [
 ];
 
 function findWebmailSource(details){
-	if (!details.initiator) return false;
+	var originUrl = details.initiator || details.documentUrl;
+	if (!originUrl) return false;
 	for (var i=0; i<webmails.length; i++){
 		for (var j=0; j<webmails[i].matchUrls.length; j++){
-			if (details.initiator.indexOf(webmails[i].matchUrls[j]) > -1) {
+			if (originUrl.indexOf(webmails[i].matchUrls[j]) > -1) {
 				return webmails[i];
 			}
 		}
@@ -257,7 +244,7 @@ chrome.webRequest.onBeforeRequest.addListener(handleOnBeforeRequestClickTracker,
 function handleOnBeforeRequestClickTracker(details){
   // details.tabId -> the tab that's the origin of request 
   // details.url -> the url of request 
-  if ((details['requestBody'] === undefined)||(details['requestBody'] ==={})) { // Don't filter form submits
+  if ((details['requestBody'] === undefined)||(details['requestBody'] === {})||(details['requestBody'] === null)) { // Don't filter form submits
     for (var i=0; i<clickTrackers.length; i++){
 	  if (multiMatch(details.url, clickTrackers[i].domains)){
 	    if (loadVariable('trockerEnable')==true){
