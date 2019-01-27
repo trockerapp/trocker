@@ -29,6 +29,6 @@
    },
    "permissions": [ "alarms", "tabs", "webNavigation", "webRequest", "webRequestBlocking", "\u003Call_urls>", "*://*.google.com/*", "*://*.live.com/*" ],
    "short_name": "__MSG_extension_name__",
-   "version": "2.4.1",
+   "version": "2.4.2",
    "web_accessible_resources": [ "tl.png", "td.png", "tlc.png", "tracked.png", "bypasser.html" ]
 }
