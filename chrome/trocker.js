@@ -130,8 +130,9 @@ function getOpenEmails(){
 	} else if (env==='outlook'){
 		emails = document.querySelectorAll('.ReadMsgContainer'); // Opened emails in outlook
 	} else if (env==='outlook2'){
-		emails = document.querySelectorAll('div[autoid="_rp_3"]'); // Opened emails in outlook2
+  emails = document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-'); // Opened emails in outlook,final version
 		if (!emails || !emails.length) emails = document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE'); // Opened emails in outlook2, new beta
+		if (!emails || !emails.length) emails = document.querySelectorAll('div[autoid="_rp_3"]'); // Opened emails in outlook alpha version
 	}
 	if (emails.length) logEvent('detected '+emails.length+' open emails (env: "'+env+'")', false);
 	return emails;
@@ -150,7 +151,8 @@ function getDraftEmails(){
 		for (var ifi = 0; ifi < cmpwin.length; ifi++)
 			emails.push(cmpwin[ifi].contentWindow.document.body);
 	} else if (env==='outlook2'){
-		emails = document.querySelectorAll('._mcp_32'); // Compose windows 
+  emails = document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS'); // Compose windows final outlook
+  if (!emails || !emails.length) emails = document.querySelectorAll('div._mcp_32'); // Compose windows in outlook2, new beta
 	}
 	if (emails.length) logEvent('detected '+emails.length+' compose inputs (env: "'+env+'")', false);
 	
@@ -197,7 +199,9 @@ function getEmailImages(email){
 	} else if ((env==='outlook')||(env==='outlook2')){
 		var proxyURL = "mail.live.com/Handlers";
 		//images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
-		if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // beta
+  if (email.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
+  	images = email.querySelectorAll('img'); // Opened emails in inbox
+		} else if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // beta
 			images = email.querySelectorAll('img'); // Opened emails in inbox
 		} else {
 			images = email.parentElement.parentElement.parentElement.parentElement.querySelectorAll('img'); // Opened emails in inbox
@@ -268,7 +272,9 @@ function getEmailTrackedSign(email, showSign){
 			email.querySelector('.SenderLineLeft').appendChild(trackedSign);
 		}
 	} else if (env==='outlook2'){
-		if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
+  if (email.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
+  	var trackedSign = email.querySelector('div._3BM5wlNLStI0usWYsOv9Ka img.'+trackedSignClass);
+		} else if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
 			var trackedSign = email.querySelector('div.EnHwYkExLYficI2goh5Zx img.'+trackedSignClass);
 		} else {
 			var trackedSign = email.querySelector('div._rp_m1 div._rp_38._rp_48 img.'+trackedSignClass);
@@ -278,7 +284,9 @@ function getEmailTrackedSign(email, showSign){
 			trackedSign = createTrackedSign();
 			//trackedSign.style.cursor = 'pointer';
 			let e = null;
-			if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
+			if (email.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
+    e = email.querySelector('div._3BM5wlNLStI0usWYsOv9Ka');
+   } else if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
 				e = email.querySelector('div.EnHwYkExLYficI2goh5Zx');
 			} else {
 				e = email.querySelector('div._rp_m1 div._rp_38._rp_48');
@@ -294,60 +302,16 @@ function getEmailTrackedSign(email, showSign){
 }
 // This function adds judgment url to an image's src, it also returns the non proxied src
 function addJudgment(img, judgment){
-	var nonSuspMark = "trnonsuspmrk"; // This will be added to non-suspicious images
-	var suspMark = "trsuspmrk"; // This will be added to suspicious images
-	
-	var trIgnoreMark = "trfcallwmrk"; // Any previous ignored judgment should also be removed
-	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
-
-	var srcUrl = img.src;
-	if ((srcUrl.indexOf('data:image')==0)||(srcUrl.indexOf('blob:')==0)) return srcUrl; // Don't modify if a data image
-	
-	var markToAdd = '';
-	if (judgment === 'suspicious'){
-		markToAdd = suspMark;
-	} else if (judgment === 'non-suspicious'){
-		markToAdd = nonSuspMark;
-	} else if (judgment === 'allowTracking'){
-		markToAdd = trIgnoreMark;
-	} else {
-		return srcUrl;
-	}
-	
-	var env = getEnv();
-	if ((env==='gmail')||(env==='inbox')){
-		if (img.src.indexOf('#') > -1){
-			srcUrl = img.src.split("#")[1]; // Get the non-proxied src
-			if (img.src.indexOf(markToAdd) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+markToAdd+'#');
-		} else {
-			if (img.src.indexOf(markToAdd) == -1) {
-				if (img.src.indexOf('?') > -1){
-					img.src = img.src.replace('?', '?'+markToAdd+'&');
-				} else {
-					img.src += '?'+markToAdd;
-				}
-			}
-		}
-	} else if ((env==='outlook') || (env==='outlook2')){
-		var proxyURL = "mail.live.com/Handlers";
-		if (img.src.indexOf(proxyURL) > -1) {
-			srcUrl = parseUrlParams(img.src).url;		
-			if (img.src.indexOf(markToAdd) == -1) img.src = img.src.replace('&url', '&'+markToAdd+'&url');
-		} else {
-			if (img.src.indexOf(markToAdd) == -1) img.src = addTrockerMark(img.src, markToAdd);
-		}
-	}
-	
-	return srcUrl;
+ img.src = addJudgmentToSrc(img.src, judgment);
 }
 
 // This function adds judgment url to an image's src, it also returns the non proxied src
 function addJudgmentToSrc(src, judgment){
-	var nonSuspMark = "trnonsuspmrk"; // This will be added to non-suspicious images
-	var suspMark = "trsuspmrk"; // This will be added to suspicious images
+	var nonSuspMark = "trnonsuspmrk=1"; // This will be added to non-suspicious images
+	var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
 	
-	var trIgnoreMark = "trfcallwmrk"; // Any previous ignored judgment should also be removed
-	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
+	var trIgnoreMark = "trfcallwmrk=1"; // Any previous ignored judgment should also be removed
+	var trIgnoreMarkRem = "trfcallwremmrk=1"; // Any previous ignored judgment will be replaced by this
 
 	if ((src.indexOf('data:image')==0)||(src.indexOf('blob:')==0)) return src; // Don't modify if a data image
 	
@@ -377,34 +341,45 @@ function addJudgmentToSrc(src, judgment){
 				}
 			}
 		}
+	} else if ((env==='outlook') || (env==='outlook2')){
+		var proxyURL = "mail.live.com/Handlers";
+		if (src.indexOf(proxyURL) > -1) {
+			// srcUrl = parseUrlParams(src).url;		
+			if (src.indexOf(markToAdd) == -1) src = src.replace('&url', '&'+markToAdd+'&url');
+		} else {
+			if (src.indexOf(markToAdd) == -1) src = addTrockerMark(src, markToAdd);
+		}
 	}
 	
 	return src;
 }
 
 function removeJudgments(img){
-	var nonSuspMark = "trnonsuspmrk"; // This will be added to non-suspicious images
-	var suspMark = "trsuspmrk"; // This will be added to suspicious images
+	img.src = removeJudgmentsFromSrc(img.src);
+}
+
+function removeJudgmentsFromSrc(src){
+ if ((src.indexOf('data:image')==0)||(src.indexOf('blob:')==0)) return src; // Don't modify if a data image
+ var nonSuspMark = "trnonsuspmrk=1"; // This will be added to non-suspicious images
+	var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
 	
-	var trIgnoreMark = "trfcallwmrk"; // Any previous judgment will be replaced by this
-	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
-	
-	var srcUrl = img.src;
-	if ((srcUrl.indexOf('data:image')==0)||(srcUrl.indexOf('blob:')==0)) return srcUrl; // Don't modify if a data image
+	var trIgnoreMark = "trfcallwmrk=1"; // Any previous judgment will be replaced by this
+	var trIgnoreMarkRem = "trfcallwremmrk=1"; // Any previous ignored judgment will be replaced by this
 	
 	// Remove all previous marks
-	img.src = img.src.split(nonSuspMark).join(trIgnoreMarkRem); // replace all
-	img.src = img.src.split(suspMark).join(trIgnoreMarkRem); // replace all
-	img.src = img.src.split(trIgnoreMark).join(trIgnoreMarkRem); // replace all
-	img.src = img.src.split(trIgnoreMarkRem+'&').join(''); // replace all
+	src = src.split(nonSuspMark).join(trIgnoreMarkRem); // replace all
+	src = src.split(suspMark).join(trIgnoreMarkRem); // replace all
+	src = src.split(trIgnoreMark).join(trIgnoreMarkRem); // replace all
+	src = src.split(trIgnoreMarkRem+'&').join(''); // replace all
+ return src;
 }
 
 function hasJudgments(img){
-	var nonSuspMark = "trnonsuspmrk"; // This will be added to non-suspicious images
-	var suspMark = "trsuspmrk"; // This will be added to suspicious images
+	var nonSuspMark = "trnonsuspmrk=1"; // This will be added to non-suspicious images
+	var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
 	
-	var trIgnoreMark = "trfcallwmrk"; // Any previous judgment will be replaced by this
-	var trIgnoreMarkRem = "trfcallwremmrk"; // Any previous ignored judgment will be replaced by this
+	var trIgnoreMark = "trfcallwmrk=1"; // Any previous judgment will be replaced by this
+	var trIgnoreMarkRem = "trfcallwremmrk=1"; // Any previous ignored judgment will be replaced by this
 	
 	var srcUrl = img.src;
 	if ((srcUrl.indexOf('data:image')==0)||(srcUrl.indexOf('blob:')==0)) return true; // Don't modify if a data image
@@ -501,8 +476,8 @@ countTrackers = function(options){
 	var trackerLinks = [];
 	var env = getEnv();
 	if ((env==='gmail')||(env==='inbox')||(env==='outlook')||(env==='outlook2')) { // Special Gmail, Inbox and Outlook handling
-		//var nonSuspMark = "trnonsuspmrk"; // This will be added to non-suspicious images
-		//var suspMark = "trsuspmrk"; // This will be added to suspicious images
+		//var nonSuspMark = "trnonsuspmrk=1"; // This will be added to non-suspicious images
+		//var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
 		var proxyURL = getProxyURL();
 		var proxifesImages = (proxyURL !==false);
 	
@@ -528,7 +503,8 @@ countTrackers = function(options){
 			if (openTrackersProcessed && (images.length == imagesProcessed)){
 				mailTrackers+=parseInt(email.getAttribute("trotrckrs"));
 				// Double check that the images still have the judgment (in case the webmail has changes the src again, this happens in Gmail for unread messages)
-				if (images.length > 0 && !hasJudgments(images[0])){
+				var checkInd = Math.floor(Math.random()*images.length); // Check one of the images by random to confirm that judgment has not been removed by the main app
+				if (images.length > 0 && !hasJudgments(images[checkInd])){
 					email.setAttribute("trimgs", 0); // To force reevaluation of images
 					logEvent('Images will be reevaluated for this email!', true);
 				}
@@ -558,8 +534,8 @@ countTrackers = function(options){
 							}
 							trackerImages.push(img);
 							mailOpenTrackers++;
-							var srcUrl = addJudgment(img, 'suspicious');
-							openTrackerURLs.push(srcUrl);
+       openTrackerURLs.push(img.src);
+							addJudgment(img, 'suspicious');
 							//openTrackerURLs.push(img.src.split("#")[1]);
 							//if (img.src.indexOf(suspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+suspMark+'#');
 						}
