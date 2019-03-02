@@ -4,6 +4,139 @@
 // Example MA target: <img src="https://ci4.googleusercontent.com/proxy/yutequetqwegsjfhdagsfdj#http://mandrillapp.com/track/open.php?u=3746289346&amp;id=9284352345v345h3459237059gfg" height="1" width="1" class="CToWUd" tracker="true" style="display: none;">
 // Example MT target: <img width="0" height="0" src="https://ci5.googleusercontent.com/proxy/wuertwueyrwnervnasdasdhgasdhgajshdgasd#https://mailtrack.io/trace/mail/2938462983423h4d2d3hf4d2g3hf4d2hg34fd234.png" class="CToWUd" tracker="true" style="display: none;">
 
+// Some constants
+var trackedSignClass = 'trsgn';
+
+class Email{
+  constructor(mainDOMElem){
+    this.mainDOMElem = mainDOMElem;
+	}
+	getBody(){ // Revise this to more specifically return the body of the email in each webmail
+		return this.mainDOMElem;
+	}
+	getImages(){ // Revise this to return images in the email body
+		return this.getBody().querySelectorAll('img'); 
+	}
+	getLinks(){
+		return this.getBody().querySelectorAll('a');
+	}
+	getTrockerSign(showSign){
+		var trackedSign = this.getTrockerSignDOMElem(showSign);
+		if ((trackedSign !== null) && (!showSign)){
+			trackedSign.parentElement.removeChild(trackedSign);
+		}
+		return trackedSign;
+	}
+	getTrockerSignDOMElem(showSign){ // Revise to create if needed and return the trocker sign in each webmail
+		return null;
+	}
+	getAttribute(...args){
+		return this.mainDOMElem.getAttribute(...args);
+	}
+	setAttribute(...args){
+		return this.mainDOMElem.setAttribute(...args);
+	}
+	removeAttribute(...args){
+		return this.mainDOMElem.removeAttribute(...args);
+	}
+	imagesAreShown(){ // If webmail disables images by default (e.g. gmail), revise to return false until images are shown 
+		return true;
+	}
+}
+
+class EmailGmail extends Email{
+	gmailUI = 'main';
+	constructor(mainDOMElem){
+		super(mainDOMElem);
+		this.gmailUI = getGmailUI();
+	}
+	getImages(){
+		var proxyURL = "googleusercontent.com/proxy";
+		if (this.gmailUI === 'main'){
+			//images = this.getBody().querySelectorAll('.ii.gt img'); // Normal view of conversations in Gmail
+			var images = this.getBody().querySelectorAll('.ii.gt img[src*="'+proxyURL+'"]'); // Normal view of conversations in Gmail
+		} else if(this.gmailUI === 'print'){
+			var images = this.getBody().querySelectorAll('img'); // Print view of conversations in Gmail
+		}
+		return images;
+	}
+	getTrockerSignDOMElem(showSign){ // Revise to create if needed and return the trocker sign
+		var trackedSign = null;
+		if (this.gmailUI === 'main') {	
+			var trackedSign = this.mainDOMElem.querySelector('h3.iw img.'+trackedSignClass);
+			if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
+				trackedSign = createTrackedSign();
+				//trackedSign.style.cursor = 'pointer';
+				this.mainDOMElem.querySelector('h3.iw').appendChild(trackedSign);
+			}
+		}
+		return trackedSign;
+	}
+	imagesAreShown(){
+		return (this.mainDOMElem.querySelector('div.ado') === null)
+	}
+}
+
+class EmailInbox extends Email{
+	getImages(){
+		var proxyURL = "googleusercontent.com/proxy";
+		//images = this.getBody().querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
+		return this.getBody().querySelectorAll('.he.s2 img'); // Opened emails in inbox
+	}
+	getTrockerSignDOMElem(showSign){ // Revise to create if needed and return the trocker sign
+		var trackedSign = this.mainDOMElem.querySelector('.pF .m4 img.'+trackedSignClass);
+		if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
+			trackedSign = createTrackedSign();
+			//trackedSign.style.cursor = 'pointer';
+			this.mainDOMElem.querySelector('.pF .m4').appendChild(trackedSign);
+		}
+		return trackedSign;
+	}
+}
+
+class EmailInboxDraft extends Email{
+	getImages(){
+		return email.querySelectorAll('.n7 img'); // Text part of draft emails in inbox
+	}
+}
+
+class EmailOutlook extends Email{
+	getImages(){
+		//var images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in Outlook
+		if (this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
+			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
+		} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // beta
+			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
+		} else {
+			var images = this.getBody().parentElement.parentElement.parentElement.parentElement.querySelectorAll('img'); // Opened emails in Outlook
+		}
+		return images;
+	}
+	getTrockerSignDOMElem(showSign){ // Revise to create if needed and return the trocker sign
+		var trackedSign = null;
+		if (this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
+			var trackedSign = this.mainDOMElem.querySelector('div._3BM5wlNLStI0usWYsOv9Ka img.'+trackedSignClass);
+		} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
+			var trackedSign = this.mainDOMElem.querySelector('div.EnHwYkExLYficI2goh5Zx img.'+trackedSignClass);
+		} else {
+			var trackedSign = this.mainDOMElem.querySelector('div._rp_m1 div._rp_38._rp_48 img.'+trackedSignClass);
+		}
+		if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
+			trackedSign = createTrackedSign();
+			//trackedSign.style.cursor = 'pointer';
+			let e = null;
+			if (this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
+				e = this.mainDOMElem.querySelector('div._3BM5wlNLStI0usWYsOv9Ka');
+			} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
+				e = this.mainDOMElem.querySelector('div.EnHwYkExLYficI2goh5Zx');
+			} else {
+				e = this.mainDOMElem.querySelector('div._rp_m1 div._rp_38._rp_48');
+			}
+			if (e !== null) e.appendChild(trackedSign);
+		}
+		return trackedSign;
+	}
+}
 
 function parseUrlParams(url){
   var match,
@@ -121,18 +254,18 @@ function getOpenEmails(){
 	if (env==='gmail'){
 		var gmailUI = getGmailUI();
 		if (gmailUI == 'main') {
-			emails = document.querySelectorAll('.nH.hx .h7'); // Normal view of conversations in Gmail
+			emails = Array.from(document.querySelectorAll('.nH.hx .h7')).map(a => new EmailGmail(a)); // Normal view of conversations in Gmail
 		} else if(gmailUI == 'print') {
-			emails = document.getElementsByTagName('body'); // Print view of conversations in Gmail
+			emails = Array.from(document.getElementsByTagName('body')).map(a => new EmailGmail(a));   // Print view of conversations in Gmail
 		}		
 	} else if (env==='inbox'){
-		emails = document.querySelectorAll('.pA'); // Opened emails in inbox
+		emails = Array.from(document.querySelectorAll('.pA')).map(a => new EmailInbox(a)); // Opened emails in inbox
 	} else if (env==='outlook'){
-		emails = document.querySelectorAll('.ReadMsgContainer'); // Opened emails in outlook
+		emails = Array.from(document.querySelectorAll('.ReadMsgContainer')).map(a => new Email(a)); // Opened emails in outlook
 	} else if (env==='outlook2'){
-  emails = document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-'); // Opened emails in outlook,final version
-		if (!emails || !emails.length) emails = document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE'); // Opened emails in outlook2, new beta
-		if (!emails || !emails.length) emails = document.querySelectorAll('div[autoid="_rp_3"]'); // Opened emails in outlook alpha version
+  	emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE')).map(a => new EmailOutlook(a)); // Opened emails in outlook2, new beta
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div[autoid="_rp_3"]')).map(a => new EmailOutlook(a)); // Opened emails in outlook alpha version
 	}
 	if (emails.length) logEvent('detected '+emails.length+' open emails (env: "'+env+'")', false);
 	return emails;
@@ -142,17 +275,17 @@ function getDraftEmails(){
 	var emails = [];
 	var env = getEnv();
 	if (env==='gmail'){
-		emails = document.querySelectorAll('.M9'); // Compose windows (reply, forward, new message)
+		emails = Array.from(document.querySelectorAll('.M9')).map(a => new Email(a)); // Compose windows (reply, forward, new message)
 	} else if (env==='inbox'){
-		emails = document.querySelectorAll('.ae,.Bt.br'); // Compose windows (reply, forward, new message)
+		emails = Array.from(document.querySelectorAll('.ae,.Bt.br')).map(a => new EmailInboxDraft(a)); // Compose windows (reply, forward, new message)
 	} else if (env==='outlook'){
 		//emails = document.querySelectorAll('.ComposeMessage'); // Compose windows 
-		var cmpwin = document.querySelectorAll('.ComposeMessage iframe.RichText'); // RichText Compose windows 
+		var cmpwin = Array.from(document.querySelectorAll('.ComposeMessage iframe.RichText')).map(a => new Email(a)); // RichText Compose windows 
 		for (var ifi = 0; ifi < cmpwin.length; ifi++)
-			emails.push(cmpwin[ifi].contentWindow.document.body);
+			emails.push(new Email(cmpwin[ifi].contentWindow.document.body));
 	} else if (env==='outlook2'){
-  emails = document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS'); // Compose windows final outlook
-  if (!emails || !emails.length) emails = document.querySelectorAll('div._mcp_32'); // Compose windows in outlook2, new beta
+ 		emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new Email(a)); // Compose windows final outlook
+  	if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._mcp_32')).map(a => new Email(a)); // Compose windows in outlook2, new beta
 	}
 	if (emails.length) logEvent('detected '+emails.length+' compose inputs (env: "'+env+'")', false);
 	
@@ -179,58 +312,6 @@ function getProxyURL(){
 	return '';
 }
 
-// This function gets an email and returns all the images that are in it
-function getEmailImages(email){
-	var images = [];
-	var env = getEnv();
-	if (env==='gmail'){
-		var proxyURL = "googleusercontent.com/proxy";
-		var gmailUI = getGmailUI();
-		if (gmailUI == 'main') {
-			//images = email.querySelectorAll('.ii.gt img'); // Normal view of conversations in Gmail
-			images = email.querySelectorAll('.ii.gt img[src*="'+proxyURL+'"]'); // Normal view of conversations in Gmail
-		} else if(gmailUI == 'print') {
-			images = email.querySelectorAll('img'); // Print view of conversations in Gmail
-		}
-	} else if (env==='inbox'){
-		var proxyURL = "googleusercontent.com/proxy";
-		//images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
-		images = email.querySelectorAll('.he.s2 img'); // Opened emails in inbox
-	} else if ((env==='outlook')||(env==='outlook2')){
-		var proxyURL = "mail.live.com/Handlers";
-		//images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
-  if (email.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
-  	images = email.querySelectorAll('img'); // Opened emails in inbox
-		} else if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // beta
-			images = email.querySelectorAll('img'); // Opened emails in inbox
-		} else {
-			images = email.parentElement.parentElement.parentElement.parentElement.querySelectorAll('img'); // Opened emails in inbox
-		}
-	}
-	// if (images.length) logEvent(images.length+' images were found in the email', true);
-	return images;
-}
-
-function getDraftEmailImages(email){
-	var images = [];
-	var env = getEnv();
-	if (env==='inbox'){
-		var proxyURL = "googleusercontent.com/proxy";
-		images = email.querySelectorAll('.n7 img'); // Text part of draft emails in inbox
-	} else {
-  images = email.querySelectorAll('img');
-	}
-	// if (images.length) logEvent(images.length+' images were found in the email', true);
-	return images;
-}
-
-// This function gets an email and returns all the links that are in it
-function getEmailLinks(email){
-	var links = email.querySelectorAll('a');
-	return links;
-}
-
-var trackedSignClass = 'trsgn';
 // This function creates a trackedSign element
 function createTrackedSign(){
 	var trackedSign = document.createElement('img');
@@ -243,63 +324,7 @@ function createTrackedSign(){
 	trackedSign.style.paddingLeft = '6px';
 	return trackedSign;
 }
-// This function gets the 'tracked' sign element of the email or creates it if doesn't exist 
-function getEmailTrackedSign(email, showSign){
-	var trackedSign = null;
-	var env = getEnv();
-	if (env==='gmail'){
-		var gmailUI = getGmailUI();
-		if (gmailUI == 'main') {	
-			var trackedSign = email.querySelector('h3.iw img.'+trackedSignClass);
-			if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
-				trackedSign = createTrackedSign();
-				//trackedSign.style.cursor = 'pointer';
-				email.querySelector('h3.iw').appendChild(trackedSign);
-			}
-		}
-	} else if (env==='inbox'){
-		var trackedSign = email.querySelector('.pF .m4 img.'+trackedSignClass);
-		if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
-			trackedSign = createTrackedSign();
-			//trackedSign.style.cursor = 'pointer';
-			email.querySelector('.pF .m4').appendChild(trackedSign);
-		}
-	} else if (env==='outlook'){
-		var trackedSign = email.querySelector('.SenderLineLeft img.'+trackedSignClass);
-		if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
-			trackedSign = createTrackedSign();
-			//trackedSign.style.cursor = 'pointer';
-			email.querySelector('.SenderLineLeft').appendChild(trackedSign);
-		}
-	} else if (env==='outlook2'){
-  if (email.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
-  	var trackedSign = email.querySelector('div._3BM5wlNLStI0usWYsOv9Ka img.'+trackedSignClass);
-		} else if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
-			var trackedSign = email.querySelector('div.EnHwYkExLYficI2goh5Zx img.'+trackedSignClass);
-		} else {
-			var trackedSign = email.querySelector('div._rp_m1 div._rp_38._rp_48 img.'+trackedSignClass);
-		}
-		
-		if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
-			trackedSign = createTrackedSign();
-			//trackedSign.style.cursor = 'pointer';
-			let e = null;
-			if (email.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
-    e = email.querySelector('div._3BM5wlNLStI0usWYsOv9Ka');
-   } else if (email.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
-				e = email.querySelector('div.EnHwYkExLYficI2goh5Zx');
-			} else {
-				e = email.querySelector('div._rp_m1 div._rp_38._rp_48');
-			}
-			if (e !== null) e.appendChild(trackedSign);
-		}
-	}
-	if ((trackedSign !== null) && (!showSign)){
-		trackedSign.parentElement.removeChild(trackedSign);
-	}
-	
-	return trackedSign;
-}
+
 // This function adds judgment url to an image's src, it also returns the non proxied src
 function addJudgment(img, judgment){
  img.src = addJudgmentToSrc(img.src, judgment);
@@ -495,7 +520,7 @@ countTrackers = function(options){
 			if (email.getAttribute("trctrckrs") !== null) {clickTrackersProcessed = true; } // Already processed click trackers
 			if (email.getAttribute("trAllowTracking") !== null) {trAllowTracking = true; } // User has allowed tracking for this email, and this time
 			
-			var images = getEmailImages(email);
+			var images = email.getImages();
 			
 			var mailTrackers = 0;
 			// Open Trackers
@@ -534,7 +559,7 @@ countTrackers = function(options){
 							}
 							trackerImages.push(img);
 							mailOpenTrackers++;
-       openTrackerURLs.push(img.src);
+       				openTrackerURLs.push(img.src);
 							addJudgment(img, 'suspicious');
 							//openTrackerURLs.push(img.src.split("#")[1]);
 							//if (img.src.indexOf(suspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+suspMark+'#');
@@ -544,7 +569,7 @@ countTrackers = function(options){
 						//if (img.src.indexOf(nonSuspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+nonSuspMark+'#');
 					}
 				}
-				if (images.length || ((env==='gmail') && email.querySelector('div.ado') === null) ){ // If <Images are displayed>, save this. Otherwise don't save so that we process images later
+				if (images.length || ((env==='gmail') && email.imagesAreShown()) ){ // If <Images are displayed>, save this. Otherwise don't save so that we process images later
 					email.setAttribute("trotrckrs", mailOpenTrackers);
 					email.setAttribute("trimgs", images.length);
 					clickTrackersProcessed = false; // Redo click tracker analysis
@@ -559,7 +584,7 @@ countTrackers = function(options){
 				mailTrackers+=parseInt(email.getAttribute("trctrckrs"));
 			} else {
 				var mailClickTrackers = 0;
-				var links = getEmailLinks(email);
+				var links = email.getLinks();
 				for (var i = 0; i < links.length; i++) {
 					var link = links[i];
 					if (  multiMatch(link.href, clickDomains) ) {
@@ -573,7 +598,7 @@ countTrackers = function(options){
 				newFindings = true;
 			}
 				
-			trackedSign = getEmailTrackedSign(email, (mailTrackers > 0 || trAllowTracking));
+			trackedSign = email.getTrockerSign( (mailTrackers > 0 || trAllowTracking) );
 			if ((mailTrackers > 0 || trAllowTracking) && newFindings){ // If email has trackers in it
 				if (trackedSign !== null){
 					trackedSign.title = '';
@@ -603,7 +628,7 @@ countTrackers = function(options){
 						var emails = getOpenEmails();
 						for (var ei = 0; ei < emails.length; ei++){
 							var email = emails[ei];
-							if (email.contains(event.srcElement)){ // is the parent email
+							if (email.mainDOMElem.contains(event.srcElement)){ // is the parent email
 								if ( email.getAttribute("trAllowTracking") === null) {
 									email.setAttribute("trAllowTracking", true);
 									email.removeAttribute("trotrckrs"); // To analyze images again
@@ -629,44 +654,44 @@ countTrackers = function(options){
 		for (var ei = 0; ei < emails.length; ei++){
 			var email = emails[ei];
    
-   var openTrackersProcessed = false;
-   var imagesProcessed = false;
-   if (email.getAttribute("trotrckrs") !== null) {openTrackersProcessed = true; } // Already processed open trackers
-   if (email.getAttribute("trimgs") !== null) {imagesProcessed = email.getAttribute("trimgs"); } // Images available in email when processed open trackers
+			var openTrackersProcessed = false;
+			var imagesProcessed = false;
+			if (email.getAttribute("trotrckrs") !== null) {openTrackersProcessed = true; } // Already processed open trackers
+			if (email.getAttribute("trimgs") !== null) {imagesProcessed = email.getAttribute("trimgs"); } // Images available in email when processed open trackers
 
-			var images = getDraftEmailImages(email);
-   if (openTrackersProcessed && (images.length == imagesProcessed)){
-    mailOpenTrackers+=parseInt(email.getAttribute("trotrckrs"));
+			var images = email.getImages();
+			if (openTrackersProcessed && (images.length == imagesProcessed)){
+				mailOpenTrackers+=parseInt(email.getAttribute("trotrckrs"));
 				// Double check that the images still have the judgment (in case the webmail has changes the src again, this happens in Gmail for unread messages)
 				if (images.length > 0 && !hasJudgments(images[0])){
 					email.setAttribute("trimgs", 0); // To force reevaluation of images
 					logEvent('Images will be reevaluated for this draft email!', true);
 				}
-   } else {
-    var mailOpenTrackers = 0;
-    // Only Mark the no suspicious images and leave the suspicious one unmarked so that we don't expose them in compose window
-    for (var i = 0; i < images.length; i++)	{ // Loop over all images in the email
-     var img = images[i];
-     // Check if it is a known tracker
-     if (  multiMatch(img.src, openDomains) ) isKnownTracker = true;
-     else isKnownTracker = false;
-     
-     removeJudgments(img); // Remove any previous judgment
-     if ( isKnownTracker || isTiny(img) ) {
-      addJudgment(img, 'suspicious');
-      mailOpenTrackers += 1;
-     } else { // Mark non-tracking images
-      addJudgment(img, 'non-suspicious');
-         //if (img.src.indexOf(nonSuspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+nonSuspMark+'#');
-     }
-    }
-    if (images.length) { // save this
-     email.setAttribute("trotrckrs", mailOpenTrackers);
-     email.setAttribute("trimgs", images.length);
-    }
-    suspCount+=mailOpenTrackers;
+			} else {
+				var mailOpenTrackers = 0;
+				// Only Mark the no suspicious images and leave the suspicious one unmarked so that we don't expose them in compose window
+				for (var i = 0; i < images.length; i++)	{ // Loop over all images in the email
+					var img = images[i];
+					// Check if it is a known tracker
+					if (  multiMatch(img.src, openDomains) ) isKnownTracker = true;
+					else isKnownTracker = false;
+					
+					removeJudgments(img); // Remove any previous judgment
+					if ( isKnownTracker || isTiny(img) ) {
+						addJudgment(img, 'suspicious');
+						mailOpenTrackers += 1;
+					} else { // Mark non-tracking images
+						addJudgment(img, 'non-suspicious');
+							//if (img.src.indexOf(nonSuspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+nonSuspMark+'#');
+					}
+				}
+				if (images.length) { // save this
+					email.setAttribute("trotrckrs", mailOpenTrackers);
+					email.setAttribute("trimgs", images.length);
+				}
+				suspCount+=mailOpenTrackers;
 			}
-   trackerCount+=mailOpenTrackers;
+			trackerCount+=mailOpenTrackers;
 		}
 		if (suspCount) logEvent(suspCount+' suspicious images were found in the compose windows', false);
 		
