@@ -236,6 +236,7 @@ function getEnv(){
 	if (document.location.host.indexOf("inbox.google.com") > -1) return 'inbox';
 	if (document.location.host.indexOf("mail.live.com") > -1) return 'outlook';
 	if (document.location.host.indexOf("outlook.live.com") > -1) return 'outlook2';
+	if (document.location.host.indexOf("outlook.office365.com") > -1) return 'outlook2';
 	if (document.location.host.indexOf("mail.yahoo.com") > -1) return 'ymail';
 	return '';
 }
