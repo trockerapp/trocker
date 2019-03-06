@@ -45,7 +45,6 @@ class Email{
 }
 
 class EmailGmail extends Email{
-	gmailUI = 'main';
 	constructor(mainDOMElem){
 		super(mainDOMElem);
 		this.gmailUI = getGmailUI();
