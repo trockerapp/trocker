@@ -203,13 +203,29 @@ function handleOnBeforeRequestOpenTracker(details){
 			
    // If you know the tab, run the content script
    if ((details.tabId > -1) && (trackerName !== 'GA')) { // If the request comes from a tab (and is not a GA link)
-				if ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) {
-					chrome.tabs.get(details.tabId, function(tab){
-      if ((tab.url.indexOf("://mail.google.com") == -1)&&(tab.url.indexOf("://inbox.google.com") == -1)&&(tab.url.indexOf("mail.live.com") == -1)&&(tab.url.indexOf("outlook.live.com") == -1)) // Already running in Gmail/Inbox and Outlook
-        chrome.tabs.executeScript(tab.id, {file: "trocker.js"}, function(ret){});
-     });	      
-				}
+			if ( ((loadVariable('showTrackerCount')==true) || (loadVariable('exposeLinks')==true)) && // And need to expose trackers
+						(loadVariable('anyPage')==true)) {		// And need to work on any url
+				chrome.permissions.contains({
+					permissions: ['tabs'],
+					origins: ['<all_urls>']
+				}, (result) => {
+					if (result) {
+						// The extension has the permissions.
+						hasPermission = true;
+					} else {
+						// The extension doesn't have the permissions.
+						hasPermission = false;
+					}
+					if (hasPermission){
+						chrome.tabs.get(details.tabId, function(tab){
+							if ((tab.url.indexOf("://mail.google.com") == -1)&&(tab.url.indexOf("://inbox.google.com") == -1)&&(tab.url.indexOf("mail.live.com") == -1)&&(tab.url.indexOf("outlook.live.com") == -1)) { // Already running in Gmail/Inbox and Outlook
+								chrome.tabs.executeScript(tab.id, {file: "trocker.js"}, function(ret){});
+							}
+						 });
+					}
+				});
 			}
+	 }
 			
 			if (loadVariable('trockerEnable')==true && !hasForceAllowPattern){
 				console.log((new Date()).toLocaleString() +': A '+trackerName+' open tracker '+details.type+' request was blocked!');

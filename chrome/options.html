@@ -17,8 +17,18 @@
       <div class="option_value">
         <div class="option_value_primary">
           <input type="checkbox" name="trockerEnable" id="trockerEnableOpt">
-          <label for="trockerEnable">Enable</label>
-        </div>
+          <label for="trockerEnable">Enable 
+						<span id="enablePermissionWarning"></span>
+					</label>
+				</div>
+				<em>Clarification about permissions:</em> the following key features are why Trocker needs the <a href="https://developers.chrome.com/extensions/match_patterns">"&ltall_urls&gt" permission</a> to function:
+				<ul>
+					<li>Blocking email trackers in any webmail that does not proxy images on its own server (e.g. outlook.com)</li>
+					<li>Bypassing tracked links (links that track when you click on them)</li>
+				</ul>
+				<!-- <input type="checkbox" disabled="disabled" name="all_urls_Permission1" id="allUrlsPermission1">
+				<label for="all_urls_Permission1">Allow Trocker to run on all websites (i.e. <a href="https://developers.chrome.com/extensions/match_patterns">"&ltall_urls&gt" permission</a>)</label> </li> -->
+				Without the <a href="https://developers.chrome.com/extensions/match_patterns">"&ltall_urls&gt" permission</a>, Trocker will only be able to block tracking images (but not links) and only in some webmails (e.g. Gmail) because the browser will not let Trocker know about all tracking images/links and thus Trocker will not be able to block them. This is a powerful permission which is why browsers rightfully warn you that the extension can "Read and change all your data on the websites you visit".
       </div>
 	</div>
 	<div class="centeredsec">
@@ -33,6 +43,25 @@
 					</p>
         </div>
       </div>
+	</div>
+	<div class="centeredsec">
+		<div class="option_name">Any website:</div>
+		<div class="option_value">
+			<div class="option_value_primary">
+				<input type="checkbox" name="anyPage" id="anyPageOpt">
+				<label for="showTrackerCount">Enable <span id="anyPageWarning"></span></label>  <br />
+				This feature requires the following permissions to be granted:<br/>
+				<ul>
+						<li><input type="checkbox" disabled="disabled" name="all_urls_Permission" id="allUrlsPermission">
+							<label for="all_urls_Permission">Allow Trocker to run on all websites (i.e. <a href="https://developers.chrome.com/extensions/match_patterns">"&ltall_urls&gt" permission</a>)</label> </li>
+						<li><input type="checkbox" name="tabs_Permission" id="tabsPermission">
+							<label for="tabs_Permission">Allow Trocker to get the url for a tab (i.e. <a href="https://developer.chrome.com/extensions/tabs">"tabs" permission</a>)</label> </li>
+				</ul>
+				<p> 
+					Will try to count and expose trackers on any website that attempts tracking (e.g. will start running on mail.example.com after the first time a tracked image is loaded from it). 
+				</p>
+			</div>
+		</div>
 	</div>
 	<div class="centeredsec">
 		<div class="option_name">Expose Trackers:</div>

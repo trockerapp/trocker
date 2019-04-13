@@ -29,9 +29,11 @@ padding: 0 20px;
 }
 .text_disabled{color:#999}
 .message{text-align:center; clear:both;padding:20px 10px 10px}
-#status{background-color:white;color:black;font-weight:bold;margin-left:10px;opacity:0;padding:3px}
+#status{background-color:white;font-weight:bold;margin-left:10px;margin-bottom:10px;opacity:0;padding:3px}
 #advancedswitch{float: left;position: relative;left: 10px;bottom: 20px;}
 #contactus{float: right;position: relative; right: 10px;bottom: 20px;}
+.warningMsg{color: orangered};
+.successMsg{color: green};
 .tfbtn{position: relative; height: 20px; padding: 2px 8px 2px 6px; font-weight: 500; color: #fff; cursor: pointer; background-color: #1b95e0; border-radius: 3px; box-sizing: border-box;}
 .tfbtn:focus, .tfbtn:hover, .tfbtn:active {background-color: #0c7abf; text-decoration: none;}
 .tfbtn span{margin-left: 3px; white-space: nowrap;}

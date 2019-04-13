@@ -27,7 +27,8 @@
       "open_in_tab": false,
       "page": "options.html"
    },
-   "permissions": [ "alarms", "tabs", "webNavigation", "webRequest", "webRequestBlocking", "\u003Call_urls>", "*://*.google.com/*", "*://*.live.com/*" ],
+   "permissions": ["webRequest", "webRequestBlocking", "<all_urls>", "*://*.google.com/*", "*://*.live.com/*","*://*.googleusercontent.com/*"],
+   "optional_permissions": ["tabs"],
    "short_name": "__MSG_extension_name__",
    "version": "2.4.3",
    "web_accessible_resources": [ "tl.png", "td.png", "tlc.png", "tracked.png", "bypasser.html" ]
