@@ -102,7 +102,9 @@ class EmailInboxDraft extends Email{
 class EmailOutlook extends Email{
 	getImages(){
 		//var images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in Outlook
-		if (this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
+		if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || 
+				(this.mainDOMElem.className.indexOf('_103ouDFSzMvKVjD0UYmJQh') > -1) || 
+				(this.mainDOMElem.className.indexOf('_2UEsN7oGn-H4ZnCcJIoc3Q') > -1)) { // Final version
 			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
 		} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // beta
 			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
@@ -113,8 +115,11 @@ class EmailOutlook extends Email{
 	}
 	getTrockerSignDOMElem(showSign){ // Revise to create if needed and return the trocker sign
 		var trackedSign = null;
-		if (this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
+		if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
+				(this.mainDOMElem.className.indexOf('_103ouDFSzMvKVjD0UYmJQh') > -1)) { // Final version (main emails in popout)
 			var trackedSign = this.mainDOMElem.querySelector('div._3BM5wlNLStI0usWYsOv9Ka img.'+trackedSignClass);
+		} else if (this.mainDOMElem.className.indexOf('_2UEsN7oGn-H4ZnCcJIoc3Q') > -1) { // Final version (message history, e.g. forwarded)
+				var trackedSign = this.mainDOMElem.querySelector('._3WKppjPonmzz8_LIjympNq img.'+trackedSignClass);
 		} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
 			var trackedSign = this.mainDOMElem.querySelector('div.EnHwYkExLYficI2goh5Zx img.'+trackedSignClass);
 		} else {
@@ -124,8 +129,11 @@ class EmailOutlook extends Email{
 			trackedSign = createTrackedSign();
 			//trackedSign.style.cursor = 'pointer';
 			let e = null;
-			if (this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) { // Final version
+			if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
+					(this.mainDOMElem.className.indexOf('_103ouDFSzMvKVjD0UYmJQh') > -1)) { // Final version (main emails in popout)
 				e = this.mainDOMElem.querySelector('div._3BM5wlNLStI0usWYsOv9Ka');
+			} else if (this.mainDOMElem.className.indexOf("_2UEsN7oGn-H4ZnCcJIoc3Q")>-1) { // Final version (message history, e.g. forwarded)
+				e = this.mainDOMElem.querySelector('._3WKppjPonmzz8_LIjympNq');
 			} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
 				e = this.mainDOMElem.querySelector('div.EnHwYkExLYficI2goh5Zx');
 			} else {
@@ -263,7 +271,7 @@ function getOpenEmails(){
 	} else if (env==='outlook'){
 		emails = Array.from(document.querySelectorAll('.ReadMsgContainer')).map(a => new Email(a)); // Opened emails in outlook
 	} else if (env==='outlook2'){
-  	emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
+  	emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-, div._2UEsN7oGn-H4ZnCcJIoc3Q, div._103ouDFSzMvKVjD0UYmJQh')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE')).map(a => new EmailOutlook(a)); // Opened emails in outlook2, new beta
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div[autoid="_rp_3"]')).map(a => new EmailOutlook(a)); // Opened emails in outlook alpha version
 	}
