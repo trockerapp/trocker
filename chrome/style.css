@@ -1,5 +1,11 @@
 body{background-color:#eef;color:#000;font-family:arial,sans-serif;font-size:13px}
-a{text-decoration:none}
+a{
+  text-decoration:none;
+  color: #0000EE;
+}
+a:link, a:visited {
+  color: #0000EE;
+}
 /* a:hover{text-decoration:underline} */
 p{
 line-height: 1em;
@@ -9,7 +15,10 @@ ul{
 margin: 0.3em;
 padding: 0 20px;
 }
-.content{background-color:#fff;border-color:#abd;border-style:solid;border-width:4px;margin:0 auto;padding:0px;width:700px;-webkit-border-radius:12px}
+.content{background-color:#fff;border-color:#abd;border-style:solid;border-width:4px;margin:0 auto;padding:0px;
+  min-width:500px;
+  max-width:800px;
+  -webkit-border-radius:12px}
 .title{color:#333;font-size:20px;margin:0 auto;text-align:center; max-width:80%;}
 .option_name{float:left;font-weight:bold;margin-top:2px;width:20%; }
 .option_value{

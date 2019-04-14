@@ -6,7 +6,11 @@ function switchTrockerState(){
 }
 
 function openOptionsPage(){
-	chrome.runtime.openOptionsPage();
+	if (chrome.runtime.openOptionsPage) {
+    chrome.runtime.openOptionsPage();
+  } else {
+    window.open(chrome.runtime.getURL('options.html'));
+  }
 }
 
 chrome.browserAction.onClicked.addListener(openOptionsPage);

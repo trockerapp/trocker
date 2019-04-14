@@ -23,13 +23,13 @@
    "manifest_version": 2,
    "name": "__MSG_extension_name__",
    "options_ui": {
-      "chrome_style": true,
-      "open_in_tab": false,
+      "chrome_style": false,
+      "open_in_tab": true,
       "page": "options.html"
    },
    "permissions": ["webRequest", "webRequestBlocking", "<all_urls>", "*://*.google.com/*", "*://*.live.com/*","*://*.googleusercontent.com/*"],
    "optional_permissions": ["tabs"],
    "short_name": "__MSG_extension_name__",
-   "version": "2.5.1",
+   "version": "2.5.2",
    "web_accessible_resources": [ "tl.png", "td.png", "tlc.png", "tracked.png", "bypasser.html" ]
 }
