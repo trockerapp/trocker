@@ -69,6 +69,11 @@ function getOpenTrackerList(){
 			"name": "GN",
 			"domains": ["email81.com"],
 			"patterns": ["*://*.email81.com/*","*://*.email81.com/*"]
+		},
+		{
+			"name": "SG", 
+			"domains": ["strongview.com/t"],
+			"patterns": ["*://*.strongview.com/t/*"]
 		}
 	];
 	return openTrackers;
@@ -125,11 +130,16 @@ function getClickTrackerList(){
 			"domains": ["mkt4477.com/ctt"],
 			"patterns": ["*://*.mkt4477.com/ctt*"]
 		},
-  {
-			"name": "SL", 
-			"domains": ["signl.live/tracker"],
-			"patterns": ["*://*.sendgrid.net/wf/click*"],
-			"param": "redirect"
+		{
+		  "name": "SL", 
+		  "domains": ["signl.live/tracker"],
+		  "patterns": ["*://*.sendgrid.net/wf/click*"],
+		  "param": "redirect"
+		},
+		{
+			"name": "SG", 
+			"domains": ["strongview.com/t"],
+			"patterns": ["*://*.strongview.com/t/*"]
 		}
 	];
 	return clickTrackers;
