@@ -22,14 +22,14 @@
 						<span id="enablePermissionWarning"></span>
 					</label>
 				</div>
-				<em>Clarification about permissions:</em> the following key features are why Trocker needs the <a href="https://developers.chrome.com/extensions/match_patterns">&ltall_urls&gt permission</a> to function:
+				<p><em>Clarification about permissions:</em> the following key features are why Trocker needs the <a href="https://developers.chrome.com/extensions/match_patterns">&ltall_urls&gt permission</a> to function:</p>
 				<ul>
 					<li>Blocking email trackers in any webmail that does not proxy images on its own server (e.g. outlook.com)</li>
 					<li>Bypassing tracked links (links that track when you click on them)</li>
 				</ul>
 				<!-- <input type="checkbox" disabled="disabled" name="all_urls_Permission1" id="allUrlsPermission1">
 				<label for="all_urls_Permission1">Allow Trocker to run on all websites (i.e. <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">"&ltall_urls&gt" permission</a>)</label> </li> -->
-				Without the <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>, Trocker will only be able to block tracking images (but not links) and only in some webmails (e.g. Gmail) because the browser will not let Trocker know about all tracking images/links and thus Trocker will not be able to block them. This is a powerful permission which is why browsers rightfully warn you that the extension can "Read and change all your data on the websites you visit".
+				<p>Without the <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>, Trocker will only be able to block tracking images (but not links) and only in some webmails (e.g. Gmail) because the browser will not let Trocker know about all tracking images/links and thus Trocker will not be able to block them. This is a powerful permission which is why browsers rightfully warn you that the extension can "Read and change all your data on the websites you visit".</p>
       </div>
 	</div>
 	<div class="centeredsec">
@@ -88,10 +88,10 @@
 				</p>
 			</div>
 		</div>
-  <div class="option_name">Open tests:</div>
+ 		<div class="option_name">Open tests:</div>
 		<div class="option_value">
 			<div class="option_value_primary">
-				<a href = "./tests/test1.html" target="_blank">Click to open the test page</a>
+				<p><a href = "./tests/test1.html" target="_blank">Click to open the test page</a></p>
 			</div>
 		</div>
 	</div>	
@@ -101,23 +101,31 @@
 			<div class="option_value_primary">
 				<ul>
 					<li><span class="stat_name">Email Open Trackers: </span><span class="stat_value" id="blockedOpenTrackers"></span> Blocked. <span class="stat_value" id="allowedOpenTrackers"></span> Allowed.</li>
-							<li><span class="stat_name">Link Click Trackers: </span><span class="stat_value" id="bypassedClickTrackers"></span> Bypassed. <span class="stat_value" id="allowedClickTrackers"></span> Allowed.</li>
+					<li><span class="stat_name">Link Click Trackers: </span><span class="stat_value" id="bypassedClickTrackers"></span> Bypassed. <span class="stat_value" id="allowedClickTrackers"></span> Allowed.</li>
 				</ul>
 				<span class="stat_name" id="spreadtheword"></span>
 			</div>
 		</div>
 	</div>
 	<div class="centeredsec">
+		<div class="option_name">Change log:</div>
+		<div class="option_value">
+			<div class="option_value_primary">
+				<p><a href = "./updated.html" target="_blank">Click to open the change log page</a></p>
+			</div>
+		</div>
+	</div>	
+	<div class="centeredsec">
 	  <div class="option_name">Help us improve: </div>
       <div class="option_value">
 	    <div class="option_value_primary">
-          <p>
+				<p>
 	        Think an Email is tracked but Trocker doesn't block it? Remove your personal info and forward it to us at <a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">trockerapp@gmail.com</a>.
-		  </p>
+		  	</p>
 		</div>
-      </div>
+		</div>
 	</div>
-    <div class="message"><div id="status">Status!</div></div>
+	<div class="message"><div id="status">Status!</div></div>
   </form>
   <div id="advancedswitch"><input type="checkbox" name="advanced" id="advancedOpt"><label for="showTrackerCount"> Advanced</label></div>
   <div id="contactus">

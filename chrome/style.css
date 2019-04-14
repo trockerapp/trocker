@@ -8,9 +8,9 @@ a:link, a:visited {
 }
 /* a:hover{text-decoration:underline} */
 p{
-line-height: 1em;
-margin: 0.3em;
+margin: 0.5em;
 }
+
 ul{
 margin: 0.3em;
 padding: 0 20px;
