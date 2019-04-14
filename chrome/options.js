@@ -134,9 +134,10 @@ function restoreOptionalPermissions(){
 			// The extension doesn't have the permissions.
 			hasPermission = false;
 		}
+		// For some reason this is sometimes not as reliable as the one based on chrome.permissions.getAll()
 		// document.getElementById("allUrlsPermission1").checked = hasPermission;
-		document.getElementById("allUrlsPermission").checked = hasPermission;
-		updatePermissionWarnings();
+		// document.getElementById("allUrlsPermission").checked = hasPermission;
+		// updatePermissionWarnings();
 	});
 	chrome.permissions.contains({
 		permissions: ['tabs'],
@@ -155,6 +156,9 @@ function restoreOptionalPermissions(){
 	chrome.permissions.getAll(permissions => {
 		// Alternative check for <all_urls>
 		var hasAllUrlsPermission = permissions.origins.filter(s => s == "<all_urls>").length;
+		// document.getElementById("allUrlsPermission1").checked = hasAllUrlsPermission;
+		document.getElementById("allUrlsPermission").checked = hasAllUrlsPermission;
+		updatePermissionWarnings();
 	});
 }
 
