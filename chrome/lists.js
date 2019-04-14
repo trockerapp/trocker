@@ -71,7 +71,7 @@ function getOpenTrackerList(){
 			"patterns": ["*://*.email81.com/*","*://*.email81.com/*"]
 		},
 		{
-			"name": "SG", 
+			"name": "SV", 
 			"domains": ["strongview.com/t"],
 			"patterns": ["*://*.strongview.com/t/*"]
 		}
@@ -137,7 +137,7 @@ function getClickTrackerList(){
 		  "param": "redirect"
 		},
 		{
-			"name": "SG", 
+			"name": "SV", 
 			"domains": ["strongview.com/t"],
 			"patterns": ["*://*.strongview.com/t/*"]
 		}

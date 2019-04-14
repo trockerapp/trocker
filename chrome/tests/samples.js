@@ -97,6 +97,13 @@ function getOpenTrackerSamples(){
     "hit": [], 
     "miss": []
    }
+		},
+		{
+			"name": "SV",
+			"samples":{
+    "hit": [], 
+    "miss": []
+   }
 		}
 	];
 	return openTrackers;
@@ -169,6 +176,13 @@ function getClickTrackerSamples(){
 		},
   {
 			"name": "SL", 
+			"samples":{
+    "hit": [], 
+    "miss": []
+   }
+		},
+  {
+			"name": "SV", 
 			"samples":{
     "hit": [], 
     "miss": []
