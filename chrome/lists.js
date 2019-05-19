@@ -74,6 +74,11 @@ function getOpenTrackerList(){
 			"name": "SV", 
 			"domains": ["strongview.com/t"],
 			"patterns": ["*://*.strongview.com/t/*"]
+		},
+		{
+			"name": "GM", 
+			"domains": ["ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x"],
+			"patterns": ["*://*.ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/*"]
 		}
 	];
 	return openTrackers;
@@ -131,15 +136,20 @@ function getClickTrackerList(){
 			"patterns": ["*://*.mkt4477.com/ctt*"]
 		},
 		{
-		  "name": "SL", 
-		  "domains": ["signl.live/tracker"],
-		  "patterns": ["*://*.sendgrid.net/wf/click*"],
-		  "param": "redirect"
+			"name": "SL", 
+			"domains": ["signl.live/tracker"],
+			"patterns": ["*://*.sendgrid.net/wf/click*"],
+			"param": "redirect"
 		},
 		{
 			"name": "SV", 
 			"domains": ["strongview.com/t"],
 			"patterns": ["*://*.strongview.com/t/*"]
+		},
+		{
+			"name": "GM", 
+			"domains": ["ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x"],
+			"patterns": ["*://*.ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/*"]
 		}
 	];
 	return clickTrackers;
