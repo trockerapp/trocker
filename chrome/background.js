@@ -96,6 +96,12 @@ var webmails = [
 				 'http://c.live.com/' , 'http://c.bing.com/' , 'http://outlook.live.com/' , 'http://avatar.skype.com' ,
 				 'office365.com', 'storage.live.com'], 
 		whiteListExcept: []
+	},
+	{
+		name: 'ymail', 
+		matchUrls: ['mail.yahoo.com'],
+		whiteList: [], 
+		whiteListExcept: ['.yusercontent.com/mail']  // Yahoo's image proxy
 	}
 ];
 
@@ -142,9 +148,11 @@ function handleOnBeforeRequestNonProxyWebmails(details){ // For non-proxy webmai
 		var hasSuspPattern = (details.url.indexOf(suspMark) > -1);
 		var hasForceAllowPattern = (details.url.indexOf(trIgnoreMark) > -1);
 		
+		// hasNonSuspPattern = false;  // ONLY FOR TESTS: Uncomment this to confirm that all email images are blocked by default
+
 		// If from Gmail and suspicious, log the suspicious url 
 		if ((webmail.name === 'google') && hasSuspPattern) logSuspURL(details.url.split("#")[1]); // First remove the google proxy server
-		if ((webmail.name === 'outlook') && hasSuspPattern) logSuspURL(parseUrlParams(details.url).url); // First remove the outlook proxy server
+		if (((webmail.name === 'outlook')||(webmail.name === 'ymail')) && hasSuspPattern) logSuspURL(parseUrlParams(details.url).url); // First remove the outlook/ymail proxy server
 		
 		var trackerName = "UK"; // For efficiency, don't try to find tracker name, assume unknown
 		

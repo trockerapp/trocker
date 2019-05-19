@@ -145,6 +145,22 @@ class EmailOutlook extends Email{
 	}
 }
 
+class EmailYMail extends Email{
+	getBody(){
+		return this.mainDOMElem.querySelector('.msg-body');
+	}
+	getTrockerSignDOMElem(showSign){ // Revise to create if needed and return the trocker sign
+		var trackedSign = null;
+		var trackedSign = this.mainDOMElem.querySelector('.D_F.en_0 img.'+trackedSignClass);
+		if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
+			trackedSign = createTrackedSign();
+			//trackedSign.style.cursor = 'pointer';
+			this.mainDOMElem.querySelector('.o_h.D_F.em_0.E_fq7.ek_BB .D_F.en_0').appendChild(trackedSign);
+		}
+		return trackedSign;
+	}
+}
+
 function parseUrlParams(url){
   var match,
 	  pl     = /\+/g,  // Regex for replacing addition symbol with a space
@@ -274,6 +290,9 @@ function getOpenEmails(){
   	emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-, div._2UEsN7oGn-H4ZnCcJIoc3Q, div._103ouDFSzMvKVjD0UYmJQh')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE')).map(a => new EmailOutlook(a)); // Opened emails in outlook2, new beta
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div[autoid="_rp_3"]')).map(a => new EmailOutlook(a)); // Opened emails in outlook alpha version
+	} else if (env==='ymail'){
+		emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0')).map(a => new EmailYMail(a)); // Opened emails in outlook
+		emails = emails.filter(e => e.getBody() !== null); // Remove unopened emails
 	}
 	if (emails.length) logEvent('detected '+emails.length+' open emails (env: "'+env+'")', false);
 	return emails;
@@ -294,6 +313,8 @@ function getDraftEmails(){
 	} else if (env==='outlook2'){
  		emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new Email(a)); // Compose windows final outlook
   	if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._mcp_32')).map(a => new Email(a)); // Compose windows in outlook2, new beta
+	} else if (env==='ymail'){
+		emails = Array.from(document.querySelectorAll('.em_N.D_F.ek_BB.p_R.o_h')).map(a => new Email(a)); // Compose windows (reply, forward, new message)
 	}
 	if (emails.length) logEvent('detected '+emails.length+' compose inputs (env: "'+env+'")', false);
 	
@@ -317,6 +338,7 @@ function getProxyURL(){
 	if ((env==='gmail')||(env==='inbox')) return "googleusercontent.com/proxy";
 	if (env==='outlook') return "mail.live.com/Handlers";
 	if (env==='outlook2') return false; // Does not proxify
+	if (env==='ymail') return 'yusercontent.com/mail';
 	return '';
 }
 
@@ -374,13 +396,15 @@ function addJudgmentToSrc(src, judgment){
 				}
 			}
 		}
-	} else if ((env==='outlook') || (env==='outlook2')){
-		var proxyURL = "mail.live.com/Handlers";
-		if (src.indexOf(proxyURL) > -1) {
-			// srcUrl = parseUrlParams(src).url;		
-			if (src.indexOf(markToAdd) == -1) src = src.replace('&url', '&'+markToAdd+'&url');
-		} else {
-			if (src.indexOf(markToAdd) == -1) src = addTrockerMark(src, markToAdd);
+	} else if ((env==='outlook') || (env==='outlook2') || (env==='ymail')){
+		var proxyURL = getProxyURL();
+		if (src.indexOf(markToAdd) == -1){
+			if ((src.indexOf(proxyURL) > -1) && (src.indexOf('&url') > -1)) {
+				// srcUrl = parseUrlParams(src).url;		
+				src = src.replace('&url', '&'+markToAdd+'&url');
+			} else {
+				src = addTrockerMark(src, markToAdd);
+			}
 		}
 	}
 	
@@ -472,7 +496,7 @@ function getSize(img){
 	if ((img.getAttribute("height")!==null)&&!isNaN(img.height)) h = (img.height || img.getAttribute("height"));
 	var w = (img.style.width || img.style.minWidth || img.style.maxWidth)?parseInt(img.style.width || img.style.minWidth || img.style.maxWidth):-1;
 	if ((img.getAttribute("width")!==null)&&!isNaN(img.width)) w = (img.width || img.getAttribute("width"));
-	
+
 	return {h:h,w:w};	
 }
 
@@ -508,7 +532,7 @@ countTrackers = function(options){
 	var trackerImages = [];
 	var trackerLinks = [];
 	var env = getEnv();
-	if ((env==='gmail')||(env==='inbox')||(env==='outlook')||(env==='outlook2')) { // Special Gmail, Inbox and Outlook handling
+	if ((env==='gmail')||(env==='inbox')||(env==='outlook')||(env==='outlook2')||(env==='ymail')) { // Special Gmail, Inbox and Outlook handling
 		//var nonSuspMark = "trnonsuspmrk=1"; // This will be added to non-suspicious images
 		//var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
 		var proxyURL = getProxyURL();
@@ -809,6 +833,6 @@ window.addEventListener("hashchange", function(){
 checkAndDoYourDuty();
 
 var env = getEnv();
-if ((env==='gmail')||(env==='inbox')||(env==='outlook')||(env==='outlook2')) window.setInterval(checkAndDoYourDuty, 500);
+if ((env==='gmail')||(env==='inbox')||(env==='outlook')||(env==='outlook2')||(env==='ymail')) window.setInterval(checkAndDoYourDuty, 500);
 console.log('Trocker ready!');
 logEvent('Env="'+env+'"', true);
