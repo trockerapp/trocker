@@ -89,6 +89,12 @@ function getOpenTrackerSamples() {
 			"hit": [],
 			"miss": []
 		}
+	}, {
+		"name": "GM",
+		"samples": {
+			"hit": ['http://ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/o?u=as92e9990-98lkd-qjidf8-ksjhd82-9e87qwehs&c=3246496'],
+			"miss": []
+		}
 	}];
 	return openTrackers;
 }
@@ -168,6 +174,12 @@ function getClickTrackerSamples() {
 			"name": "SV",
 			"samples": {
 				"hit": [],
+				"miss": []
+			}
+		}, {
+			"name": "GM",
+			"samples": {
+				"hit": ['http://ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/d?c=87493bjs&l=9874hkj-skdj9832-e98lk-sdo98-ewem,zls&r=dskljd9-dsk9-ass1-dsds-02378dsnm'],
 				"miss": []
 			}
 		}
