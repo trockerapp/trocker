@@ -9,7 +9,7 @@
 <body>
 <div class="content">
   <div class="title">
-    <img src="header.png" title="Trocker" alt="Trocker">
+    <a href="https://trockerapp.github.io/"><img src="header.png" title="Trocker" alt="Trocker Logo"></a>
     <div>Extension Options</div>
   </div>
   <form name="options_form" action="">
@@ -52,7 +52,7 @@
 				<input type="checkbox" name="exposeLinks" id="exposeLinksOpt">
 				<label for="exposeLinks">Enable</label> <br/>
 				<ul>
-					<li>Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> or <img src="td.png" style="width:10px; height:10px;"> (for unknown trackers)</li>
+					<li>Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> (block-listed trackers) or <img src="td.png" style="width:10px; height:10px;"> (auto-detected trackers)</li>
 					<li>Mouse pointer turns into <img src="tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
 				</ul>
 			</div>
@@ -72,7 +72,7 @@
 							<label for="tabs_Permission">Allow Trocker to get the url for a tab (i.e. <a href="https://developer.chrome.com/extensions/tabs" target="_blank">"tabs" permission</a>)</label> </li>
 				</ul>
 				<p> 
-					Will try to count and expose trackers on any website that attempts tracking (e.g. will start running on mail.example.com after the first time a tracked image is loaded from it). 
+					Will try to count and expose trackers on any website that attempts tracking (e.g. will start running on mail.example.com after the first time a tracked image is loaded from it). Even without this option, all block-listed trackers will still be blocked.
 				</p>
 			</div>
 		</div>
@@ -120,8 +120,14 @@
       <div class="option_value">
 	    <div class="option_value_primary">
 				<p>
-	        Think an Email is tracked but Trocker doesn't block it? Remove your personal info and forward it to us at <a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">trockerapp@gmail.com</a>.
-		  	</p>
+	        Think an Email is tracked but Trocker doesn't block it? Remove your personal info and forward it to us at <a href="mailto:trockerapp@gmail.com" target="_blank">trockerapp@gmail.com</a>.
+				</p>
+				<p>
+					If you have any issues with Trocker, email us at <a href="mailto:trockerapp@gmail.com" target="_blank">trockerapp@gmail.com</a> or report the issue on <a href="https://github.com/trockerapp/trocker/issues" target="_blank">GitHub</a>.
+				</p>
+				<p>
+					Finally, if you like Trocker, please consider rating it on the <a href="https://chrome.google.com/webstore/detail/trocker/bjojfeillmmoeadgobbcknkgdkngbcdb">Chrome Webstore</a> and/or the <a href="https://addons.mozilla.org/en-US/firefox/addon/trockerapp/">Firefox add-ons page</a>.
+				</p>
 		</div>
 		</div>
 	</div>
@@ -130,7 +136,8 @@
   <div id="advancedswitch"><input type="checkbox" name="advanced" id="advancedOpt"><label for="showTrackerCount"> Advanced</label></div>
   <div id="contactus">
   <a href="https://twitter.com/trockerapp" target="_blank" class="tfbtn"><i class="twtrimg"></i><span>Follow <b>@trockerapp</b></span></a>
-  <a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">Email Us</a>
+	<a href="mailto:trockerapp@gmail.com" target="_blank" title="trockerapp@gmail.com">Email Us</a>
+	<a href="https://trockerapp.github.io/" target="_blank" title="trockerapp.github.io">Website</a>
   </div>  
 </div>
 </body>

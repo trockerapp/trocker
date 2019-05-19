@@ -16,13 +16,13 @@ margin: 0.3em;
 padding: 0 20px;
 }
 .content{background-color:#fff;border-color:#abd;border-style:solid;border-width:4px;margin:0 auto;padding:0px;
-  min-width:500px;
-  max-width:800px;
+  min-width:400px;
+  max-width:900px;
   -webkit-border-radius:12px}
 .title{color:#333;font-size:20px;margin:0 auto;text-align:center; max-width:80%;}
-.option_name{float:left;font-weight:bold;margin-top:2px;width:20%; }
+.option_name{float:left;font-weight:bold;margin-top:2px;width:15%; }
 .option_value{
-  width:75%;
+  width:80%;
   float:left; 
   border-left-width: 5px;
   border-left-color: aliceblue;
@@ -42,6 +42,7 @@ padding: 0 20px;
 #status{background-color:white;font-weight:bold;margin-left:10px;margin-bottom:10px;opacity:0;padding:3px}
 #advancedswitch{float: left;position: relative;left: 10px;bottom: 20px;}
 #contactus{float: right;position: relative; right: 10px;bottom: 20px;}
+#contactus a{margin-left: 1em;}
 .warningMsg{color: orangered};
 .successMsg{color: green};
 a.tfbtn span{margin-left: 3px; white-space: nowrap;}
