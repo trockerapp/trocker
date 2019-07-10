@@ -102,9 +102,14 @@ class EmailInboxDraft extends Email{
 class EmailOutlook extends Email{
 	getImages(){
 		//var images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in Outlook
-		if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || 
+		if ((this.mainDOMElem.className.indexOf('_2le66D_cFAbkq67CrgZcmE') > -1) || 	// Main emails
+				(this.mainDOMElem.className.indexOf('_2Tgrtrj5ACwo2I6mKHcBME') > -1) || // Popout
+				(this.mainDOMElem.className.indexOf('_2Dho5i6XHUaOnZOvgsp38a') > -1)) { // Print view
+			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
+		// Before updates ~July 2019
+		} else if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || 
 				(this.mainDOMElem.className.indexOf('_103ouDFSzMvKVjD0UYmJQh') > -1) || 
-				(this.mainDOMElem.className.indexOf('_2UEsN7oGn-H4ZnCcJIoc3Q') > -1)) { // Final version
+				(this.mainDOMElem.className.indexOf('_2UEsN7oGn-H4ZnCcJIoc3Q') > -1)) { 
 			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
 		} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // beta
 			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
@@ -115,11 +120,15 @@ class EmailOutlook extends Email{
 	}
 	getTrockerSignDOMElem(showSign){ // Revise to create if needed and return the trocker sign
 		var trackedSign = null;
-		if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
+		if (this.mainDOMElem.className.indexOf('_2le66D_cFAbkq67CrgZcmE') > -1) { // Main email
+			var trackedSign = this.mainDOMElem.querySelector('._1Lo7BjmdsKZy3IMMxN7mVu img.'+trackedSignClass);
+		// Before updates ~July 2019
+		} else if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
 				(this.mainDOMElem.className.indexOf('_103ouDFSzMvKVjD0UYmJQh') > -1)) { // Final version (main emails in popout)
 			var trackedSign = this.mainDOMElem.querySelector('div._3BM5wlNLStI0usWYsOv9Ka img.'+trackedSignClass);
 		} else if (this.mainDOMElem.className.indexOf('_2UEsN7oGn-H4ZnCcJIoc3Q') > -1) { // Final version (message history, e.g. forwarded)
-				var trackedSign = this.mainDOMElem.querySelector('._3WKppjPonmzz8_LIjympNq img.'+trackedSignClass);
+			var trackedSign = this.mainDOMElem.querySelector('._3WKppjPonmzz8_LIjympNq img.'+trackedSignClass);
+		// Old beta versions			
 		} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
 			var trackedSign = this.mainDOMElem.querySelector('div.EnHwYkExLYficI2goh5Zx img.'+trackedSignClass);
 		} else {
@@ -129,11 +138,15 @@ class EmailOutlook extends Email{
 			trackedSign = createTrackedSign();
 			//trackedSign.style.cursor = 'pointer';
 			let e = null;
-			if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
+			if (this.mainDOMElem.className.indexOf("_2le66D_cFAbkq67CrgZcmE")>-1) { // Final version (message history, e.g. forwarded)
+				e = this.mainDOMElem.querySelector('._1Lo7BjmdsKZy3IMMxN7mVu');
+			// Before updates ~July 2019
+			} else if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
 					(this.mainDOMElem.className.indexOf('_103ouDFSzMvKVjD0UYmJQh') > -1)) { // Final version (main emails in popout)
 				e = this.mainDOMElem.querySelector('div._3BM5wlNLStI0usWYsOv9Ka');
 			} else if (this.mainDOMElem.className.indexOf("_2UEsN7oGn-H4ZnCcJIoc3Q")>-1) { // Final version (message history, e.g. forwarded)
 				e = this.mainDOMElem.querySelector('._3WKppjPonmzz8_LIjympNq');
+			// Old beta versions
 			} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE")>-1) { // outlook beta
 				e = this.mainDOMElem.querySelector('div.EnHwYkExLYficI2goh5Zx');
 			} else {
@@ -287,7 +300,9 @@ function getOpenEmails(){
 	} else if (env==='outlook'){
 		emails = Array.from(document.querySelectorAll('.ReadMsgContainer')).map(a => new Email(a)); // Opened emails in outlook
 	} else if (env==='outlook2'){
-  	emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-, div._2UEsN7oGn-H4ZnCcJIoc3Q, div._103ouDFSzMvKVjD0UYmJQh')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
+		emails = Array.from(document.querySelectorAll('div._2le66D_cFAbkq67CrgZcmE, div._2Tgrtrj5ACwo2I6mKHcBME, ._2Dho5i6XHUaOnZOvgsp38a')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
+		// Before updates ~July 2019
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-, div._2UEsN7oGn-H4ZnCcJIoc3Q, div._103ouDFSzMvKVjD0UYmJQh')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE')).map(a => new EmailOutlook(a)); // Opened emails in outlook2, new beta
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div[autoid="_rp_3"]')).map(a => new EmailOutlook(a)); // Opened emails in outlook alpha version
 	} else if (env==='ymail'){
@@ -311,8 +326,10 @@ function getDraftEmails(){
 		for (var ifi = 0; ifi < cmpwin.length; ifi++)
 			emails.push(new Email(cmpwin[ifi].contentWindow.document.body));
 	} else if (env==='outlook2'){
- 		emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new Email(a)); // Compose windows final outlook
-  	if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._mcp_32')).map(a => new Email(a)); // Compose windows in outlook2, new beta
+		emails = Array.from(document.querySelectorAll('._29NreFcQ3QoBPNO3rKXKB0')).map(a => new Email(a)); // Compose windows final outlook
+		// Before updates ~July 2019
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new Email(a)); // Compose windows final outlook
+  		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._mcp_32')).map(a => new Email(a)); // Compose windows in outlook2, new beta
 	} else if (env==='ymail'){
 		emails = Array.from(document.querySelectorAll('.em_N.D_F.ek_BB.p_R.o_h')).map(a => new Email(a)); // Compose windows (reply, forward, new message)
 	}
