@@ -25,74 +25,99 @@ No one will be able to know when and if you open their emails, or click on their
 Change log:
 2.6.1:
 - Adds support for the updated outlook.com and office365.
+
 2.6.0:
 - Improves mail.yahoo.com support.
 - Blocks additional trackers.
 - Improves the options page.
+
 2.5.2:
 - Makes non-essential permissions optional (for more info see the Trocker options).
 - Improves outlook.com support.
 - Improves the options page.
+
 2.4.3:
 - Adds support for outlook.office365.com.
+
 2.4.2:
 - Adds support for the new outlook.com.
+
 2.4.1:
 - Adds support for Firefox.
+
 2.3.7:
 - Improves tests. Adds link to test page from advanced options.
+
 2.3.6:
 - Adds a small fix to improve efficiency.
+
 2.3.5:
 - Fixes broken inline image bug in Gmail.
 - Fixes compose window bug that rechecked for trackers even if draft had not changed.
 - Fixes compose bug that blocked contact images in Inbox.
 - Blocks additional click trackers.
+
 2.3.4:
 - Fixes bug that blocked contact images in Inbox.
 - Add workaround for Gmail's email auto-refresh for unread messages that could lead to breaking images.
+
 2.3.3:
 - Fixes bug that blocked images in Gmail side add-ons.
+
 2.3.2:
 - Fixes bug that could block Google images outside Gmail if they used the same proxy url as Gmail.
+
 2.3.1:
 - Fixes bug in heuristic blocking in outlook.com.
+
 2.3.0:
 - Adds the option to allow tracking temporarily for a specific email, i.e. sending read receipts.
 - Adds support for more known email tracking systems.
 - Adapts to changes in outlook.com.
 - Adds preliminary support for new outlook.com beta.
+
 2.2.1:
 - bugfix for outlook.com.
+
 2.2.0:
 - Added support for the redesigned outlook.com.
+
 2.1.4:
 - 1 tracker was added to block list.
+
 2.1.3:
 - 4 trackers were added to block list.
+
 2.1.1:
 - Better handling of "view entire message" in Gmail and "view full email" in Inbox.
 - Improvements in heuristic tracker detection.
+
 2.1.0:
 - Added support for Google Inbox and Microsoft outlook. Heuristic tracker detection and showing number of trackers in each email now works in Google's Inbox and Microsoft's Outlook.com in addition to Gmail.
 - Block even more trackers everywhere (now iOS MailTracker in addition to others)
+
 2.0.3:
 - Improvements in how Trocker works in Gmail
+
 2.0.2:
 - Bug fix
+
 2.0.1:
 - Block even more trackers (now Bananatag and Mixmax in addition to others)
 - Improvements in click tracker blocking in Gmail
 - Bug fix in link tracking prevention
 - Twitter link added to the options page (Follow @trockerapp)
+
 2.0.0:
 - Special Gmail treatment. In Gmail, an icon is shown on top of each email that is found to have a tracker in it.
 - Context aware in Gmail; won't expose trackers in print view or compose windows.
 - Heuristic tracker detection. Now any tiny image that looks like a tracker is blocked in Gmail. 
 - New advanced options for those who want to swim deeper!
 - Block even more trackers (now 7 major ones). 
+
 1.2.2:
 - Block even more trackers (now 4 major ones)
+
 1.2.0:
 - Blocking more Trackers!
 - Trocker now also bypasses tracked links (links that inform the sender when you click on them) as well as tracked emails (emails that inform the sender when you open them).
@@ -101,20 +126,26 @@ Change log:
 - Support Outlook.com's image proxy
 - Improvement in exposing open trackers (specially in compose window).
 - Improved options page.
+
 1.1.1:
 - Don't open changelog on small updates
 - Bugfix for new installations.
+
 1.1.0:
 - Open changelog in a new tab on update
+
 1.0.6:
 - Extension's name was changed to Trocker in order to avoid similarities with trademarked names.
 - Updated look and feel of the app.
 - Icon only shows the number of trackers found on the current tab.
 - New options page (for chrome v42 and later)
+
 1.0.5:
 - Exposing Trackers is disabled by default. You can enable it from the options page if you like!
 - Updated Icon for disabled extension.
+
 1.0.4:
 - Improvements in exposing trackers.
+
 1.0.3:
 - The extension can now make tracking images visible. You can disable this feature in the options page.
