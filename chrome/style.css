@@ -53,3 +53,7 @@ a.tfbtn:focus, a.tfbtn:hover, a.tfbtn:active {background-color: #0c7abf; text-de
 .centeredsec{clear:left; margin: 5px auto; padding: 5px 10px;}
 .gap{margin: 20px auto; padding: 10px;}
 .hidden{display: none; visibility: hidden;}
+
+ol li{
+  overflow-wrap: break-word;
+}
