@@ -9,7 +9,10 @@
    "content_scripts": [ {
       "all_frames": false,
       "js": [ "trocker.js" ],
-      "matches": [ "*://mail.google.com/*", "*://inbox.google.com/*" , "*://*.mail.live.com/*", "*://*.outlook.live.com/*", "*://*.outlook.office365.com/*", "*://*.mail.yahoo.com/*"],
+      "matches": [ 
+         "*://mail.google.com/*", "*://inbox.google.com/*" , 
+         "*://*.mail.live.com/*", "*://*.outlook.live.com/*", "*://*.outlook.office365.com/*", "*://*.outlook.office.com/*", 
+         "*://*.mail.yahoo.com/*"],
       "run_at": "document_end"
    } ],
    "default_locale": "en",
@@ -30,6 +33,6 @@
    "permissions": ["webRequest", "webRequestBlocking", "<all_urls>", "*://*.google.com/*", "*://*.live.com/*","*://*.googleusercontent.com/*"],
    "optional_permissions": ["tabs"],
    "short_name": "__MSG_extension_name__",
-   "version": "2.6.1",
+   "version": "2.6.2",
    "web_accessible_resources": [ "tl.png", "td.png", "tlc.png", "tracked.png", "bypasser.html" ]
 }
