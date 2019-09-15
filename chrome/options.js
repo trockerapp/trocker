@@ -4,6 +4,9 @@ function saveOptions() {
   saveVariable('showTrackerCount', document.getElementById("showTrackerCountOpt").checked);
   saveVariable('anyPage', document.getElementById("anyPageOpt").checked);
   saveVariable('exposeLinks', document.getElementById("exposeLinksOpt").checked);
+  let timeoutVal = parseInt(document.getElementById("bypassTimeoutOpt").value);
+  if (timeoutVal < 1) { timeoutVal = 1; }
+  saveVariable('linkBypassTimeout', timeoutVal);
   saveVariable('verbose', (document.getElementById("verboseOpt").checked && document.getElementById("advancedOpt").checked));
   
 	updatePermissionWarnings();
@@ -40,6 +43,9 @@ function restoreOptions() {
 
 	document.getElementById("exposeLinksOpt").checked = loadVariable('exposeLinks');
 	document.getElementById("exposeLinksOpt").onchange = saveOptions;
+	
+	document.getElementById("bypassTimeoutOpt").value = loadVariable('linkBypassTimeout');
+	document.getElementById("bypassTimeoutOpt").onchange = saveOptions;
 	
 	document.getElementById("verboseOpt").checked = loadVariable('verbose');
 	document.getElementById("verboseOpt").onchange = saveOptions;

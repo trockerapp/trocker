@@ -21,8 +21,14 @@ bypasserUI = {
       document.querySelector('#cantbypass').classList.remove('hidden');
       document.querySelector('#willbypass').classList.add('hidden');
     }
-	bypasserUI.cntDown = 11;
-    bypasserUI.updateCountdown();
+    chrome.runtime.sendMessage({method: "loadVariable", key: 'linkBypassTimeout'}, function(response) {
+      if (response) {
+        bypasserUI.cntDown = response.varValue;
+      } else {
+        bypasserUI.cntDown = 11;
+      }
+      bypasserUI.updateCountdown();
+    });
   },
   updateCountdown: function (){
     bypasserUI.cntDown--;
@@ -61,7 +67,6 @@ window.addEventListener("hashchange", function(){
 	bypasserUI.setup();
 }, false);
 bypasserUI.setup();
-
 
 
 function getTrackedURL(){
