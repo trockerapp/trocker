@@ -380,11 +380,18 @@ function addJudgment(img, judgment){
 
 // This function adds judgment url to an image's src, it also returns the non proxied src
 function addJudgmentToSrc(src, judgment){
-	var nonSuspMark = "trnonsuspmrk=1"; // This will be added to non-suspicious images
-	var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
+	var eq1String = '=1';
 	
-	var trIgnoreMark = "trfcallwmrk=1"; // Any previous ignored judgment should also be removed
-	var trIgnoreMarkRem = "trfcallwremmrk=1"; // Any previous ignored judgment will be replaced by this
+	var env = getEnv();
+	if (env==='ymail'){
+		eq1String = eq1String.replace('=', '');
+	}
+
+	var nonSuspMark = "trnonsuspmrk"+eq1String; // This will be added to non-suspicious images
+	var suspMark = "trsuspmrk"+eq1String; // This will be added to suspicious images
+	
+	var trIgnoreMark = "trfcallwmrk"+eq1String; // Any previous ignored judgment should also be removed
+	var trIgnoreMarkRem = "trfcallwremmrk"+eq1String; // Any previous ignored judgment will be replaced by this
 
 	if ((src.indexOf('data:image')==0)||(src.indexOf('blob:')==0)) return src; // Don't modify if a data image
 	
@@ -399,7 +406,6 @@ function addJudgmentToSrc(src, judgment){
 		return src;
 	}
 	
-	var env = getEnv();
 	if ((env==='gmail')||(env==='inbox')){
 		if (src.indexOf('#') > -1){
 			if (src.indexOf(markToAdd) == -1) src = src.replace('#', (((src.indexOf('?')==-1) || (src.indexOf('?') > src.indexOf('#')))?'?':'&')+markToAdd+'#');
@@ -414,7 +420,7 @@ function addJudgmentToSrc(src, judgment){
 				}
 			}
 		}
-	} else if ((env==='outlook') || (env==='outlook2') || (env==='ymail')){
+	} else if ((env==='outlook') || (env==='outlook2')){
 		var proxyURL = getProxyURL();
 		if (src.indexOf(markToAdd) == -1){
 			if ((src.indexOf(proxyURL) > -1) && (src.indexOf('&url') > -1)) {
@@ -423,6 +429,11 @@ function addJudgmentToSrc(src, judgment){
 			} else {
 				src = addTrockerMark(src, markToAdd);
 			}
+		}
+	} else if ((env==='ymail')){
+		var proxyURL = getProxyURL();
+		if (src.indexOf(markToAdd) == -1){
+			src += markToAdd; // Just append to the end, because ymail proxy server doesn't not allow unknown params
 		}
 	}
 	
@@ -435,11 +446,18 @@ function removeJudgments(img){
 
 function removeJudgmentsFromSrc(src){
  if ((src.indexOf('data:image')==0)||(src.indexOf('blob:')==0)) return src; // Don't modify if a data image
- var nonSuspMark = "trnonsuspmrk=1"; // This will be added to non-suspicious images
-	var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
+	var eq1String = '=1';
 	
-	var trIgnoreMark = "trfcallwmrk=1"; // Any previous judgment will be replaced by this
-	var trIgnoreMarkRem = "trfcallwremmrk=1"; // Any previous ignored judgment will be replaced by this
+	var env = getEnv();
+	if (env==='ymail'){
+		eq1String = eq1String.replace('=', '');
+	}
+
+ 	var nonSuspMark = "trnonsuspmrk"+eq1String; // This will be added to non-suspicious images
+	var suspMark = "trsuspmrk"+eq1String; // This will be added to suspicious images
+	
+	var trIgnoreMark = "trfcallwmrk"+eq1String; // Any previous judgment will be replaced by this
+	var trIgnoreMarkRem = "trfcallwremmrk"+eq1String; // Any previous ignored judgment will be replaced by this
 	
 	// Remove all previous marks
 	src = src.split(nonSuspMark).join(trIgnoreMarkRem); // replace all
@@ -450,11 +468,18 @@ function removeJudgmentsFromSrc(src){
 }
 
 function hasJudgments(img){
-	var nonSuspMark = "trnonsuspmrk=1"; // This will be added to non-suspicious images
-	var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
+	var eq1String = '=1';
 	
-	var trIgnoreMark = "trfcallwmrk=1"; // Any previous judgment will be replaced by this
-	var trIgnoreMarkRem = "trfcallwremmrk=1"; // Any previous ignored judgment will be replaced by this
+	var env = getEnv();
+	if (env==='ymail'){
+		eq1String = eq1String.replace('=', '');
+	}
+
+	var nonSuspMark = "trnonsuspmrk"+eq1String; // This will be added to non-suspicious images
+	var suspMark = "trsuspmrk"+eq1String; // This will be added to suspicious images
+	
+	var trIgnoreMark = "trfcallwmrk"+eq1String; // Any previous judgment will be replaced by this
+	var trIgnoreMarkRem = "trfcallwremmrk"+eq1String; // Any previous ignored judgment will be replaced by this
 	
 	var srcUrl = img.src;
 	if ((srcUrl.indexOf('data:image')==0)||(srcUrl.indexOf('blob:')==0)) return true; // Don't modify if a data image
@@ -519,6 +544,9 @@ function getSize(img){
 }
 
 function isTiny(img){
+	var src = img.src;
+	if ((src.indexOf('data:image')==0)||(src.indexOf('blob:')==0)) return false; // Don't declare tiny if a data image
+
 	var s = getSize(img);
 	var h = s.h;
 	var w = s.w;
