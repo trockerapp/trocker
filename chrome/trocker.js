@@ -554,7 +554,7 @@ function isTiny(img){
 	if ( (w > -1 && h > -1 && (w*h<=3) )||(w == -1 && h > -1 && (h<=3))||(w > -1 && h == -1 && (w<=3) ) ) {
 		//console.log('Img detected as tiny because w='+w+', h='+h+' ('+img.src+')');
 		return true;
-	} else if (img.style.display === "none") {
+	} else if ((img.style.display === "none") || (img.style.visibility === "hidden")) {
 		return true;
 	}
 	else return false;	
