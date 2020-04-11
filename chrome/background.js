@@ -93,8 +93,9 @@ var webmails = [
 		name: 'outlook', 
 		matchUrls: ['outlook.live.com'],
 		whiteList: ['https://c.live.com/', 'https://c.bing.com/', 'https://outlook.live.com/', 'https://avatar.skype.com', 
-				 'http://c.live.com/' , 'http://c.bing.com/' , 'http://outlook.live.com/' , 'http://avatar.skype.com' ,
-				 'office365.com', 'office.com', 'storage.live.com'], 
+				 'http://c.live.com/' , 'http://c.bing.com/' , 'http://outlook.live.com/' , 
+				 'http://avatar.skype.com' , 'msecnd.net/dam/skype/',
+				 'office365.com', 'office.com', 'storage.live.com', 'cdn.office.net/owamail'], 
 		whiteListExcept: []
 	},
 	{
