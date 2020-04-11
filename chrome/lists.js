@@ -47,7 +47,7 @@ function getOpenTrackerList(){
 		},
 		{
 			"name": "CC",
-			"domains": ["constantcontact.com/images"],
+			"domains": ["constantcontact.com/images", "r20.rs6.net/on.jsp"],
 			"patterns": ["*://*.constantcontact.com/images/p1x1.gif*"]
 		},
 		{
