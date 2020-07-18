@@ -791,8 +791,8 @@ countTrackers = function(options){
 				var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw, .aT5-aOt-I-JX-Jw');
 				for (var i = 0; i < bgDivs.length; i++)	{ // Loop over all divs with bg images in the ui segment
 					var dv = bgDivs[i];
-					if (dv.style.hasOwnProperty('background-image')){
-						dv.style['background-image'] = addJudgmentToSrc(dv.style['background-image'], 'non-suspicious');
+					if (dv.style.backgroundImage != ''){
+						dv.style.backgroundImage = addJudgmentToSrc(dv.style.backgroundImage, 'non-suspicious');
 					}
 				}
 			}
