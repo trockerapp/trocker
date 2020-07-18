@@ -778,7 +778,7 @@ countTrackers = function(options){
 		// Whitelist UI elements that are blocked by default and are not separable via address
 		// This does not need to repeat with the same period as the rest
 		uiWhitelistCounter += 1;
-		if (uiWhitelistCounter%10 == 0) {	
+		if (uiWhitelistCounter%5 == 0) {	
 			var elems = getUIWhitelistElems();
 			for (var ei = 0; ei < elems.length; ei++){
 				var elem = elems[ei];
@@ -788,7 +788,7 @@ countTrackers = function(options){
 					// removeJudgments(img); // Remove any previous judgment
 					addJudgment(img, 'non-suspicious');
 				}
-				var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw');
+				var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw, .aT5-aOt-I-JX-Jw');
 				for (var i = 0; i < bgDivs.length; i++)	{ // Loop over all divs with bg images in the ui segment
 					var dv = bgDivs[i];
 					if (dv.style.hasOwnProperty('background-image')){
