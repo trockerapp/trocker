@@ -88,6 +88,31 @@
 				</p>
 			</div>
 		</div>
+ 		<div class="option_name">Customize lists:</div>
+		<div class="option_value">
+			<div class="option_value_primary">
+				<input type="checkbox" name="useCustomLists" id="useCustomListsOpt">
+				<label for="useCustomLists">Enable</label> <br/>
+				<p>
+					Use custom lists for known trackers.
+				</p>
+				<div class="customLists hidden">
+					<label for="customOpenTrackers">List of open trackers (JSON format):</label>
+					<textarea class="jsonOption" name="customOpenTrackers" id="customOpenTrackersText"></textarea>
+					<button id="customOpenTrackersRestore">Restore default</button>
+					<button id="customOpenTrackersSave">Save</button>
+					<span id="customOpenTrackersStatus"></span>
+				</div>
+				<div class="customLists hidden">
+					<label for="customClickTrackers">List of click trackers (JSON format):</label>
+					<textarea class="jsonOption" name="customClickTrackers" id="customClickTrackersText"></textarea>
+					<button id="customClickTrackersRestore">Restore default</button>
+					<button id="customClickTrackersSave">Save</button>
+					<span id="customClickTrackersStatus"></span>
+					<p>Changes will be reflect immediately on exposing of trackers, but actual blocking will only reflect changes after Chrome or Trocker has restarted. You can disable and re-enable Trocker to force Trocker to restart. You will also need to refresh your email tab for the restarted Trocker to be able to interact with that tab.</p>
+				</div>
+			</div>
+		</div>
  		<div class="option_name">Link bypass timeout:</div>
 		<div class="option_value">
 			<div class="option_value_primary">

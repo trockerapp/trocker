@@ -12,16 +12,73 @@ function saveOptions() {
 	updatePermissionWarnings();
 	updateBrowserActionButton();
   
+  
+  var oldOpt1 = loadVariable('useCustomLists');
+  saveVariable('useCustomLists', document.getElementById("useCustomListsOpt").checked);
+  if (!oldOpt1 && oldOpt1!=loadVariable('useCustomLists')){
+	if (loadVariable('customOpenTrackers') === '') {
+		saveCustomLists( {
+			'target': {
+				'id': 'customOpenTrackersSave', 
+				'value': JSON.stringify( getOpenTrackerList(true), null, 2 )
+			}
+		});
+	}
+	if (loadVariable('customClickTrackers') === '') {
+		saveCustomLists( {
+			'target': {
+				'id': 'customClickTrackersSave', 
+				'value': JSON.stringify( getClickTrackerList(true), null, 2 )
+			}
+		});
+	}
+  }
+  
   var oldOpt = loadVariable('advanced');
   saveVariable('advanced', document.getElementById("advancedOpt").checked);
+  
+  if (oldOpt1!=loadVariable('useCustomLists')) location.reload();
   if (oldOpt!=loadVariable('advanced')) location.reload();
   
   // Update status to let user know options were saved.
   updateStatus('Options were saved!');
 }
 
-function updateStatus(innerText, className = '', timeOutMs = 1000){
-	var status = document.getElementById("status");
+function restoreDefaultLists(event){
+	if ((event.target.id == 'customOpenTrackersRestore') || (event.target.id == 'customClickTrackersRestore')){
+		optName = event.target.id.replace('Restore', '');
+		let list;
+		if (optName == 'customOpenTrackers'){
+			list = getOpenTrackerList(true);
+		} else if (optName == 'customClickTrackers'){
+			list = getClickTrackerList(true);
+		}
+		document.getElementById(optName+'Text').value = JSON.stringify( list, null, 2 );
+		updateStatus('Default list was restored. Now it can be saved.', 'successMsg', 5000, optName+'Status');
+	}
+	return false;
+}
+
+function saveCustomLists(event){
+	if ((event.target.id == 'customOpenTrackersSave') || (event.target.id == 'customClickTrackersSave')){
+		optName = event.target.id.replace('Save', '');
+		try {
+			valueElem = document.getElementById(optName+'Text');
+			jsonText = valueElem.value;
+			// Sanitize json
+			jsonText = JSON.stringify( JSON.parse(jsonText), null, 2 );
+			saveVariable(optName, jsonText);
+			valueElem.value = loadVariable(optName);
+			updateStatus('New list has been saved.', 'successMsg', 5000, optName+'Status');
+		} catch (error) {
+			updateStatus('New list could not be saved because JSON format had errors.', 'warningMsg', 5000, optName+'Status');
+		} 
+	}
+	return false;
+}
+
+function updateStatus(innerText, className = '', timeOutMs = 1000, statusElemId="status"){
+	var status = document.getElementById(statusElemId);
   status.innerText = innerText;
   status.className = className;
   status.style.opacity = 100;
@@ -46,6 +103,16 @@ function restoreOptions() {
 	
 	document.getElementById("bypassTimeoutOpt").value = loadVariable('linkBypassTimeout');
 	document.getElementById("bypassTimeoutOpt").onchange = saveOptions;
+	
+	document.getElementById("useCustomListsOpt").checked = loadVariable('useCustomLists');
+	document.getElementById("useCustomListsOpt").onchange = saveOptions;
+	
+	document.getElementById("customOpenTrackersText").value = loadVariable('customOpenTrackers');
+	document.getElementById("customOpenTrackersSave").onclick = saveCustomLists;
+	document.getElementById("customOpenTrackersRestore").onclick = restoreDefaultLists;
+	document.getElementById("customClickTrackersText").value = loadVariable('customClickTrackers');
+	document.getElementById("customClickTrackersSave").onclick = saveCustomLists;
+	document.getElementById("customClickTrackersRestore").onclick = restoreDefaultLists;
 	
 	document.getElementById("verboseOpt").checked = loadVariable('verbose');
 	document.getElementById("verboseOpt").onchange = saveOptions;
@@ -93,6 +160,13 @@ function restoreOptions() {
 	if (loadVariable('advanced')){
 		let a = document.getElementsByClassName("advancedItem");
 		for (let a0 of a) a0.classList.remove("hidden");
+
+		a = document.getElementsByClassName("customLists");
+		if (loadVariable('useCustomLists')){
+			for (let a0 of a) a0.classList.remove("hidden");
+		} else {
+			for (let a0 of a) a0.classList.add("hidden");
+		}
 		
 		// Extra stats
 		if (!document.getElementById("suspDomains")){
@@ -124,7 +198,7 @@ function restoreOptions() {
 		document.getElementById("spreadtheword").innerHTML = 'So Trocker has blocked '+(allOpenTrackerBlocks+allClickTrackerBypasses)+' trackers in your emails. <a href="https://twitter.com/intent/tweet?text='+tweetmsg+'">Tweet this to spread the word!</a>';	
 	}
 	
-	setTimeout(restoreOptions, 30*1000); // Update stats every few seconds
+	// setTimeout(restoreOptions, 30*1000); // Update stats every few seconds
 }
 
 function restoreOptionalPermissions(){

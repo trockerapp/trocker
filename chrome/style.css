@@ -29,6 +29,13 @@ padding: 0 20px;
   border-left-style: solid;
   padding-left: 5px;
 }
+textarea.jsonOption{
+  height: 10em;
+  width: 100%;
+}
+.customLists{
+  padding: 0.5em;
+}
 .changlog_name{float:left;font-weight:bold;margin-top:2px;width:5%; padding-right: 10px;}
 .changlog_value{
   float:left; 

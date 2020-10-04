@@ -1,5 +1,15 @@
-function getOpenTrackerList(){
-	var openTrackers = [
+function getOpenTrackerList(forceDefault=false){
+	let openTrackers;
+	if (!forceDefault && loadVariable('useCustomLists')) {
+		try {
+			openTrackers = JSON.parse(loadVariable('customOpenTrackers'));
+			return openTrackers;
+		} catch (error) {
+			console.log('Open trackers JSON does not exist or has some errors');
+		}
+	}
+
+	openTrackers = [
 		{
 			"name": "YW", 
 			"domains": ["t.yesware.com/t"],
@@ -84,8 +94,18 @@ function getOpenTrackerList(){
 	return openTrackers;
 }
 
-function getClickTrackerList(){
-	var clickTrackers = [
+function getClickTrackerList(forceDefault=false){
+	let clickTrackers;
+	if (!forceDefault && loadVariable('useCustomLists')) {
+		try {
+			clickTrackers = JSON.parse(loadVariable('customClickTrackers'));
+			return clickTrackers;
+		} catch (error) {
+			console.log('Click trackers JSON does not exist or has some errors');
+		}
+	}
+
+	clickTrackers = [
 		{
 			"name": "YW", 
 			"domains": ["t.yesware.com/tl"],

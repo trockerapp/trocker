@@ -71,6 +71,9 @@ function loadVariable(varName){
 	if ((varName == 'anyPage') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
 	if ((varName == 'exposeLinks') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
 	if ((varName == 'linkBypassTimeout') && (varValue === undefined)) { varValue = 11; cacheObject(varName, varValue); }
+	if ((varName == 'useCustomLists') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
+	if ((varName == 'customOpenTrackers') && (varValue === undefined)) { varValue = ''; cacheObject(varName, varValue); }
+	if ((varName == 'customClickTrackers') && (varValue === undefined)) { varValue = ''; cacheObject(varName, varValue); }
 	if ((varName == 'openTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
 	if ((varName == 'clickTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
 	if ((varName == 'statsSinceDate') && ((varValue === undefined) || (new Date(varValue) == "Invalid Date"))) { varValue = new Date(); cacheObject(varName, varValue); }
