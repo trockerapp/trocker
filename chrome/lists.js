@@ -170,6 +170,11 @@ function getClickTrackerList(forceDefault=false){
 			"name": "GM", 
 			"domains": ["ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x"],
 			"patterns": ["*://*.ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/*"]
+		},
+		{
+			"name": "PM", 
+			"domains": ["pstmrk.it"],
+			"patterns": ["*://click.pstmrk.it/*"]
 		}
 	];
 	return clickTrackers;
