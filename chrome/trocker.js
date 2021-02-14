@@ -76,6 +76,18 @@ class EmailGmail extends Email{
 	}
 }
 
+class EmailGmailDraft extends Email{
+	getImages(){
+		// Exclude any signture images
+		let images = Array.from(this.getBody().querySelectorAll('img')); 
+		let ui_images = Array.from(this.getBody().querySelectorAll('.gmail_signature img')); 
+		if (ui_images.length > 0) { // Remove draft UI elements that should not be processed (e.g. signatures)
+			images = images.filter( ( el ) => !ui_images.includes( el ) );
+		}
+		return images;
+	}
+}
+
 class EmailInbox extends Email{
 	getImages(){
 		var proxyURL = "googleusercontent.com/proxy";
@@ -318,7 +330,7 @@ function getDraftEmails(){
 	var emails = [];
 	var env = getEnv();
 	if (env==='gmail'){
-		emails = Array.from(document.querySelectorAll('.M9')).map(a => new Email(a)); // Compose windows (reply, forward, new message)
+		emails = Array.from(document.querySelectorAll('.M9')).map(a => new EmailGmailDraft(a)); // Compose windows (reply, forward, new message)
 	} else if (env==='inbox'){
 		emails = Array.from(document.querySelectorAll('.ae,.Bt.br')).map(a => new EmailInboxDraft(a)); // Compose windows (reply, forward, new message)
 	} else if (env==='outlook'){
