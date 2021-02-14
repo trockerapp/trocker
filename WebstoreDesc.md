@@ -2,7 +2,7 @@ Tracking your emails to know if the receiver has opened them or not is awesome, 
 
 You will be amazed to see how many of the emails you receive have trackers in them!
 
-Feel free to send us your feedback and reports any problems at: trockerapp@gmail.com
+If you have any issues with Trocker, email us at trockerapp@gmail.com or report the issue on GitHub (https://github.com/trockerapp/trocker/issues). Thanks for reporting issues. Given that Trocker needs to react to any breaking changes in webmails, we may not know about new issues unless you report them. Also, please consider giving us a chance to fix the issues before leaving a bad rating/review.
 
 And follow us on twitter: https://twitter.com/trockerapp
 
