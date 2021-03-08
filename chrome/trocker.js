@@ -176,11 +176,18 @@ class EmailYMail extends Email{
 	}
 	getTrockerSignDOMElem(showSign){ // Revise to create if needed and return the trocker sign
 		var trackedSign = null;
-		var trackedSign = this.mainDOMElem.querySelector('.D_F.en_0 img.'+trackedSignClass);
+		trackedSign = this.mainDOMElem.querySelector('.D_F.en_0 img.'+trackedSignClass);
+		if ((trackedSign === null) || (trackedSign.length < 1)) { // Could be classic Yahoo mail
+			trackedSign = this.mainDOMElem.querySelector('.N_dRA.D_X.q_52qC.mq_AQ img.'+trackedSignClass);
+		}
 		if (((trackedSign === null) || (trackedSign.length < 1)) && showSign){
 			trackedSign = createTrackedSign();
 			//trackedSign.style.cursor = 'pointer';
-			this.mainDOMElem.querySelector('.o_h.D_F.em_0.E_fq7.ek_BB .D_F.en_0').appendChild(trackedSign);
+			let parentElem = this.mainDOMElem.querySelector('.o_h.D_F.em_0.E_fq7.ek_BB .D_F.en_0');
+			if (!parentElem) { // Classic Yahoo mail
+				parentElem = this.mainDOMElem.querySelector('.N_dRA.D_X.q_52qC.mq_AQ');
+			}
+			parentElem.appendChild(trackedSign);
 		}
 		return trackedSign;
 	}
@@ -319,7 +326,7 @@ function getOpenEmails(){
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE')).map(a => new EmailOutlook(a)); // Opened emails in outlook2, new beta
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div[autoid="_rp_3"]')).map(a => new EmailOutlook(a)); // Opened emails in outlook alpha version
 	} else if (env==='ymail'){
-		emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0')).map(a => new EmailYMail(a)); // Opened emails in outlook
+		emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0,.V_GM.H_6D6F')).map(a => new EmailYMail(a)); // Opened emails in outlook
 		emails = emails.filter(e => e.getBody() !== null); // Remove unopened emails
 	}
 	if (emails.length) logEvent('detected '+emails.length+' open emails (env: "'+env+'")', false);
@@ -344,7 +351,7 @@ function getDraftEmails(){
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new Email(a)); // Compose windows final outlook
   		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._mcp_32')).map(a => new Email(a)); // Compose windows in outlook2, new beta
 	} else if (env==='ymail'){
-		emails = Array.from(document.querySelectorAll('.em_N.D_F.ek_BB.p_R.o_h')).map(a => new Email(a)); // Compose windows (reply, forward, new message)
+		emails = Array.from(document.querySelectorAll('.em_N.D_F.ek_BB.p_R.o_h,.o_A.d_3zJDR.H_3zJDR')).map(a => new Email(a)); // Compose windows (reply, forward, new message)
 	}
 	if (emails.length) logEvent('detected '+emails.length+' compose inputs (env: "'+env+'")', false);
 	
