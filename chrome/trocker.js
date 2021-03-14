@@ -925,5 +925,5 @@ checkAndDoYourDuty();
 
 var env = getEnv();
 if ((env==='gmail')||(env==='inbox')||(env==='outlook')||(env==='outlook2')||(env==='ymail')) window.setInterval(checkAndDoYourDuty, 500);
-console.log('Trocker ready!');
+console.log('[Trocker] version: '+chrome.runtime.getManifest().version);
 logEvent('Env="'+env+'"', true);

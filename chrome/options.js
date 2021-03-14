@@ -157,6 +157,8 @@ function restoreOptions() {
 	// Stats start date
 	document.getElementById("statsSinceDate").innerHTML = "(Since "+(new Date(loadVariable('statsSinceDate')).toLocaleDateString())+")";
 	
+	document.getElementById("version").innerHTML = chrome.runtime.getManifest().version;
+
 	if (loadVariable('advanced')){
 		let a = document.getElementsByClassName("advancedItem");
 		for (let a0 of a) a0.classList.remove("hidden");
