@@ -260,6 +260,18 @@ function wrap(wrapper, elms) {
     }
 };
 
+// Moves children of an element up to be its siblings and removes the element
+function unwrap(wrapper) {
+	if (wrapper instanceof HTMLElement){
+		children = wrapper.children; // Get children
+
+		for (var i = children.length - 1; i >= 0; i--) { // Move children to be siblings
+			wrapper.parentNode.insertBefore( children[i], wrapper );
+		}
+		wrapper.remove(); // Remove wrapper
+	}
+};
+
 function injectJSScript(elemName, src, elemId, cb){
 	var currentElem = document.getElementById(elemId);
 	if (currentElem === null) {
@@ -597,6 +609,7 @@ countTrackers = function(options){
 	for (var i=0; i<options.clickTrackers.length; i++) clickDomains = clickDomains.concat(options.clickTrackers[i].domains);
 
 	var trackerImages = [];
+	var safeImages = [];
 	var trackerLinks = [];
 	var env = getEnv();
 	if ((env==='gmail')||(env==='inbox')||(env==='outlook')||(env==='outlook2')||(env==='ymail')) { // Special Gmail, Inbox and Outlook handling
@@ -656,16 +669,17 @@ countTrackers = function(options){
 							if (!isKnownTracker) { // If an unknown tracker
 								img.setAttribute("known","0");
 							}
-							trackerImages.push(img);
 							mailOpenTrackers++;
-       				openTrackerURLs.push(img.src);
+       						openTrackerURLs.push(img.src);
 							addJudgment(img, 'suspicious');
 							//openTrackerURLs.push(img.src.split("#")[1]);
 							//if (img.src.indexOf(suspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+suspMark+'#');
 						}
+						trackerImages.push(img);
 					} else { // Mark non-tracking images
 						addJudgment(img, 'non-suspicious');
 						//if (img.src.indexOf(nonSuspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+nonSuspMark+'#');
+						safeImages.push(img);
 					}
 				}
 				if (images.length || ((env==='gmail') && email.imagesAreShown()) ){ // If <Images are displayed>, save this. Otherwise don't save so that we process images later
@@ -849,6 +863,7 @@ countTrackers = function(options){
 	
 	if (trackerLinks.length) logEvent(trackerLinks.length+' tracked link(s) were found in the email', true);
 	if (trackerImages.length) logEvent(trackerImages.length+' suspicious image(s) were found and blocked in the email', true);
+	if (safeImages.length) logEvent(safeImages.length+' safe-looking image(s) were found in the email', true)
 	var gmailUI = getGmailUI();
 	
 	if ((options.exposeTrackers)&&(gmailUI!=='print')){
@@ -879,6 +894,15 @@ countTrackers = function(options){
 			var link = trackerLinks[i];
 			// Expose the link
 			link.classList.add('trexpsdl');
+		}
+
+		// Make sure safe images are not exposed
+		for (var i = 0; i < safeImages.length; i++){
+			var img = safeImages[i];
+			var parent = img.parentNode;
+			if (parent.getAttribute("title") == "trexpsdspnelm") { // If wrapped in an exposer based on obsolete judgement
+				unwrap(parent);
+			}
 		}
 	}
 
