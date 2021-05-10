@@ -101,88 +101,88 @@ function getOpenTrackerSamples() {
 
 function getClickTrackerSamples() {
 	var clickTrackers = [{
-			"name": "YW",
-			"samples": {
-				"hit": ["http://t.yesware.com/tl/djhskdjshduew8e7lkdds?ytl=http://example.com"],
-				"miss": []
-			}
-		},
-		{
-			"name": "SK",
-			"samples": {
-				"hit": [],
-				"miss": []
-			}
-		},
-		{
-			"name": "MC",
-			"samples": {
-				"hit": ["http://toutapp.us1.list-manage.com/track/click?u=erdinbosfh87343&id=jhasjka7246&e=kjdsd7263"],
-				"miss": []
-			}
-		},
-		{
-			"name": "SG",
-			"samples": {
-				"hit": [],
-				"miss": []
-			}
-		},
-		{
-			"name": "IC",
-			"samples": {
-				"hit": [],
-				"miss": []
-			}
-		},
-		{
-			"name": "BT",
-			"samples": {
-				"hit": ["http://s.bl-1.com/h/uyre73642sdhF?url=http://www.example.com/"],
-				"miss": []
-			}
-		},
-		{
-			"name": "MM",
-			"samples": {
-				"hit": [],
-				"miss": []
-			}
-		},
-		{
-			"name": "MTA",
-			"samples": {
-				"hit": [],
-				"miss": []
-			}
-		},
-		{
-			"name": "IB",
-			"samples": {
-				"hit": [],
-				"miss": []
-			}
-		},
-		{
-			"name": "SL",
-			"samples": {
-				"hit": [],
-				"miss": []
-			}
-		},
-		{
-			"name": "SV",
-			"samples": {
-				"hit": [],
-				"miss": []
-			}
-		}, {
-			"name": "GM",
-			"samples": {
-				"hit": ['http://ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/d?c=87493bjs&l=9874hkj-skdj9832-e98lk-sdo98-ewem,zls&r=dskljd9-dsk9-ass1-dsds-02378dsnm'],
-				"miss": []
-			}
+		"name": "YW",
+		"samples": {
+			"hit": ["http://t.yesware.com/tl/djhskdjshduew8e7lkdds?ytl=http://example.com"],
+			"miss": []
 		}
+	},
+	{
+		"name": "SK",
+		"samples": {
+			"hit": [],
+			"miss": []
+		}
+	},
+	{
+		"name": "MC",
+		"samples": {
+			"hit": ["http://toutapp.us1.list-manage.com/track/click?u=erdinbosfh87343&id=jhasjka7246&e=kjdsd7263"],
+			"miss": []
+		}
+	},
+	{
+		"name": "SG",
+		"samples": {
+			"hit": [],
+			"miss": []
+		}
+	},
+	{
+		"name": "IC",
+		"samples": {
+			"hit": [],
+			"miss": []
+		}
+	},
+	{
+		"name": "BT",
+		"samples": {
+			"hit": ["http://s.bl-1.com/h/uyre73642sdhF?url=http://www.example.com/"],
+			"miss": []
+		}
+	},
+	{
+		"name": "MM",
+		"samples": {
+			"hit": [],
+			"miss": []
+		}
+	},
+	{
+		"name": "MTA",
+		"samples": {
+			"hit": [],
+			"miss": []
+		}
+	},
+	{
+		"name": "IB",
+		"samples": {
+			"hit": [],
+			"miss": []
+		}
+	},
+	{
+		"name": "SL",
+		"samples": {
+			"hit": [],
+			"miss": []
+		}
+	},
+	{
+		"name": "SV",
+		"samples": {
+			"hit": [],
+			"miss": []
+		}
+	}, {
+		"name": "GM",
+		"samples": {
+			"hit": ['http://ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/d?c=87493bjs&l=9874hkj-skdj9832-e98lk-sdo98-ewem,zls&r=dskljd9-dsk9-ass1-dsds-02378dsnm'],
+			"miss": []
+		}
+	}
 	];
 	return clickTrackers;
 }

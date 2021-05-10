@@ -6,15 +6,24 @@
    "browser_action": {
       "default_icon": "icon_128.png"
    },
-   "content_scripts": [ {
-      "all_frames": false,
-      "js": [ "trocker.js" ],
-      "matches": [ 
-         "*://mail.google.com/*", "*://inbox.google.com/*" , 
-         "*://*.mail.live.com/*", "*://*.outlook.live.com/*", "*://*.outlook.office365.com/*", "*://*.outlook.office.com/*", 
-         "*://*.mail.yahoo.com/*"],
-      "run_at": "document_end"
-   } ],
+   "content_scripts": [
+      {
+         "all_frames": false,
+         "js": [
+            "trocker.js"
+         ],
+         "matches": [
+            "*://mail.google.com/*",
+            "*://inbox.google.com/*",
+            "*://*.mail.live.com/*",
+            "*://*.outlook.live.com/*",
+            "*://*.outlook.office365.com/*",
+            "*://*.outlook.office.com/*",
+            "*://*.mail.yahoo.com/*"
+         ],
+         "run_at": "document_end"
+      }
+   ],
    "default_locale": "en",
    "description": "__MSG_extension_description__",
    "homepage_url": "https://trockerapp.github.io",
@@ -30,9 +39,24 @@
       "open_in_tab": true,
       "page": "options.html"
    },
-   "permissions": ["webRequest", "webRequestBlocking", "<all_urls>", "*://*.google.com/*", "*://*.live.com/*","*://*.googleusercontent.com/*"],
-   "optional_permissions": ["tabs"],
+   "permissions": [
+      "webRequest",
+      "webRequestBlocking",
+      "<all_urls>",
+      "*://*.google.com/*",
+      "*://*.live.com/*",
+      "*://*.googleusercontent.com/*"
+   ],
+   "optional_permissions": [
+      "tabs"
+   ],
    "short_name": "__MSG_extension_name__",
    "version": "2.6.11",
-   "web_accessible_resources": [ "tl.png", "td.png", "tlc.png", "tracked.png", "bypasser.html" ]
+   "web_accessible_resources": [
+      "tl.png",
+      "td.png",
+      "tlc.png",
+      "tracked.png",
+      "bypasser.html"
+   ]
 }
