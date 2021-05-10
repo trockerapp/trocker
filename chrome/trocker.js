@@ -508,7 +508,7 @@ function addJudgmentToSrc(src, judgment) {
 		}
 	} else if ((env === 'ymail')) {
 		var proxyURL = getProxyURL();
-		if (src.indexOf(markToAdd) == -1) {
+		if ((src.indexOf(markToAdd) == -1) && (src.indexOf(proxyURL) > -1)) {
 			src += markToAdd; // Just append to the end, because ymail proxy server doesn't not allow unknown params
 		}
 	}
