@@ -333,12 +333,29 @@ function getEnv(){
 	if (document.location.host.indexOf("mail.yahoo.com") > -1) return 'ymail';
 	return '';
 }
+
 // This function returns the part of the Gmail UI we are in
 function getGmailUI(){
 	if (document.location.search.indexOf('view=pt') > -1) return 'print';
 	if (document.location.search.indexOf('view=lg') > -1) return 'print';
 	if (document.location.search.indexOf('view=dom') > -1) return 'dom';
 	return 'main';
+}
+
+function getWebmailUrls(webmails){
+	let env = getEnv();
+	let wmInfo = {
+		name: '', 
+		matchUrls: [],
+		whiteList: [], 
+		whiteListExcept: []
+	}
+	for (let wm of webmails){
+		if ((wm.name && env === wm.name)||(wm.name==='outlook' && env=='outlook2')) {
+			wmInfo = wm;
+		}
+	}
+	return wmInfo;
 }
 
 // This function returns all open emails in the interface
@@ -573,6 +590,7 @@ checkAndDoYourDuty = function(){
 					chrome.runtime.sendMessage({method: "getTrackerLists"}, function(response) {
 						if (response) trockerOptions.openTrackers = response.openTrackers;
 						if (response) trockerOptions.clickTrackers = response.clickTrackers;
+						if (response) trockerOptions.webmails = response.webmails;
 						var trackerCount = countTrackers(trockerOptions);
 						chrome.runtime.sendMessage({method: "reportTrackerCount", value: trackerCount}, function(response) {});
 						
@@ -641,6 +659,7 @@ countTrackers = function(options){
 		//var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
 		var proxyURL = getProxyURL();
 		var proxifesImages = (proxyURL !==false);
+		var webmailInfo = getWebmailUrls(options.webmails);
 	
 		var emails = getOpenEmails();
 		//console.log('At '+env+'; '+emails.length+' emails are open...');
@@ -687,11 +706,12 @@ countTrackers = function(options){
 					
 					isProxified = ((proxyURL!='')&&(img.src.indexOf(proxyURL) > -1)); // Check if it is proxified
 					isKnownTracker = multiMatch(img.src, openDomains); // Check if it is a known tracker
-					
+					isWhitelistedURL = webmailInfo.whiteList.length && multiMatch(img.src, webmailInfo.whiteList) && !multiMatch(img.src, webmailInfo.whiteListExcept); // Check if it is whitelisted url
+
 					//console.log('Trocker: Image '+img.src+' has '+reps+ 'reps!'+(isKnownTracker?' is known':' is NOT known')+' - '+(isTiny(img)?' is tiny!':' is NOT tiny.')+' - w:'+getSize(img).w+' - h:'+getSize(img).h);
 					
 					removeJudgments(img); // Remove any previous judgment
-					if (( isKnownTracker || ( ((!proxifesImages) || isProxified) && isTiny(img) && (reps < 5) ) )) {
+					if (( isKnownTracker || ( ((!proxifesImages) || isProxified) && isTiny(img) && (reps < 5) && !isWhitelistedURL ) )) {
 						if (trAllowTracking) {
 							addJudgment(img, 'allowTracking');
 						} else {

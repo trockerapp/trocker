@@ -69,7 +69,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		  updateBrowserActionButton(tabId, 0);
 		}
 	} else if (request.method == "getTrackerLists") {
-		sendResponse({openTrackers: getOpenTrackerList(), clickTrackers: getClickTrackerList()});
+		sendResponse({openTrackers: getOpenTrackerList(), clickTrackers: getClickTrackerList(), webmails: webmails});
 	} else if (request.method == "addLimitedOpenPermission") {
 		limitedPermissions.addOpenPermission(request.key);
 		sendResponse({}); 
@@ -91,11 +91,13 @@ var webmails = [
 	},
 	{
 		name: 'outlook', 
-		matchUrls: ['outlook.live.com'],
+		matchUrls: ['outlook.live.com', 'outlook.office.com'],
 		whiteList: ['https://c.live.com/', 'https://c.bing.com/', 'https://outlook.live.com/', 'https://avatar.skype.com', 
 				 'http://c.live.com/' , 'http://c.bing.com/' , 'http://outlook.live.com/' , 
 				 'http://avatar.skype.com' , 'msecnd.net/dam/skype/',
-				 'office365.com', 'office.com', 'storage.live.com', 'cdn.office.net/owamail'], 
+				 'office365.com', 'office.com', 'storage.live.com', 'cdn.office.net/owamail',
+				 'https://attachment.outlook.live.net', 'https://attachment.outlook.office.com'
+				], 
 		whiteListExcept: []
 	},
 	{
