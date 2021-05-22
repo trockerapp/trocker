@@ -449,6 +449,23 @@ function createTrackedSign() {
 	return trackedSign;
 }
 
+function getUnproxifiedUrl(src) {
+	var proxyURL = getProxyURL();
+	if (src.indexOf(proxyURL)) {
+		if ((env === 'gmail') || (env === 'inbox')) {
+			if (src.indexOf('#') > -1) {
+				return src.split("#")[1];
+			}
+		} else if ((env === 'outlook') || (env === 'outlook2') || (env === 'ymail')) {
+			let urlParams = parseUrlParams(details.url);
+			if (urlParams.url) {
+				return urlParams.url;
+			}
+		}
+	}
+	return src;
+}
+
 // This function adds judgment url to an image's src, it also returns the non proxied src
 function addJudgment(img, judgment) {
 	img.src = addJudgmentToSrc(img.src, judgment);
@@ -641,6 +658,20 @@ function getSize(img) {
 	};
 }
 
+function isSusp(img) {
+	var src = img.src;
+	if ((src.indexOf('data:image') == 0) || (src.indexOf('blob:') == 0)) return false; // Don't declare susp if a data image
+
+	const origSrc = getUnproxifiedUrl(src);
+	const pathname = new URL(origSrc).pathname;
+	// Patterns usually only seen in tracking images
+	const susPatterns = ['/open', '=open', '/trace', '/track'];
+	for (let susP of susPatterns) {
+		if (pathname.indexOf(susP) > -1) return true;
+	}
+	return false;
+}
+
 function isTiny(img) {
 	var src = img.src;
 	if ((src.indexOf('data:image') == 0) || (src.indexOf('blob:') == 0)) return false; // Don't declare tiny if a data image
@@ -743,7 +774,7 @@ countTrackers = function (options) {
 					//console.log('Trocker: Image '+img.src+' has '+reps+ 'reps!'+(isKnownTracker?' is known':' is NOT known')+' - '+(isTiny(img)?' is tiny!':' is NOT tiny.')+' - w:'+getSize(img).w+' - h:'+getSize(img).h);
 
 					removeJudgments(img); // Remove any previous judgment
-					if ((isKnownTracker || (((!proxifesImages) || isProxified) && isTiny(img) && (reps < 5) && !isWhitelistedURL))) {
+					if ((isKnownTracker || (((!proxifesImages) || isProxified) && (isTiny(img) || isSusp(img)) && (reps < 5) && !isWhitelistedURL))) {
 						if (trAllowTracking) {
 							addJudgment(img, 'allowTracking');
 						} else {
@@ -891,7 +922,7 @@ countTrackers = function (options) {
 					else isKnownTracker = false;
 
 					removeJudgments(img); // Remove any previous judgment
-					if (isKnownTracker || isTiny(img)) {
+					if (isKnownTracker || isTiny(img) || isSusp(img)) {
 						addJudgment(img, 'suspicious');
 						mailOpenTrackers += 1;
 						thisEmailTrackerImages.push(img);

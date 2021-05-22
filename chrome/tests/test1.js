@@ -37,7 +37,7 @@ function runTinyImageTests(images, resBox, correctAns) {
     var img = images[i];
     var category = img.parentElement.title;
     var failColor = (img.parentElement.getAttribute('failColor')) ? (img.parentElement.getAttribute('failColor')) : '#e55353';
-    if (isTiny(img) == correctAns) resBox.innerHTML += '<span style="background:limegreen;">' + (i + 1) + ') [' + category + '] Correctly detected as ' + correctAnsText + '!</span><br />';
+    if ((isTiny(img) || isSusp(img)) == correctAns) resBox.innerHTML += '<span style="background:limegreen;">' + (i + 1) + ') [' + category + '] Correctly detected as ' + correctAnsText + '!</span><br />';
     else {
       resBox.innerHTML += '<span style="background:' + failColor + ';">' + (i + 1) + ') [' + category + '] Incorrectly detected as ' + wrongAnsText + '!</span><br />';
       fails++;
