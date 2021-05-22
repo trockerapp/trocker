@@ -663,7 +663,7 @@ function isSusp(img) {
 	if ((src.indexOf('data:image') == 0) || (src.indexOf('blob:') == 0)) return false; // Don't declare susp if a data image
 
 	const origSrc = getUnproxifiedUrl(src);
-	const pathname = new URL(origSrc).pathname;
+	const pathname = origSrc.replace(new URL(origSrc).origin, '');
 	// Patterns usually only seen in tracking images
 	const susPatterns = ['/open', '=open', '/trace', '/track'];
 	for (let susP of susPatterns) {

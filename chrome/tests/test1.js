@@ -35,7 +35,12 @@ function runTinyImageTests(images, resBox, correctAns) {
   var fails = 0;
   for (var i = 0; i < images.length; i++) {
     var img = images[i];
-    var category = img.parentElement.title;
+    if (img.parentElement.className.indexOf('trexpsd') > -1) {
+      var category = img.parentElement.parentElement.title;
+    } else {
+      var category = img.parentElement.title;
+    }
+
     var failColor = (img.parentElement.getAttribute('failColor')) ? (img.parentElement.getAttribute('failColor')) : '#e55353';
     if ((isTiny(img) || isSusp(img)) == correctAns) resBox.innerHTML += '<span style="background:limegreen;">' + (i + 1) + ') [' + category + '] Correctly detected as ' + correctAnsText + '!</span><br />';
     else {
