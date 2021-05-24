@@ -457,7 +457,7 @@ function getUnproxifiedUrl(src) {
 				return src.split("#")[1];
 			}
 		} else if ((env === 'outlook') || (env === 'outlook2') || (env === 'ymail')) {
-			let urlParams = parseUrlParams(details.url);
+			let urlParams = parseUrlParams(src);
 			if (urlParams.url) {
 				return urlParams.url;
 			}
