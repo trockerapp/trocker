@@ -7,6 +7,13 @@
 // Some constants
 var trackedSignClass = 'trsgn';
 
+var resourceUrls = {
+	'trackedSign': chrome.extension.getURL('tracked.png'),
+	'tr1': chrome.extension.getURL("tl.png"),
+	'tr2': chrome.extension.getURL("td.png"),
+	'trClick': chrome.extension.getURL("tlc.png")
+}
+
 // Some global vars
 var imageSrcsBU = '';
 var trackerImageCntBU = 0;
@@ -315,10 +322,10 @@ function prepareCSSRules() {
 	if (currentStyleSheet === null) {
 		var css = document.createElement("style");
 		css.type = "text/css";
-		css.innerHTML += "span.trexpsd:before{position: absolute;content:'';background: url(" + chrome.extension.getURL("tl.png") + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
-		css.innerHTML += "span.trexpsds:before{position: absolute;content:'';background: url(" + chrome.extension.getURL("td.png") + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
+		css.innerHTML += "span.trexpsd:before{position: absolute;content:'';background: url(" + resourceUrls['tr1'] + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
+		css.innerHTML += "span.trexpsds:before{position: absolute;content:'';background: url(" + resourceUrls['tr2'] + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
 		css.innerHTML += 'span.trexpsd:empty, span.trexpsds:empty, span[title="trexpsdspnelm"]:empty, span[title="trexpsdspnelm"] :not(img){display:none !important;}';
-		css.innerHTML += "a.trexpsdl:hover{cursor: url(" + chrome.extension.getURL("tlc.png") + "), auto; !important;}";
+		css.innerHTML += "a.trexpsdl:hover{cursor: url(" + resourceUrls['trClick'] + "), auto; !important;}";
 		css.setAttribute("id", styleSheetId);
 		document.body.appendChild(css);
 	}
@@ -439,7 +446,7 @@ function getProxyURL() {
 // This function creates a trackedSign element
 function createTrackedSign() {
 	var trackedSign = document.createElement('img');
-	trackedSign.src = chrome.extension.getURL('tracked.png');
+	trackedSign.src = resourceUrls['trackedSign'];
 	trackedSign.setAttribute("class", trackedSignClass);
 	//trackedSign.style.display = 'none';
 	trackedSign.height = 12;
@@ -601,40 +608,44 @@ checkAndDoYourDuty = function () {
 	if (inOptionPersistancePeriod) { // We have recently loaded the options, let's use them
 		var trackerCount = countTrackers(trockerOptions);
 	} else {
-		//logEvent('fetching options', true);
-		chrome.runtime.sendMessage({
-			method: "loadVariable",
-			key: 'trockerEnable'
-		}, function (response) {
-			if (response) trockerOptions.trockerEnable = response.varValue;
-			//if (trockerOptions.trockerEnable) {
+		try {
+			//logEvent('fetching options', true);
 			chrome.runtime.sendMessage({
 				method: "loadVariable",
-				key: 'exposeLinks'
+				key: 'trockerEnable'
 			}, function (response) {
-				if (response) trockerOptions.exposeTrackers = response.varValue;
+				if (response) trockerOptions.trockerEnable = response.varValue;
+				//if (trockerOptions.trockerEnable) {
 				chrome.runtime.sendMessage({
-					method: "getTrackerLists"
+					method: "loadVariable",
+					key: 'exposeLinks'
 				}, function (response) {
-					if (response) trockerOptions.openTrackers = response.openTrackers;
-					if (response) trockerOptions.clickTrackers = response.clickTrackers;
-					if (response) trockerOptions.webmails = response.webmails;
-					var trackerCount = countTrackers(trockerOptions);
+					if (response) trockerOptions.exposeTrackers = response.varValue;
 					chrome.runtime.sendMessage({
-						method: "reportTrackerCount",
-						value: trackerCount
-					}, function (response) { });
+						method: "getTrackerLists"
+					}, function (response) {
+						if (response) trockerOptions.openTrackers = response.openTrackers;
+						if (response) trockerOptions.clickTrackers = response.clickTrackers;
+						if (response) trockerOptions.webmails = response.webmails;
+						var trackerCount = countTrackers(trockerOptions);
+						chrome.runtime.sendMessage({
+							method: "reportTrackerCount",
+							value: trackerCount
+						}, function (response) { });
 
+					});
 				});
+				chrome.runtime.sendMessage({
+					method: "loadVariable",
+					key: 'verbose'
+				}, function (response) {
+					trockerOptions.verbose = response.varValue;
+				});
+				//}
 			});
-			chrome.runtime.sendMessage({
-				method: "loadVariable",
-				key: 'verbose'
-			}, function (response) {
-				trockerOptions.verbose = response.varValue;
-			});
-			//}
-		});
+		} catch (error) {
+			logEvent('Lost connection to extension... The browser may have updated Trocker. Please refresh the page\n'+error, true);
+		}
 		inOptionPersistancePeriod = true;
 		window.setTimeout(function () {
 			inOptionPersistancePeriod = false;
