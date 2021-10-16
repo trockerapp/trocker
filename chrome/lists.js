@@ -89,6 +89,11 @@ function getOpenTrackerList(forceDefault = false) {
 			"name": "GM",
 			"domains": ["ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x"],
 			"patterns": ["*://*.ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/*"]
+		},
+		{
+			"name": "CM",
+			"domains": ["pixel.watch"],
+			"patterns": ["*://*.pixel.watch/*"]
 		}
 	];
 	return openTrackers;
