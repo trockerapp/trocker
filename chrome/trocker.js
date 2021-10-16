@@ -126,34 +126,48 @@ class EmailInboxDraft extends Email {
 
 class EmailOutlook extends Email {
 	getBody() {
-		const bodyElem = this.mainDOMElem.querySelectorAll('.JWNdg1hee9_Rz6bIGvG1c,.uPjvZdP7b0tJmYcRO3HY9');
-		if (bodyElem.length == 1) {
-			return bodyElem[0];
+		const bodyElems = this.mainDOMElem.querySelectorAll('._2Qk4AbDuWwkuLB005ds2jm,.QMubUjbS-BOly_BTHEZj7,.JWNdg1hee9_Rz6bIGvG1c,.uPjvZdP7b0tJmYcRO3HY9');
+		if (bodyElems.length > 0) {
+			return Array.from(bodyElems);
 		} else {
-			return this.mainDOMElem;
+			// make array with one element
+			return [this.mainDOMElem];
 		}
+	}
+	getLinks() {
+		var bodyLinks = this.getBody().map(b => Array.from(b.querySelectorAll('a')));
+		return [].concat.apply([], bodyLinks); // Merge links found from all body elements
 	}
 	getImages() {
 		//var images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in Outlook
-		if ((this.mainDOMElem.className.indexOf('_2le66D_cFAbkq67CrgZcmE') > -1) || // Main emails
+		if ((this.mainDOMElem.className.indexOf('_3BL964mseejjC_nzEeda9o') > -1) || // Main emails
+			(this.mainDOMElem.className.indexOf('_2FJRXKSranEP36X2Dy8lE3') > -1) || // Popout
+			(this.mainDOMElem.className.indexOf('_2q-_UnTDGy-DErmixrz2IR') > -1) || // Print view
+			(this.mainDOMElem.className.indexOf('_2tQ4A3EnvULHEHV6E6FsrS') > -1) || // Message history view
+			// Before updates ~Oct 2021
+			(this.mainDOMElem.className.indexOf('_2le66D_cFAbkq67CrgZcmE') > -1) || // Main emails
 			(this.mainDOMElem.className.indexOf('_2Tgrtrj5ACwo2I6mKHcBME') > -1) || // Popout
 			(this.mainDOMElem.className.indexOf('_2Dho5i6XHUaOnZOvgsp38a') > -1)) { // Print view
-			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
+			var bodyImages = this.getBody().map(b => Array.from(b.querySelectorAll('img')));
 			// Before updates ~July 2019
 		} else if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) ||
 			(this.mainDOMElem.className.indexOf('_103ouDFSzMvKVjD0UYmJQh') > -1) ||
 			(this.mainDOMElem.className.indexOf('_2UEsN7oGn-H4ZnCcJIoc3Q') > -1)) {
-			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
+			var bodyImages = this.getBody().map(b => Array.from(b.querySelectorAll('img')));
 		} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // beta
-			var images = this.getBody().querySelectorAll('img'); // Opened emails in Outlook
+			var bodyImages = this.getBody().map(b => Array.from(b.querySelectorAll('img')));
 		} else {
-			var images = this.getBody().parentElement.parentElement.parentElement.parentElement.querySelectorAll('img'); // Opened emails in Outlook
+			var bodyImages = this.getBody().map(b => Array.from(b.parentElement.parentElement.parentElement.parentElement.querySelectorAll('img')));
 		}
+		var images = [].concat.apply([], bodyImages); // Merge images found from all body elements
 		return images;
 	}
 	getTrockerSignDOMElem(showSign) { // Revise to create if needed and return the trocker sign
 		var trackedSign = null;
-		if (this.mainDOMElem.className.indexOf('_2le66D_cFAbkq67CrgZcmE') > -1) { // Main email
+		if (this.mainDOMElem.className.indexOf('_3BL964mseejjC_nzEeda9o') > -1) { // Main email
+			var trackedSign = this.mainDOMElem.querySelector('._3HWDmPvwbfbJdx0zvu6Bve img.' + trackedSignClass);
+			// Before updates ~Oct 2021
+		} else if (this.mainDOMElem.className.indexOf('_2le66D_cFAbkq67CrgZcmE') > -1) { // Main email
 			var trackedSign = this.mainDOMElem.querySelector('._1Lo7BjmdsKZy3IMMxN7mVu img.' + trackedSignClass);
 			// Before updates ~July 2019
 		} else if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
@@ -171,7 +185,10 @@ class EmailOutlook extends Email {
 			trackedSign = createTrackedSign();
 			//trackedSign.style.cursor = 'pointer';
 			let e = null;
-			if (this.mainDOMElem.className.indexOf("_2le66D_cFAbkq67CrgZcmE") > -1) { // Final version (message history, e.g. forwarded)
+			if (this.mainDOMElem.className.indexOf("_3BL964mseejjC_nzEeda9o") > -1) { // Final version (message history, e.g. forwarded)
+				e = this.mainDOMElem.querySelector('._3HWDmPvwbfbJdx0zvu6Bve ');
+				// Before updates ~Oct 2021 2019
+			} else if (this.mainDOMElem.className.indexOf("_2le66D_cFAbkq67CrgZcmE") > -1) { // Final version (message history, e.g. forwarded)
 				e = this.mainDOMElem.querySelector('._1Lo7BjmdsKZy3IMMxN7mVu');
 				// Before updates ~July 2019
 			} else if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
@@ -193,7 +210,7 @@ class EmailOutlook extends Email {
 
 class EmailOutlookDraft extends Email {
 	getBody() {
-		const bodyElem = this.mainDOMElem.querySelectorAll('._2_G1lB2DCB_6t73ZTT6vX3,._2Hl0t2u2yIjuWmfatKUaJ2');
+		const bodyElem = this.mainDOMElem.querySelectorAll('.bAHScQgzLTvwiV2QXvzpa,._2kZu_nrsBS0LQbV-DFQuPl,._2_G1lB2DCB_6t73ZTT6vX3,._2Hl0t2u2yIjuWmfatKUaJ2');
 		if (bodyElem.length == 1) {
 			return bodyElem[0];
 		} else {
@@ -383,7 +400,9 @@ function getOpenEmails() {
 	} else if (env === 'outlook') {
 		emails = Array.from(document.querySelectorAll('.ReadMsgContainer')).map(a => new Email(a)); // Opened emails in outlook
 	} else if (env === 'outlook2') {
-		emails = Array.from(document.querySelectorAll('div._2le66D_cFAbkq67CrgZcmE, div._2Tgrtrj5ACwo2I6mKHcBME, ._2Dho5i6XHUaOnZOvgsp38a')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
+		emails = Array.from(document.querySelectorAll('div._2tQ4A3EnvULHEHV6E6FsrS, div._3BL964mseejjC_nzEeda9o, div._2FJRXKSranEP36X2Dy8lE3, div._2q-_UnTDGy-DErmixrz2IR')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
+		// Before updates ~Oct 2021
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2le66D_cFAbkq67CrgZcmE, div._2Tgrtrj5ACwo2I6mKHcBME, ._2Dho5i6XHUaOnZOvgsp38a')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
 		// Before updates ~July 2019
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-, div._2UEsN7oGn-H4ZnCcJIoc3Q, div._103ouDFSzMvKVjD0UYmJQh')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE')).map(a => new EmailOutlook(a)); // Opened emails in outlook2, new beta
@@ -409,7 +428,9 @@ function getDraftEmails() {
 		for (var ifi = 0; ifi < cmpwin.length; ifi++)
 			emails.push(new Email(cmpwin[ifi].contentWindow.document.body));
 	} else if (env === 'outlook2') {
-		emails = Array.from(document.querySelectorAll('._29NreFcQ3QoBPNO3rKXKB0')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
+		emails = Array.from(document.querySelectorAll('._17WvdmDfhREFqBNvlLv75X')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
+		// Before updates ~Oct 2021
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._29NreFcQ3QoBPNO3rKXKB0')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
 		// Before updates ~July 2019
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._mcp_32')).map(a => new EmailOutlookDraft(a)); // Compose windows in outlook2, new beta
@@ -805,7 +826,7 @@ countTrackers = function (options) {
 						thisEmailSafeImages.push(img);
 					}
 				}
-				if (images.length || ((env === 'gmail') && email.imagesAreShown())) { // If <Images are displayed>, save this. Otherwise don't save so that we process images later
+				if (images.length || (images.length != imagesProcessed) || ((env === 'gmail') && email.imagesAreShown())) { // If <Images are displayed>, save this. Otherwise don't save so that we process images later
 					email.setAttribute("trotrckrs", mailOpenTrackers);
 					email.setAttribute("trimgs", images.length);
 					clickTrackersProcessed = false; // Redo click tracker analysis
