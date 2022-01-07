@@ -452,8 +452,8 @@ function getUIWhitelistElems() {
 			elems = document.querySelectorAll('.nH.bAw, .bq9'); // Header, Left Bar, Right add-on bar
 		}
 	} else if (env === 'outlook2') {
-		// Some selectors: .___1d1gxkh: Left bar
-		elems = document.querySelectorAll('.___1d1gxkh'); // Left Bar
+		// Some selectors: .___1d1gxkh: Left bar, .___7y4pq70: Left bar app overflow box
+		elems = document.querySelectorAll('.___1d1gxkh, .___7y4pq70'); // Left Bar, Left bar app overflow box
 	}
 	return elems;
 }
@@ -557,6 +557,15 @@ function addJudgmentToSrc(src, judgment) {
 	} else if ((env === 'ymail')) {
 		var proxyURL = getProxyURL();
 		if ((src.indexOf(markToAdd) == -1) && (src.indexOf(proxyURL) > -1)) {
+			// if (src.indexOf(proxyURL) > -1) {
+			// 	var params = parseUrlParams(src);
+			// 	var newUrl = addTrockerMark(params['url'], markToAdd);
+			// 	var newSrc = new URL(src);
+			// 	newSrc.searchParams.set('url', newUrl);
+			// 	src = newSrc.href;
+			// } else {
+			// src = addTrockerMark(src, markToAdd);
+			// }
 			src += markToAdd; // Just append to the end, because ymail proxy server doesn't not allow unknown params
 		}
 	}
