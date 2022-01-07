@@ -451,6 +451,9 @@ function getUIWhitelistElems() {
 			// Some selectors: .nH.oy8Mbf.qp: Header, .nH.oy8Mbf.aeN: Left bar, .nH.bAw: Right add-on bar with add-on icons, .bq9: right add-on load area
 			elems = document.querySelectorAll('.nH.bAw, .bq9'); // Header, Left Bar, Right add-on bar
 		}
+	} else if (env === 'outlook2') {
+		// Some selectors: .___1d1gxkh: Left bar
+		elems = document.querySelectorAll('.___1d1gxkh'); // Left Bar
 	}
 	return elems;
 }
