@@ -453,7 +453,7 @@ function getUIWhitelistElems() {
 		}
 	} else if (env === 'outlook2') {
 		// Some selectors: .___1d1gxkh: Left bar, .___7y4pq70: Left bar app overflow box
-		elems = document.querySelectorAll('.___1d1gxkh, .___7y4pq70'); // Left Bar, Left bar app overflow box
+		elems = document.querySelectorAll('.___1d1gxkh, .___7y4pq70, .___1s80610, .f17wyjut'); // Left Bar, Left bar app overflow box
 	}
 	return elems;
 }
