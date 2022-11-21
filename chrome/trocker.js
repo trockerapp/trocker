@@ -174,7 +174,7 @@ class EmailOutlook extends Email {
 		return emails;
 	}
 	getBody() {
-		const bodyElems = this.mainDOMElem.querySelectorAll('.XbIp4,.T3idP,.TiApU,._2Qk4AbDuWwkuLB005ds2jm,.QMubUjbS-BOly_BTHEZj7,.JWNdg1hee9_Rz6bIGvG1c,.uPjvZdP7b0tJmYcRO3HY9');
+		const bodyElems = this.mainDOMElem.querySelectorAll('.XbIp4,.ulb23,.TiApU,._2Qk4AbDuWwkuLB005ds2jm,.QMubUjbS-BOly_BTHEZj7,.JWNdg1hee9_Rz6bIGvG1c,.uPjvZdP7b0tJmYcRO3HY9');
 		if (bodyElems.length > 0) {
 			return Array.from(bodyElems);
 		} else {
@@ -221,7 +221,7 @@ class EmailOutlook extends Email {
 	}
 	getTrockerSignDOMElem(showSign) { // Revise to create if needed and return the trocker sign
 		var trackedSign = null;
-		if (this.mainDOMElem.className.indexOf('SlLx9') > -1) { // Main email
+		if ((this.mainDOMElem.className.indexOf("SlLx9") > -1) || (this.mainDOMElem.className.indexOf("Q8TCC") > -1)) { // Main/popout email
 			var trackedSign = this.mainDOMElem.querySelector('.AvaBt img.' + trackedSignClass);
 			// Before updates ~Nov 2022
 		} else if (this.mainDOMElem.className.indexOf('QQC3U') > -1) { // Main email
@@ -248,16 +248,16 @@ class EmailOutlook extends Email {
 			trackedSign = createTrackedSign();
 			//trackedSign.style.cursor = 'pointer';
 			let e = null;
-			if (this.mainDOMElem.className.indexOf("SlLx9") > -1) { // Final version (message history, e.g. forwarded)
+			if ((this.mainDOMElem.className.indexOf("SlLx9") > -1) || (this.mainDOMElem.className.indexOf("Q8TCC") > -1)) {
 				e = this.mainDOMElem.querySelector('.AvaBt');
 				// Before updates ~Nov 2022
-			} else if (this.mainDOMElem.className.indexOf("QQC3U") > -1) { // Final version (message history, e.g. forwarded)
+			} else if (this.mainDOMElem.className.indexOf("QQC3U") > -1) {
 				e = this.mainDOMElem.querySelector('.GtvxD');
 				// Before updates ~July 2022
-			} else if (this.mainDOMElem.className.indexOf("_3BL964mseejjC_nzEeda9o") > -1) { // Final version (message history, e.g. forwarded)
+			} else if (this.mainDOMElem.className.indexOf("_3BL964mseejjC_nzEeda9o") > -1) {
 				e = this.mainDOMElem.querySelector('._3HWDmPvwbfbJdx0zvu6Bve ');
 				// Before updates ~Oct 2021
-			} else if (this.mainDOMElem.className.indexOf("_2le66D_cFAbkq67CrgZcmE") > -1) { // Final version (message history, e.g. forwarded)
+			} else if (this.mainDOMElem.className.indexOf("_2le66D_cFAbkq67CrgZcmE") > -1) {
 				e = this.mainDOMElem.querySelector('._1Lo7BjmdsKZy3IMMxN7mVu');
 				// Before updates ~July 2019
 			} else if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
