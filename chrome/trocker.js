@@ -21,6 +21,9 @@ var linkUrlsBU = '';
 var trackLinkCntBU = 0;
 
 class Email {
+	static getOpenEmails(){
+		return [];
+	}
 	constructor(mainDOMElem) {
 		this.mainDOMElem = mainDOMElem;
 	}
@@ -58,6 +61,15 @@ class Email {
 }
 
 class EmailGmail extends Email {
+	static getOpenEmails(){
+		var gmailUI = getGmailUI();
+		if (gmailUI == 'main') {
+			emails = Array.from(document.querySelectorAll('.nH.hx .h7')).map(a => new EmailGmail(a)); // Normal view of conversations in Gmail
+		} else if (gmailUI == 'print') {
+			emails = Array.from(document.getElementsByTagName('body')).map(a => new EmailGmail(a)); // Print view of conversations in Gmail
+		}
+		return emails;
+	}
 	constructor(mainDOMElem) {
 		super(mainDOMElem);
 		this.gmailUI = getGmailUI();
@@ -102,6 +114,10 @@ class EmailGmailDraft extends Email {
 }
 
 class EmailInbox extends Email {
+	static getOpenEmails(){
+		emails = Array.from(document.querySelectorAll('.pA')).map(a => new EmailInbox(a)); // Opened emails in inbox
+		return emails;
+	}
 	getImages() {
 		var proxyURL = "googleusercontent.com/proxy";
 		//images = this.getBody().querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
@@ -125,6 +141,18 @@ class EmailInboxDraft extends Email {
 }
 
 class EmailOutlook extends Email {
+	static getOpenEmails(){
+		emails = Array.from(document.querySelectorAll('div.QQC3U, div.iUOI8, div.SAW9N')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
+		// Before updates ~July 2022
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2tQ4A3EnvULHEHV6E6FsrS, div._3BL964mseejjC_nzEeda9o, div._2FJRXKSranEP36X2Dy8lE3, div._2q-_UnTDGy-DErmixrz2IR')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
+		// Before updates ~Oct 2021
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2le66D_cFAbkq67CrgZcmE, div._2Tgrtrj5ACwo2I6mKHcBME, ._2Dho5i6XHUaOnZOvgsp38a')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
+		// Before updates ~July 2019
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-, div._2UEsN7oGn-H4ZnCcJIoc3Q, div._103ouDFSzMvKVjD0UYmJQh')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE')).map(a => new EmailOutlook(a)); // Opened emails in outlook2, new beta
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div[autoid="_rp_3"]')).map(a => new EmailOutlook(a)); // Opened emails in outlook alpha version
+		return emails;
+	}
 	getBody() {
 		const bodyElems = this.mainDOMElem.querySelectorAll('.TiApU,._2Qk4AbDuWwkuLB005ds2jm,.QMubUjbS-BOly_BTHEZj7,.JWNdg1hee9_Rz6bIGvG1c,.uPjvZdP7b0tJmYcRO3HY9');
 		if (bodyElems.length > 0) {
@@ -231,6 +259,11 @@ class EmailOutlookDraft extends Email {
 }
 
 class EmailYMail extends Email {
+	static getOpenEmails(){
+		emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0,.V_GM.H_6D6F')).map(a => new EmailYMail(a)); // Opened emails in outlook
+		emails = emails.filter(e => e.getBody() !== null); // Remove unopened emails
+		return emails;
+	}
 	getBody() {
 		return this.mainDOMElem.querySelector('.msg-body');
 	}
@@ -400,33 +433,20 @@ function getOpenEmails() {
 	var emails = [];
 	var env = getEnv();
 	if (env === 'gmail') {
-		var gmailUI = getGmailUI();
-		if (gmailUI == 'main') {
-			emails = Array.from(document.querySelectorAll('.nH.hx .h7')).map(a => new EmailGmail(a)); // Normal view of conversations in Gmail
-		} else if (gmailUI == 'print') {
-			emails = Array.from(document.getElementsByTagName('body')).map(a => new EmailGmail(a)); // Print view of conversations in Gmail
-		}
+		emails = EmailGmail.getOpenEmails();
 	} else if (env === 'inbox') {
-		emails = Array.from(document.querySelectorAll('.pA')).map(a => new EmailInbox(a)); // Opened emails in inbox
+		emails = EmailInbox.getOpenEmails();
 	} else if (env === 'outlook') {
 		emails = Array.from(document.querySelectorAll('.ReadMsgContainer')).map(a => new Email(a)); // Opened emails in outlook
 	} else if (env === 'outlook2') {
-		emails = Array.from(document.querySelectorAll('div.QQC3U, div.iUOI8, div.SAW9N')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
-		// Before updates ~July 2022
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2tQ4A3EnvULHEHV6E6FsrS, div._3BL964mseejjC_nzEeda9o, div._2FJRXKSranEP36X2Dy8lE3, div._2q-_UnTDGy-DErmixrz2IR')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
-		// Before updates ~Oct 2021
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2le66D_cFAbkq67CrgZcmE, div._2Tgrtrj5ACwo2I6mKHcBME, ._2Dho5i6XHUaOnZOvgsp38a')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
-		// Before updates ~July 2019
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-, div._2UEsN7oGn-H4ZnCcJIoc3Q, div._103ouDFSzMvKVjD0UYmJQh')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE')).map(a => new EmailOutlook(a)); // Opened emails in outlook2, new beta
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div[autoid="_rp_3"]')).map(a => new EmailOutlook(a)); // Opened emails in outlook alpha version
+		emails = EmailOutlook.getOpenEmails();
 	} else if (env === 'ymail') {
-		emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0,.V_GM.H_6D6F')).map(a => new EmailYMail(a)); // Opened emails in outlook
-		emails = emails.filter(e => e.getBody() !== null); // Remove unopened emails
+		emails = EmailYMail.getOpenEmails();
 	}
 	if (emails.length) logEvent('detected ' + emails.length + ' open emails (env: "' + env + '")', false);
 	return emails;
 }
+
 // This function returns all draft emails in the interface, we don't want to block images in these
 function getDraftEmails() {
 	var emails = [];
