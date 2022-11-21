@@ -24,6 +24,9 @@ class Email {
 	static getOpenEmails(){
 		return [];
 	}
+	static getDraftEmails(){
+		return [];
+	}
 	constructor(mainDOMElem) {
 		this.mainDOMElem = mainDOMElem;
 	}
@@ -61,14 +64,16 @@ class Email {
 }
 
 class EmailGmail extends Email {
-	static getOpenEmails(){
+	static getOpenEmails() {
 		var gmailUI = getGmailUI();
 		if (gmailUI == 'main') {
-			emails = Array.from(document.querySelectorAll('.nH.hx .h7')).map(a => new EmailGmail(a)); // Normal view of conversations in Gmail
+			return Array.from(document.querySelectorAll('.nH.hx .h7')).map(a => new EmailGmail(a)); // Normal view of conversations in Gmail
 		} else if (gmailUI == 'print') {
-			emails = Array.from(document.getElementsByTagName('body')).map(a => new EmailGmail(a)); // Print view of conversations in Gmail
+			return Array.from(document.getElementsByTagName('body')).map(a => new EmailGmail(a)); // Print view of conversations in Gmail
 		}
-		return emails;
+	}
+	static getDraftEmails() {
+		return Array.from(document.querySelectorAll('.M9')).map(a => new EmailGmailDraft(a)); // Compose windows (reply, forward, new message)
 	}
 	constructor(mainDOMElem) {
 		super(mainDOMElem);
@@ -115,8 +120,10 @@ class EmailGmailDraft extends Email {
 
 class EmailInbox extends Email {
 	static getOpenEmails(){
-		emails = Array.from(document.querySelectorAll('.pA')).map(a => new EmailInbox(a)); // Opened emails in inbox
-		return emails;
+		return Array.from(document.querySelectorAll('.pA')).map(a => new EmailInbox(a)); // Opened emails in inbox
+	}
+	static getDraftEmails(){
+		return Array.from(document.querySelectorAll('.ae,.Bt.br')).map(a => new EmailInboxDraft(a)); // Compose windows (reply, forward, new message)
 	}
 	getImages() {
 		var proxyURL = "googleusercontent.com/proxy";
@@ -141,8 +148,8 @@ class EmailInboxDraft extends Email {
 }
 
 class EmailOutlook extends Email {
-	static getOpenEmails(){
-		emails = Array.from(document.querySelectorAll('div.QQC3U, div.iUOI8, div.SAW9N')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
+	static getOpenEmails() {
+		let emails = Array.from(document.querySelectorAll('div.QQC3U, div.iUOI8, div.SAW9N')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
 		// Before updates ~July 2022
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2tQ4A3EnvULHEHV6E6FsrS, div._3BL964mseejjC_nzEeda9o, div._2FJRXKSranEP36X2Dy8lE3, div._2q-_UnTDGy-DErmixrz2IR')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
 		// Before updates ~Oct 2021
@@ -151,6 +158,15 @@ class EmailOutlook extends Email {
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._3irHoMUL9qIdRXbrljByA-, div._2UEsN7oGn-H4ZnCcJIoc3Q, div._103ouDFSzMvKVjD0UYmJQh')).map(a => new EmailOutlook(a)); // Opened emails in outlook,final version
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._2D1p6xUSTPdw8LYT59VKoE')).map(a => new EmailOutlook(a)); // Opened emails in outlook2, new beta
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div[autoid="_rp_3"]')).map(a => new EmailOutlook(a)); // Opened emails in outlook alpha version
+		return emails;
+	}
+	static getDraftEmails() {
+		let emails = Array.from(document.querySelectorAll('._17WvdmDfhREFqBNvlLv75X')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
+		// Before updates ~Oct 2021
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._29NreFcQ3QoBPNO3rKXKB0')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
+		// Before updates ~July 2019
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._mcp_32')).map(a => new EmailOutlookDraft(a)); // Compose windows in outlook2, new beta
 		return emails;
 	}
 	getBody() {
@@ -259,10 +275,13 @@ class EmailOutlookDraft extends Email {
 }
 
 class EmailYMail extends Email {
-	static getOpenEmails(){
-		emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0,.V_GM.H_6D6F')).map(a => new EmailYMail(a)); // Opened emails in outlook
+	static getOpenEmails() {
+		let emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0,.V_GM.H_6D6F')).map(a => new EmailYMail(a)); // Opened emails in outlook
 		emails = emails.filter(e => e.getBody() !== null); // Remove unopened emails
 		return emails;
+	}
+	static getDraftEmails() {
+		return Array.from(document.querySelectorAll('.em_N.D_F.ek_BB.p_R.o_h,.o_A.d_3zJDR.H_3zJDR')).map(a => new Email(a)); // Compose windows (reply, forward, new message)
 	}
 	getBody() {
 		return this.mainDOMElem.querySelector('.msg-body');
@@ -452,23 +471,18 @@ function getDraftEmails() {
 	var emails = [];
 	var env = getEnv();
 	if (env === 'gmail') {
-		emails = Array.from(document.querySelectorAll('.M9')).map(a => new EmailGmailDraft(a)); // Compose windows (reply, forward, new message)
+		emails = EmailGmail.getDraftEmails();
 	} else if (env === 'inbox') {
-		emails = Array.from(document.querySelectorAll('.ae,.Bt.br')).map(a => new EmailInboxDraft(a)); // Compose windows (reply, forward, new message)
+		emails = EmailInbox.getDraftEmails();
 	} else if (env === 'outlook') {
 		//emails = document.querySelectorAll('.ComposeMessage'); // Compose windows 
 		var cmpwin = Array.from(document.querySelectorAll('.ComposeMessage iframe.RichText')).map(a => new Email(a)); // RichText Compose windows 
 		for (var ifi = 0; ifi < cmpwin.length; ifi++)
 			emails.push(new Email(cmpwin[ifi].contentWindow.document.body));
 	} else if (env === 'outlook2') {
-		emails = Array.from(document.querySelectorAll('._17WvdmDfhREFqBNvlLv75X')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
-		// Before updates ~Oct 2021
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._29NreFcQ3QoBPNO3rKXKB0')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
-		// Before updates ~July 2019
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._mcp_32')).map(a => new EmailOutlookDraft(a)); // Compose windows in outlook2, new beta
+		emails = EmailOutlook.getDraftEmails();
 	} else if (env === 'ymail') {
-		emails = Array.from(document.querySelectorAll('.em_N.D_F.ek_BB.p_R.o_h,.o_A.d_3zJDR.H_3zJDR')).map(a => new Email(a)); // Compose windows (reply, forward, new message)
+		emails = EmailYMail.getDraftEmails();
 	}
 	if (emails.length) logEvent('detected ' + emails.length + ' compose inputs (env: "' + env + '")', false);
 
