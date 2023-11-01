@@ -67,7 +67,7 @@ class EmailGmail extends Email {
 	static getOpenEmails() {
 		var gmailUI = getGmailUI();
 		if (gmailUI == 'main') {
-			return Array.from(document.querySelectorAll('.nH.hx .h7')).map(a => new EmailGmail(a)); // Normal view of conversations in Gmail
+			return Array.from(document.querySelectorAll('.h7')).map(a => new EmailGmail(a)); // Normal view of conversations in Gmail
 		} else if (gmailUI == 'print') {
 			return Array.from(document.getElementsByTagName('body')).map(a => new EmailGmail(a)); // Print view of conversations in Gmail
 		}
