@@ -87,7 +87,7 @@ var webmails = [
 		name: 'google',
 		matchUrls: ['://mail.google.com', '://inbox.google.com'],
 		whiteList: [],
-		whiteListExcept: ['.googleusercontent.com/proxy'] // Google's image proxy
+		whiteListExcept: ['.googleusercontent.com/proxy', '.googleusercontent.com/meips'] // Google's image proxy
 	},
 	{
 		name: 'outlook',
@@ -96,7 +96,8 @@ var webmails = [
 			'http://c.live.com/', 'http://c.bing.com/', 'http://outlook.live.com/',
 			'http://avatar.skype.com', 'msecnd.net/dam/skype/',
 			'office365.com', 'office.com', 'storage.live.com', 'cdn.office.net/owamail',
-			'https://attachment.outlook.live.net', 'https://attachment.outlook.office.com'
+			'https://attachment.outlook.live.net', 'https://attachment.outlook.office.com',
+			'officeapps.live.com'
 		],
 		whiteListExcept: []
 	},
@@ -199,7 +200,7 @@ function handleOnBeforeRequestOpenTracker(details) {
 	// details.url -> the url of request 
 
 	// Gmail Related
-	var gmailProxyURL = "googleusercontent.com/proxy";
+	var gmailProxyURLs = ["googleusercontent.com/proxy", "googleusercontent.com/meips/"];
 	var nonSuspMark = "trnonsuspmrk"; // This should be added to non-suspicious images
 	var suspMark = "trsuspmrk"; // This should be added to suspicious images
 	var trIgnoreMark = "trfcallwmrk"; // Any previous judgment will be replaced by this when user forces allowing the trackers

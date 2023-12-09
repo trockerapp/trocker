@@ -20,6 +20,8 @@ var trackerImageCntBU = 0;
 var linkUrlsBU = '';
 var trackLinkCntBU = 0;
 
+var openEmailCount=null;
+
 class Email {
 	static getOpenEmails(){
 		return [];
@@ -32,6 +34,9 @@ class Email {
 	}
 	getBody() { // Revise this to more specifically return the body of the email in each webmail
 		return this.mainDOMElem;
+	}
+	getUIImages() { // Revise this to more specifically return the body of the email in each webmail
+		return [];
 	}
 	getImages() { // Revise this to return images in the email body
 		return this.getBody().querySelectorAll('img');
@@ -82,8 +87,8 @@ class EmailGmail extends Email {
 	getImages() {
 		var proxyURL = "googleusercontent.com/proxy";
 		if (this.gmailUI === 'main') {
-			//images = this.getBody().querySelectorAll('.ii.gt img'); // Normal view of conversations in Gmail
-			var images = this.getBody().querySelectorAll('.ii.gt img[src*="' + proxyURL + '"]'); // Normal view of conversations in Gmail
+			images = this.getBody().querySelectorAll('.ii.gt img'); // Normal view of conversations in Gmail
+			// var images = this.getBody().querySelectorAll('.ii.gt img[src*="' + proxyURL + '"]'); // Normal view of conversations in Gmail
 		} else if (this.gmailUI === 'print') {
 			var images = this.getBody().querySelectorAll('img'); // Print view of conversations in Gmail
 		}
@@ -149,7 +154,8 @@ class EmailInboxDraft extends Email {
 
 class EmailOutlook extends Email {
 	static getOpenEmails() {
-		let emails = Array.from(document.querySelectorAll('div.SlLx9, div.Q8TCC, div.r4JeH, div.uy30y')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
+		// document.querySelectorAll('div.GjFKx') // Unopen emails
+		let emails = Array.from(document.querySelectorAll('div.SlLx9, div.r4JeH, div.uy30y')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
 		// Before updates ~Nov 2022
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div.QQC3U, div.iUOI8, div.SAW9N')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
 		// Before updates ~July 2022
@@ -180,6 +186,16 @@ class EmailOutlook extends Email {
 		} else {
 			// make array with one element
 			return [this.mainDOMElem];
+		}
+	}
+	getUIImages() { // Revise this to more specifically return the body of the email in each webmail
+		const attachmentElems = this.mainDOMElem.querySelectorAll('.T3idP');
+		if (attachmentElems.length > 0) {
+			return [].concat.apply([], 
+				Array.from(attachmentElems).map( b => Array.from(b.querySelectorAll('img')) )
+			);
+		} else {
+			return [];
 		}
 	}
 	getLinks() {
@@ -462,6 +478,7 @@ function getWebmailUrls(webmails) {
 }
 
 // This function returns all open emails in the interface
+
 function getOpenEmails() {
 	var emails = [];
 	var env = getEnv();
@@ -476,7 +493,10 @@ function getOpenEmails() {
 	} else if (env === 'ymail') {
 		emails = EmailYMail.getOpenEmails();
 	}
-	if (emails.length) logEvent('detected ' + emails.length + ' open emails (env: "' + env + '")', false);
+	if (emails.length != openEmailCount) {
+		openEmailCount = emails.length;
+		logEvent('detected ' + emails.length + ' open emails (env: "' + env + '")', false);
+	}
 	return emails;
 }
 
@@ -519,12 +539,12 @@ function getUIWhitelistElems() {
 	return elems;
 }
 // This function gets return the proxy url of the environment
-function getProxyURL() {
+function getProxyURLs() {
 	var env = getEnv();
-	if ((env === 'gmail') || (env === 'inbox')) return "googleusercontent.com/proxy";
-	if (env === 'outlook') return "mail.live.com/Handlers";
-	if (env === 'outlook2') return false; // Does not proxify
-	if (env === 'ymail') return 'yusercontent.com/mail';
+	if ((env === 'gmail') || (env === 'inbox')) return ["googleusercontent.com/proxy", "googleusercontent.com/meips"];
+	if (env === 'outlook') return ["mail.live.com/Handlers"];
+	if (env === 'outlook2') return []; // Does not proxify
+	if (env === 'ymail') return ['yusercontent.com/mail'];
 	return '';
 }
 
@@ -542,16 +562,18 @@ function createTrackedSign() {
 }
 
 function getUnproxifiedUrl(src) {
-	var proxyURL = getProxyURL();
-	if (src.indexOf(proxyURL)) {
-		if ((env === 'gmail') || (env === 'inbox')) {
-			if (src.indexOf('#') > -1) {
-				return src.split("#")[1];
-			}
-		} else if ((env === 'outlook') || (env === 'outlook2') || (env === 'ymail')) {
-			let urlParams = parseUrlParams(src);
-			if (urlParams.url) {
-				return urlParams.url;
+	var proxyURLs = getProxyURLs();
+	for (const proxyURL of proxyURLs) {
+		if (src.indexOf(proxyURL)) {
+			if ((env === 'gmail') || (env === 'inbox')) {
+				if (src.indexOf('#') > -1) {
+					return src.split("#")[1];
+				}
+			} else if ((env === 'outlook') || (env === 'outlook2') || (env === 'ymail')) {
+				let urlParams = parseUrlParams(src);
+				if (urlParams.url) {
+					return urlParams.url;
+				}
 			}
 		}
 	}
@@ -606,7 +628,7 @@ function addJudgmentToSrc(src, judgment) {
 			}
 		}
 	} else if ((env === 'outlook') || (env === 'outlook2')) {
-		var proxyURL = getProxyURL();
+		var proxyURL = getProxyURLs()[0];
 		if (src.indexOf(markToAdd) == -1) {
 			if ((src.indexOf(proxyURL) > -1) && (src.indexOf('&url') > -1)) {
 				// srcUrl = parseUrlParams(src).url;		
@@ -616,7 +638,7 @@ function addJudgmentToSrc(src, judgment) {
 			}
 		}
 	} else if ((env === 'ymail')) {
-		var proxyURL = getProxyURL();
+		var proxyURL = getProxyURLs()[0];
 		if ((src.indexOf(markToAdd) == -1) && (src.indexOf(proxyURL) > -1)) {
 			// if (src.indexOf(proxyURL) > -1) {
 			// 	var params = parseUrlParams(src);
@@ -816,8 +838,8 @@ countTrackers = function (options) {
 	if ((env === 'gmail') || (env === 'inbox') || (env === 'outlook') || (env === 'outlook2') || (env === 'ymail')) { // Special Gmail, Inbox and Outlook handling
 		//var nonSuspMark = "trnonsuspmrk=1"; // This will be added to non-suspicious images
 		//var suspMark = "trsuspmrk=1"; // This will be added to suspicious images
-		var proxyURL = getProxyURL();
-		var proxifesImages = (proxyURL !== false);
+		var proxyURLs = getProxyURLs();
+		var proxifesImages = (proxyURLs.length > 0);
 		var webmailInfo = getWebmailUrls(options.webmails);
 
 		var emails = getOpenEmails();
@@ -835,6 +857,9 @@ countTrackers = function (options) {
 			}
 			if (email.getAttribute("trimgs") !== null) { // Images available in email when processed open trackers
 				imagesProcessed = email.getAttribute("trimgs");
+				if (imagesProcessed !== false) {
+					imagesProcessed = parseInt(imagesProcessed);
+				}
 			}
 			if (email.getAttribute("trctrckrs") !== null) { // Already processed click trackers
 				clickTrackersProcessed = true;
@@ -842,8 +867,15 @@ countTrackers = function (options) {
 			if (email.getAttribute("trAllowTracking") !== null) { // User has allowed tracking for this email, and this time
 				trAllowTracking = true;
 			}
+			if (email.getAttribute("truiimgs") !== null) { // UI images available in email when processed open trackers
+				uiImagesProcessed = email.getAttribute("truiimgs");
+				if (uiImagesProcessed !== false) {
+					uiImagesProcessed = parseInt(uiImagesProcessed);
+				}
+			}
 
 			var images = email.getImages();
+			var ui_images = email.getUIImages(); // UI images that need to be whitelisted for each email
 
 			var mailTrackers = 0;
 			var thisEmailTrackerImages = [];
@@ -852,7 +884,7 @@ countTrackers = function (options) {
 
 			// Open Trackers
 			var openTrackerURLs = [];
-			if (openTrackersProcessed && (images.length == imagesProcessed)) {
+			if (openTrackersProcessed && (images.length == imagesProcessed) && (ui_images.length == uiImagesProcessed)) {
 				mailTrackers += parseInt(email.getAttribute("trotrckrs"));
 				// Double check that the images still have the judgment (in case the webmail has changes the src again, this happens in Gmail for unread messages)
 				var checkInd = Math.floor(Math.random() * images.length); // Check one of the images by random to confirm that judgment has not been removed by the main app
@@ -860,7 +892,13 @@ countTrackers = function (options) {
 					email.setAttribute("trimgs", 0); // To force reevaluation of images
 					logEvent(logPrefix + 'Images will be reevaluated for this email!', true);
 				}
+				var checkInd = Math.floor(Math.random() * ui_images.length); // Check one of the ui images by random to confirm that judgment has not been removed by the main app
+				if (ui_images.length > 0 && !hasJudgments(ui_images[checkInd])) {
+					email.setAttribute("truiimgs", 0); // To force reevaluation of images
+					logEvent(logPrefix + 'Images will be reevaluated for this email!', true);
+				}
 			} else { // Process Open Trackers
+				logEvent(logPrefix + '=> Evaluating images!', true);
 				var mailOpenTrackers = 0;
 				var imagesSrcs = [];
 				for (var j = 0; j < images.length; j++) imagesSrcs[j] = images[j].src; // Store src for all images
@@ -872,7 +910,14 @@ countTrackers = function (options) {
 					for (var j = 0; j < imagesSrcs.length; j++)
 						if (imagesSrcs[j] == img.src) reps++;
 
-					isProxified = ((proxyURL != '') && (img.src.indexOf(proxyURL) > -1)); // Check if it is proxified
+					isProxified = false;
+					for (const proxyURL of proxyURLs){
+						if ((proxyURL != '') && (img.src.indexOf(proxyURL) > -1)) { // Check if it is proxified
+							isProxified = true;
+							break;
+						}
+					}
+					
 					isKnownTracker = multiMatch(img.src, openDomains); // Check if it is a known tracker
 					isWhitelistedURL = webmailInfo.whiteList.length && multiMatch(img.src, webmailInfo.whiteList) && !multiMatch(img.src, webmailInfo.whiteListExcept); // Check if it is whitelisted url
 
@@ -899,13 +944,20 @@ countTrackers = function (options) {
 						thisEmailSafeImages.push(img);
 					}
 				}
-				if (images.length || (images.length != imagesProcessed) || ((env === 'gmail') && email.imagesAreShown())) { // If <Images are displayed>, save this. Otherwise don't save so that we process images later
+				if (images.length || imagesProcessed===false || (images.length != imagesProcessed) || ((env === 'gmail') && email.imagesAreShown())) { // If <Images are displayed>, save this. Otherwise don't save so that we process images later
 					email.setAttribute("trotrckrs", mailOpenTrackers);
 					email.setAttribute("trimgs", images.length);
 					clickTrackersProcessed = false; // Redo click tracker analysis
 					newFindings = true;
 				}
 				mailTrackers += mailOpenTrackers;
+				// Whitelist any UI images for this email (attachement image, etc)
+				for (var i = 0; i < ui_images.length; i++) { // Loop over all images in the email
+					var img = ui_images[i];
+					removeJudgments(img); // Remove any previous judgment
+					addJudgment(img, 'non-suspicious');
+				}
+				email.setAttribute("truiimgs", ui_images.length);
 			}
 
 			// Link Trackers
