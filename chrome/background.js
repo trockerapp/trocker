@@ -97,7 +97,7 @@ var webmails = [
 			'http://avatar.skype.com', 'msecnd.net/dam/skype/',
 			'office365.com', 'office.com', 'storage.live.com', 'cdn.office.net/owamail',
 			'https://attachment.outlook.live.net', 'https://attachment.outlook.office.com',
-			'officeapps.live.com'
+			'officeapps.live.com', 'cdn.office.net/officeonline'
 		],
 		whiteListExcept: []
 	},

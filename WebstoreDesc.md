@@ -23,43 +23,43 @@ Moreover, some links are click tracked meaning that if you click on them, your c
 No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. In Gmail, Inbox and Outlook.com, Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if it is unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
 
 Change log:
-2.6.25:
+2.6.26:
 - Improves handling of changes in email content.
-- Adds support for new gmail proxy url.
+- Adds support for new Gmail proxy url.
 - Fixes Outlook attachment preview blocking issue that only affected Firefox.
 
 2.6.24:
-- Adapts to changes in gmail.
+- Adapts to changes in Gmail.
 
 2.6.23:
-- Adds support for new outlook design updates.
+- Adds support for new Outlook design updates.
 
 2.6.21:
-- Adds support for new outlook design updates.
+- Adds support for new Outlook design updates.
 
 2.6.20:
-- Fixes outlook sidebar icon issue in Firefox.
+- Fixes Outlook sidebar icon issue in Firefox.
 
 2.6.19:
-- Fixes outlook sidebar icon issue in Firefox.
+- Fixes Outlook sidebar icon issue in Firefox.
 
 2.6.16:
-- Adapts to new under the hood changes in outlook.
+- Adapts to new under the hood changes in Outlook.
 - Adds more known trackers to block list.
 
 2.6.15:
-- Fixes Yahoo/outlook bug in the new heuristic.
+- Fixes Yahoo/Outlook bug in the new heuristic.
 - Adds graceful handling of lost connection to extension context after updates.
 
 2.6.14:
 - Adds heuristic detection of tracking images based on patterns in the url.
 
 2.6.12:
-- Fixes handling of attachments in outlook.
+- Fixes handling of attachments in Outlook.
 - Improves logs for easier debugging.
 
 2.6.11:
-- Improves handling of webmails that load images gradually (e.g. outlook).
+- Improves handling of webmails that load images gradually (e.g. Outlook).
 - Adds Trocker version to options and logs.
 
 2.6.10:
@@ -76,7 +76,7 @@ Change log:
 - Fixes new issue with Gmail sidebar that blocked some extension icons.
 
 2.6.5:
-- Fixes new issue that blocked some outlook UI images.
+- Fixes new issue that blocked some Outlook UI images.
 - Adds blocking for additional known trackers.
 - Improves heuristic detection of trackers.
 
@@ -89,7 +89,7 @@ Change log:
 - Adds the option to change tracked link bypass timeout.
 
 2.6.2:
-- Adds support for the outlook.office.com url for outlook.
+- Adds support for the outlook.office.com url for Outlook.
 
 2.6.1:
 - Adds support for the updated outlook.com and office365.
@@ -161,7 +161,7 @@ Change log:
 - Improvements in heuristic tracker detection.
 
 2.1.0:
-- Added support for Google Inbox and Microsoft outlook. Heuristic tracker detection and showing number of trackers in each email now works in Google's Inbox and Microsoft's Outlook.com in addition to Gmail.
+- Added support for Google Inbox and Microsoft Outlook. Heuristic tracker detection and showing number of trackers in each email now works in Google's Inbox and Microsoft's Outlook.com in addition to Gmail.
 - Block even more trackers everywhere (now iOS MailTracker in addition to others)
 
 2.0.3:
