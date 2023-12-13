@@ -95,9 +95,9 @@ var webmails = [
 		whiteList: ['https://c.live.com/', 'https://c.bing.com/', 'https://outlook.live.com/', 'https://avatar.skype.com',
 			'http://c.live.com/', 'http://c.bing.com/', 'http://outlook.live.com/',
 			'http://avatar.skype.com', 'msecnd.net/dam/skype/',
-			'office365.com', 'office.com', 'storage.live.com', 'cdn.office.net/owamail',
+			'office365.com', 'office.com', 'storage.live.com', 'cdn.office.net',
 			'https://attachment.outlook.live.net', 'https://attachment.outlook.office.com',
-			'officeapps.live.com', 'cdn.office.net/officeonline'
+			'officeapps.live.com'
 		],
 		whiteListExcept: []
 	},

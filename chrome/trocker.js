@@ -34,16 +34,23 @@ class Email {
 		this.mainDOMElem = mainDOMElem;
 	}
 	getBody() { // Revise this to more specifically return the body of the email in each webmail
-		return this.mainDOMElem;
+		return [this.mainDOMElem];
+	}
+	getULElements() {
+		return [];
 	}
 	getUIImages() { // Revise this to more specifically return the body of the email in each webmail
 		return [];
 	}
 	getImages() { // Revise this to return images in the email body
-		return this.getBody().querySelectorAll('img');
+		var bodyImages = this.getBody().map(b => Array.from(b.querySelectorAll('img')));
+		var images = [].concat.apply([], bodyImages); // Merge images found from all body elements
+		return images;
 	}
-	getLinks() {
-		return this.getBody().querySelectorAll('a');
+	getLinks() { // Revise this to return links in the email body
+		var bodyLinks = this.getBody().map(b => Array.from(b.querySelectorAll('a')));
+		var links = [].concat.apply([], bodyLinks); // Merge links found from all body elements
+		return links;
 	}
 	getTrockerSign(showSign) {
 		var trackedSign = this.getTrockerSignDOMElem(showSign);
@@ -85,15 +92,17 @@ class EmailGmail extends Email {
 		super(mainDOMElem);
 		this.gmailUI = getGmailUI();
 	}
-	getImages() {
-		var proxyURL = "googleusercontent.com/proxy";
+	getBody() {
+		let elems = [];
 		if (this.gmailUI === 'main') {
-			images = this.getBody().querySelectorAll('.ii.gt img'); // Normal view of conversations in Gmail
-			// var images = this.getBody().querySelectorAll('.ii.gt img[src*="' + proxyURL + '"]'); // Normal view of conversations in Gmail
-		} else if (this.gmailUI === 'print') {
-			var images = this.getBody().querySelectorAll('img'); // Print view of conversations in Gmail
+			elems = Array.from(this.mainDOMElem.querySelectorAll('.ii.gt'));
+		} else if (gmailUI == 'print') {
+			elems = Array.from(this.mainDOMElem.querySelectorAll('.maincontent'));
 		}
-		return images;
+		if (elems.length == 0) {
+			elems = [this.mainDOMElem];
+		}
+		return elems;
 	}
 	getTrockerSignDOMElem(showSign) { // Revise to create if needed and return the trocker sign
 		var trackedSign = null;
@@ -115,8 +124,9 @@ class EmailGmail extends Email {
 class EmailGmailDraft extends Email {
 	getImages() {
 		// Exclude any signature images
-		let images = Array.from(this.getBody().querySelectorAll('img'));
-		let ui_images = Array.from(this.getBody().querySelectorAll('.gmail_signature img'));
+		let images = super.getImages();
+		var bodyImages = this.getBody().map(b => Array.from(b.querySelectorAll('.gmail_signature img')));
+		var ui_images = [].concat.apply([], bodyImages); // Merge images found from all body elements
 		if (ui_images.length > 0) { // Remove draft UI elements that should not be processed (e.g. signatures)
 			images = images.filter((el) => !ui_images.includes(el));
 		}
@@ -133,8 +143,8 @@ class EmailInbox extends Email {
 	}
 	getImages() {
 		var proxyURL = "googleusercontent.com/proxy";
-		//images = this.getBody().querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
-		return this.getBody().querySelectorAll('.he.s2 img'); // Opened emails in inbox
+		//images = this.mainDOMElem.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in inbox
+		return this.mainDOMElem.querySelectorAll('.he.s2 img'); // Opened emails in inbox
 	}
 	getTrockerSignDOMElem(showSign) { // Revise to create if needed and return the trocker sign
 		var trackedSign = this.mainDOMElem.querySelector('.pF .m4 img.' + trackedSignClass);
@@ -149,14 +159,14 @@ class EmailInbox extends Email {
 
 class EmailInboxDraft extends Email {
 	getImages() {
-		return email.querySelectorAll('.n7 img'); // Text part of draft emails in inbox
+		return this.mainDOMElem.querySelectorAll('.n7 img'); // Text part of draft emails in inbox
 	}
 }
 
 class EmailOutlook extends Email {
 	static getOpenEmails() {
 		// document.querySelectorAll('div.GjFKx') // Unopen emails
-		let emails = Array.from(document.querySelectorAll('div.SlLx9, div.r4JeH, div.uy30y')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
+		let emails = Array.from(document.querySelectorAll('div.SlLx9, div.uy30y')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
 		// Before updates ~Nov 2022
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div.QQC3U, div.iUOI8, div.SAW9N')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
 		// Before updates ~July 2022
@@ -170,24 +180,28 @@ class EmailOutlook extends Email {
 		return emails;
 	}
 	static getDraftEmails() {
-		let emails = Array.from(document.querySelectorAll('.yz4r1')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
+		let emails = Array.from(document.querySelectorAll('.yz4r1, .r4JeH')).map(a => new EmailOutlookDraft(a)); // Compose windows and print preview, current outlook
 		// Before updates ~Nov 2022
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._17WvdmDfhREFqBNvlLv75X')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._17WvdmDfhREFqBNvlLv75X')).map(a => new EmailOutlookDraft(a)); // Compose windows
 		// Before updates ~Oct 2021
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._29NreFcQ3QoBPNO3rKXKB0')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._29NreFcQ3QoBPNO3rKXKB0')).map(a => new EmailOutlookDraft(a)); // Compose windows
 		// Before updates ~July 2019
-		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new EmailOutlookDraft(a)); // Compose windows final outlook
+		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('._2BCZP_W9VLRv-NN3SC1nnS')).map(a => new EmailOutlookDraft(a)); // Compose windows
 		if (!emails || !emails.length) emails = Array.from(document.querySelectorAll('div._mcp_32')).map(a => new EmailOutlookDraft(a)); // Compose windows in outlook2, new beta
 		return emails;
 	}
 	getBody() {
-		const bodyElems = this.mainDOMElem.querySelectorAll('.XbIp4,.ulb23,.TiApU,._2Qk4AbDuWwkuLB005ds2jm,.QMubUjbS-BOly_BTHEZj7,.JWNdg1hee9_Rz6bIGvG1c,.uPjvZdP7b0tJmYcRO3HY9');
+		const bodyElems = this.mainDOMElem.querySelectorAll('.GNqVo,.SlLx9,.Q8TCC,.r4JeH,.uy30y,.XbIp4,.ulb23,.TiApU,._2Qk4AbDuWwkuLB005ds2jm,.QMubUjbS-BOly_BTHEZj7,.JWNdg1hee9_Rz6bIGvG1c,.uPjvZdP7b0tJmYcRO3HY9');
 		if (bodyElems.length > 0) {
 			return Array.from(bodyElems);
 		} else {
 			// make array with one element
 			return [this.mainDOMElem];
 		}
+	}
+	getULElements() {
+		const attachmentElems = this.mainDOMElem.querySelectorAll('.T3idP');
+		return attachmentElems;
 	}
 	getUIImages() { // Revise this to more specifically return the body of the email in each webmail
 		const attachmentElems = this.mainDOMElem.querySelectorAll('.T3idP');
@@ -209,6 +223,7 @@ class EmailOutlook extends Email {
 			(this.mainDOMElem.className.indexOf('Q8TCC') > -1) || // Popout
 			(this.mainDOMElem.className.indexOf('r4JeH') > -1) || // Print view
 			(this.mainDOMElem.className.indexOf('uy30y') > -1) || // Message history view
+			(this.mainDOMElem.className.indexOf('GNqVo') > -1) || // Quoted prior emails in an email
 			// Before updates ~Nov 2022
 			(this.mainDOMElem.className.indexOf('QQC3U') > -1) || // Main emails
 			(this.mainDOMElem.className.indexOf('SI5jj') > -1) || // Popout
@@ -298,9 +313,9 @@ class EmailOutlookDraft extends Email {
 	getBody() {
 		const bodyElem = this.mainDOMElem.querySelectorAll('.bAHScQgzLTvwiV2QXvzpa,._2kZu_nrsBS0LQbV-DFQuPl,._2_G1lB2DCB_6t73ZTT6vX3,._2Hl0t2u2yIjuWmfatKUaJ2');
 		if (bodyElem.length == 1) {
-			return bodyElem[0];
+			return [bodyElem[0]];
 		} else {
-			return this.mainDOMElem;
+			return [this.mainDOMElem];
 		}
 	}
 }
@@ -308,16 +323,16 @@ class EmailOutlookDraft extends Email {
 class EmailYMail extends Email {
 	static getOpenEmails() {
 		let emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0,.V_GM.H_6D6F')).map(a => new EmailYMail(a)); // Opened emails in outlook
-		emails = emails.filter(e => e.getBody() !== null); // Remove unopened emails
+		emails = emails.filter(e => e.getBody().length !== 0); // Remove unopened emails
 		return emails;
 	}
 	static getDraftEmails() {
 		const drafts = Array.from(document.querySelectorAll('.P_ZzJed')).map(a => new EmailYMailDraft(a)); // Compose windows (reply, forward, new message)
-		const print_previews = Array.from(document.querySelectorAll('.ir_n')).map(a => new Email(a)); // Print preview
+		const print_previews = Array.from(document.querySelectorAll('.ir_n')).map(a => new EmailYMailDraft(a)); // Print preview
 		return drafts.concat(print_previews);
 	}
 	getBody() {
-		return this.mainDOMElem.querySelector('.msg-body');
+		return Array.from(this.mainDOMElem.querySelectorAll('.msg-body,.d_6VdP')); // .d_6VdP => for compose views, .msg-body => for open emails and print view
 	}
 	getTrockerSignDOMElem(showSign) { // Revise to create if needed and return the trocker sign
 		var trackedSign = null;
@@ -339,9 +354,6 @@ class EmailYMail extends Email {
 }
 
 class EmailYMailDraft extends EmailYMail {
-	getBody() {
-		return this.mainDOMElem.querySelector('.d_6VdP');
-	}
 }
 
 function parseUrlParams(url) {
@@ -1067,17 +1079,32 @@ countTrackers = function (options) {
 			if (email.getAttribute("trimgs") !== null) {
 				imagesProcessed = email.getAttribute("trimgs");
 			} // Images available in email when processed open trackers
+			if (email.getAttribute("truiimgs") !== null) { // UI images available in email when processed open trackers
+				uiImagesProcessed = email.getAttribute("truiimgs");
+				if (uiImagesProcessed !== false) {
+					uiImagesProcessed = parseInt(uiImagesProcessed);
+				}
+			}
+
+
 
 			var images = email.getImages();
+			var ui_images = email.getUIImages(); // UI images that need to be whitelisted for each email
 
 			var thisEmailTrackerImages = [];
 			var thisEmailSafeImages = [];
 
-			if (openTrackersProcessed && (images.length == imagesProcessed)) {
+			if (openTrackersProcessed && (images.length == imagesProcessed) && (ui_images.length == uiImagesProcessed)) {
 				mailOpenTrackers += parseInt(email.getAttribute("trotrckrs"));
 				// Double check that the images still have the judgment (in case the webmail has changes the src again, this happens in Gmail for unread messages)
-				if (images.length > 0 && !hasJudgments(images[0])) {
+				var checkInd = Math.floor(Math.random() * images.length); // Check one of the images by random to confirm that judgment has not been removed by the main app
+				if (images.length > 0 && !hasJudgments(images[checkInd])) {
 					email.setAttribute("trimgs", 0); // To force reevaluation of images
+					logEvent(logPrefix + 'Images will be reevaluated for this draft email!', true);
+				}
+				var checkInd = Math.floor(Math.random() * ui_images.length); // Check one of the ui images by random to confirm that judgment has not been removed by the main app
+				if (ui_images.length > 0 && !hasJudgments(ui_images[checkInd])) {
+					email.setAttribute("truiimgs", 0); // To force reevaluation of images
 					logEvent(logPrefix + 'Images will be reevaluated for this draft email!', true);
 				}
 			} else {
@@ -1105,6 +1132,13 @@ countTrackers = function (options) {
 					email.setAttribute("trimgs", images.length);
 				}
 				suspCount += mailOpenTrackers;
+				// Whitelist any UI images for this email (attachement image, etc)
+				for (var i = 0; i < ui_images.length; i++) { // Loop over all images in the email
+					var img = ui_images[i];
+					removeJudgments(img); // Remove any previous judgment
+					addJudgment(img, 'non-suspicious');
+				}
+				email.setAttribute("truiimgs", ui_images.length);
 			}
 			if (thisEmailTrackerImages.length) logEvent(logPrefix + thisEmailTrackerImages.length + ' suspicious image(s) were found and blocked', true);
 			if (thisEmailSafeImages.length) logEvent(logPrefix + thisEmailSafeImages.length + ' safe-looking image(s) were found', true)
