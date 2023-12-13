@@ -86,6 +86,25 @@ textarea.jsonOption {
   border-bottom-style: solid;
 }
 
+.supportcall {
+  background-color: rgb(223, 255, 224);
+  border-color: rgb(170, 221, 194);
+  border-style: solid;
+  border-width: 4px;
+  margin: 0.5em auto;
+  padding: 0px;
+  -webkit-border-radius: 12px;
+  
+}
+
+.gap_horiz {
+  max-width: 85%;
+}
+
+.no_gap_horiz {
+  min-width: 100%;
+}
+
 .text_disabled {
   color: #999
 }
@@ -127,13 +146,9 @@ textarea.jsonOption {
   color: orangered
 }
 
-;
-
 .successMsg {
   color: green
 }
-
-;
 
 a.tfbtn span {
   margin-left: 3px;
@@ -150,6 +165,11 @@ a.tfbtn {
   background-color: #1b95e0;
   border-radius: 3px;
   box-sizing: border-box;
+}
+
+li:has(a.tfbtn) {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
 }
 
 a.tfbtn:focus,

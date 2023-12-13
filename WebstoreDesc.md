@@ -23,9 +23,10 @@ Moreover, some links are click tracked meaning that if you click on them, your c
 No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. In Gmail, Inbox and Outlook.com, Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if it is unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
 
 Change log:
-2.6.28:
+2.7.0:
 - Improves handling of drafts, print previous, quotes, and general stability in YMail, Outlook and Gmail.
 - Adds visual debugging tools for webmails.
+- Adds info on options for supporting Trocker.
 
 2.6.27:
 - Improves handling of drafts and general stability in YMail.
