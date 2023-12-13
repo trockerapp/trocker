@@ -74,6 +74,18 @@ class Email {
 	imagesAreShown() { // If webmail disables images by default (e.g. gmail), revise to return false until images are shown 
 		return true;
 	}
+	addUIDebugClasses(val){
+		for (const elem of this.getBody()){
+			if (elem.getAttribute("trecont") === null) {
+				elem.setAttribute("trecont", val);
+			}
+		}
+		for (const elem of this.getULElements()) {
+			if (elem.getAttribute("treui") === null) {
+				elem.setAttribute("treui", val);
+			}
+		}	
+	}
 }
 
 class EmailGmail extends Email {
@@ -82,7 +94,7 @@ class EmailGmail extends Email {
 		if (gmailUI == 'main') {
 			return Array.from(document.querySelectorAll('.h7')).map(a => new EmailGmail(a)); // Normal view of conversations in Gmail
 		} else if (gmailUI == 'print') {
-			return Array.from(document.getElementsByTagName('body')).map(a => new EmailGmail(a)); // Print view of conversations in Gmail
+			return Array.from(document.querySelectorAll('body')).map(a => new EmailGmail(a)); // Print view of conversations in Gmail
 		}
 	}
 	static getDraftEmails() {
@@ -96,7 +108,7 @@ class EmailGmail extends Email {
 		let elems = [];
 		if (this.gmailUI === 'main') {
 			elems = Array.from(this.mainDOMElem.querySelectorAll('.ii.gt'));
-		} else if (gmailUI == 'print') {
+		} else if (this.gmailUI == 'print') {
 			elems = Array.from(this.mainDOMElem.querySelectorAll('.maincontent'));
 		}
 		if (elems.length == 0) {
@@ -447,18 +459,60 @@ function injectJSScript(elemName, src, elemId, cb) {
 	}
 }
 
-function prepareCSSRules() {
-	var styleSheetId = "trexpsdstlsht";
+function injectInlineCSS(styleSheetId, content){
 	var currentStyleSheet = document.getElementById(styleSheetId);
 	if (currentStyleSheet === null) {
 		var css = document.createElement("style");
 		css.type = "text/css";
-		css.innerHTML += "span.trexpsd:before{position: absolute;content:'';background: url(" + resourceUrls['tr1'] + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
-		css.innerHTML += "span.trexpsds:before{position: absolute;content:'';background: url(" + resourceUrls['tr2'] + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
-		css.innerHTML += 'span.trexpsd:empty, span.trexpsds:empty, span[title="trexpsdspnelm"]:empty, span[title="trexpsdspnelm"] :not(img){display:none !important;}';
-		css.innerHTML += "a.trexpsdl:hover{cursor: url(" + resourceUrls['trClick'] + "), auto; !important;}";
+		css.innerHTML += content;
 		css.setAttribute("id", styleSheetId);
 		document.body.appendChild(css);
+	}
+}
+
+function prepareCSSRules() {
+	var styleSheetId = "trexpsdstlsht";
+	var currentStyleSheet = document.getElementById(styleSheetId);
+	if (currentStyleSheet === null) {
+		let content = '';
+		content += "span.trexpsd:before{position: absolute;content:'';background: url(" + resourceUrls['tr1'] + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
+		content += "span.trexpsds:before{position: absolute;content:'';background: url(" + resourceUrls['tr2'] + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
+		content += 'span.trexpsd:empty, span.trexpsds:empty, span[title="trexpsdspnelm"]:empty, span[title="trexpsdspnelm"] :not(img){display:none !important;}';
+		content += "a.trexpsdl:hover{cursor: url(" + resourceUrls['trClick'] + "), auto; !important;}";
+		injectInlineCSS(styleSheetId, content);
+	}
+}
+
+function prepareDebugHLCSS(debug) {
+	var styleSheetId = "trdebughlstlsht";
+	var currentStyleSheet = document.getElementById(styleSheetId);
+	if (currentStyleSheet === null && debug) {
+		let content = `
+[trotrckrs] { background: rgb(128 0 0 / 20%) !important; }
+[trotrckrs]::before {
+	content: 'Open-email:';
+	color: red;
+	font-size: small;
+    font-style: italic;
+}
+[trecont] { background: rgb(0 128 0 / 20%) !important; }
+[trecont]::before {
+	content: 'Email-content:';
+	color: green;
+	font-size: small;
+    font-style: italic;
+}
+[treui] { background: rgb(0 0 128 / 20%) !important; }
+[treui]::before {
+	content: 'Email-ui:';
+	color: blue;
+	font-size: small;
+    font-style: italic;
+}
+`;
+		injectInlineCSS(styleSheetId, content);
+	} else if (currentStyleSheet !== null & !debug) {
+		currentStyleSheet.remove();
 	}
 }
 
@@ -752,7 +806,7 @@ checkAndDoYourDuty = function () {
 			chrome.runtime.sendMessage({
 				method: "loadVariable",
 				key: 'trockerEnable'
-			}, function (response) {
+			}, (response) => {
 				if (response) trockerOptions.trockerEnable = response.varValue;
 				//if (trockerOptions.trockerEnable) {
 				chrome.runtime.sendMessage({
@@ -777,8 +831,15 @@ checkAndDoYourDuty = function () {
 				chrome.runtime.sendMessage({
 					method: "loadVariable",
 					key: 'verbose'
-				}, function (response) {
+				}, (response) => {
 					trockerOptions.verbose = response.varValue;
+				});
+				chrome.runtime.sendMessage({
+					method: "loadVariable",
+					key: 'debug'
+				}, (response) => {
+					trockerOptions.debug = response.varValue;
+					prepareDebugHLCSS(trockerOptions.trockerEnable && trockerOptions.debug);
 				});
 				//}
 			});
@@ -865,6 +926,11 @@ countTrackers = function (options) {
 		var proxifesImages = (proxyURLs.length > 0);
 		var webmailInfo = getWebmailUrls(options.webmails);
 
+		if (trockerOptions.debug && uiWhitelistCounter%20==0){ // To handle the case UI's recycling divs
+			Array.from(document.querySelectorAll('[trecont]')).forEach(e => e.removeAttribute('trecont'));
+			Array.from(document.querySelectorAll('[treui]')).forEach(e => e.removeAttribute('treui'));
+		}
+
 		var emails = getOpenEmails();
 		//console.log('At '+env+'; '+emails.length+' emails are open...');
 		for (var ei = 0; ei < emails.length; ei++) {
@@ -896,6 +962,8 @@ countTrackers = function (options) {
 					uiImagesProcessed = parseInt(uiImagesProcessed);
 				}
 			}
+
+			if (trockerOptions.debug) { email.addUIDebugClasses(ei); }
 
 			var images = email.getImages();
 			var ui_images = email.getUIImages(); // UI images that need to be whitelisted for each email
@@ -1086,7 +1154,7 @@ countTrackers = function (options) {
 				}
 			}
 
-
+			if (trockerOptions.debug) { email.addUIDebugClasses(ei); }
 
 			var images = email.getImages();
 			var ui_images = email.getUIImages(); // UI images that need to be whitelisted for each email

@@ -25,6 +25,7 @@ No one will be able to know when and if you open their emails, or click on their
 Change log:
 2.6.28:
 - Improves handling of drafts, print previous, quotes, and general stability in YMail, Outlook and Gmail.
+- Adds visual debugging tools for webmails.
 
 2.6.27:
 - Improves handling of drafts and general stability in YMail.

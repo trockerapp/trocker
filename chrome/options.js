@@ -8,6 +8,7 @@ function saveOptions() {
 	if (timeoutVal < 1) { timeoutVal = 1; }
 	saveVariable('linkBypassTimeout', timeoutVal);
 	saveVariable('verbose', (document.getElementById("verboseOpt").checked && document.getElementById("advancedOpt").checked));
+	saveVariable('debug', (document.getElementById("debugOpt").checked && document.getElementById("advancedOpt").checked));
 
 	updatePermissionWarnings();
 	updateBrowserActionButton();
@@ -116,6 +117,9 @@ function restoreOptions() {
 
 	document.getElementById("verboseOpt").checked = loadVariable('verbose');
 	document.getElementById("verboseOpt").onchange = saveOptions;
+
+	document.getElementById("debugOpt").checked = loadVariable('debug');
+	document.getElementById("debugOpt").onchange = saveOptions;
 
 	document.getElementById("advancedOpt").checked = loadVariable('advanced');
 	document.getElementById("advancedOpt").onchange = saveOptions;

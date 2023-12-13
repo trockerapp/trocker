@@ -80,6 +80,7 @@ function loadVariable(varName) {
 	if ((varName == 'suspDomains') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
 	if ((varName == 'advanced') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
 	if ((varName == 'verbose') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
+	if ((varName == 'debug') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
 
 	// Obsolete
 	if ((varName == 'allowedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
