@@ -21,6 +21,7 @@ var linkUrlsBU = '';
 var trackLinkCntBU = 0;
 
 var openEmailCount=null;
+var composeEmailCount=null;
 
 class Email {
 	static getOpenEmails(){
@@ -311,7 +312,9 @@ class EmailYMail extends Email {
 		return emails;
 	}
 	static getDraftEmails() {
-		return Array.from(document.querySelectorAll('.em_N.D_F.ek_BB.p_R.o_h,.o_A.d_3zJDR.H_3zJDR')).map(a => new Email(a)); // Compose windows (reply, forward, new message)
+		const drafts = Array.from(document.querySelectorAll('.P_ZzJed')).map(a => new EmailYMailDraft(a)); // Compose windows (reply, forward, new message)
+		const print_previews = Array.from(document.querySelectorAll('.ir_n')).map(a => new Email(a)); // Print preview
+		return drafts.concat(print_previews);
 	}
 	getBody() {
 		return this.mainDOMElem.querySelector('.msg-body');
@@ -332,6 +335,12 @@ class EmailYMail extends Email {
 			parentElem.appendChild(trackedSign);
 		}
 		return trackedSign;
+	}
+}
+
+class EmailYMailDraft extends EmailYMail {
+	getBody() {
+		return this.mainDOMElem.querySelector('.d_6VdP');
 	}
 }
 
@@ -518,8 +527,10 @@ function getDraftEmails() {
 	} else if (env === 'ymail') {
 		emails = EmailYMail.getDraftEmails();
 	}
-	if (emails.length) logEvent('detected ' + emails.length + ' compose inputs (env: "' + env + '")', false);
-
+	if (emails.length != composeEmailCount) {
+		composeEmailCount = emails.length;
+		logEvent('detected ' + emails.length + ' compose inputs (env: "' + env + '")', false);
+	}
 	return emails;
 }
 
