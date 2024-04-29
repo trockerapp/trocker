@@ -1,11 +1,16 @@
 {
    "background": {
-      "page": "background.html",
-      "persistent": true
+      "service_worker": "service-worker.js",
+      "type": "module"
    },
-   "browser_action": {
-      "default_icon": "icon_128.png"
+   "action": {
+      "default_icon": {
+         "16": "icon_16.png",
+         "48": "icon_48.png",
+         "128": "icon_128.png"
+      }
    },
+   "incognito": "split", 
    "content_scripts": [
       {
          "all_frames": false,
@@ -33,31 +38,46 @@
       "16": "icon_16.png",
       "48": "icon_48.png"
    },
-   "manifest_version": 2,
+   "manifest_version": 3,
    "name": "__MSG_extension_name__",
    "options_ui": {
-      "chrome_style": false,
       "open_in_tab": true,
       "page": "options.html"
    },
    "permissions": [
-      "webRequest",
-      "webRequestBlocking",
+      "declarativeNetRequest",
+      "declarativeNetRequestWithHostAccess",
+      "storage",
+      "offscreen"
+   ],
+   "optional_permissions": [
+      "tabs"
+   ],
+   "host_permissions": [
       "<all_urls>",
       "*://*.google.com/*",
       "*://*.live.com/*",
       "*://*.googleusercontent.com/*"
    ],
-   "optional_permissions": [
-      "tabs"
-   ],
    "short_name": "__MSG_extension_name__",
-   "version": "2.6.28",
-   "web_accessible_resources": [
-      "tl.png",
-      "td.png",
-      "tlc.png",
-      "tracked.png",
-      "bypasser.html"
-   ]
+   "version": "3.0.0",
+   "web_accessible_resources": [{
+      "resources": [
+         "tl.png",
+         "td.png",
+         "tlc.png",
+         "tracked.png",
+         "bypasser.html"
+      ],
+      "matches": [
+         "*://*/*"
+      ]
+   }],
+   "declarative_net_request" : {
+      "rule_resources" : [{
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules_1.json"
+      }]
+    }
 }

@@ -1,8 +1,10 @@
-function getOpenTrackerList(forceDefault = false) {
+import { loadVariable } from './tools.js'
+
+export async function getOpenTrackerList(forceDefault = false) {
 	let openTrackers;
-	if (!forceDefault && loadVariable('useCustomLists')) {
+	if (!forceDefault && await loadVariable('useCustomLists')) {
 		try {
-			openTrackers = JSON.parse(loadVariable('customOpenTrackers'));
+			openTrackers = JSON.parse(await loadVariable('customOpenTrackers'));
 			return openTrackers;
 		} catch (error) {
 			console.log('Open trackers JSON does not exist or has some errors');
@@ -99,11 +101,11 @@ function getOpenTrackerList(forceDefault = false) {
 	return openTrackers;
 }
 
-function getClickTrackerList(forceDefault = false) {
+export async function getClickTrackerList(forceDefault = false) {
 	let clickTrackers;
-	if (!forceDefault && loadVariable('useCustomLists')) {
+	if (!forceDefault && await loadVariable('useCustomLists')) {
 		try {
-			clickTrackers = JSON.parse(loadVariable('customClickTrackers'));
+			clickTrackers = JSON.parse(await loadVariable('customClickTrackers'));
 			return clickTrackers;
 		} catch (error) {
 			console.log('Click trackers JSON does not exist or has some errors');
