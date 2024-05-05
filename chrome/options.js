@@ -48,7 +48,7 @@ async function saveOptions() {
 	updateStatus('Options were saved!');
 }
 
-function restoreDefaultLists(event) {
+async function restoreDefaultLists(event) {
 	if ((event.target.id == 'customOpenTrackersRestore') || (event.target.id == 'customClickTrackersRestore')) {
 		optName = event.target.id.replace('Restore', '');
 		let list;

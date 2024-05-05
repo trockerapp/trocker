@@ -55,32 +55,54 @@ chrome.runtime.onInstalled.addListener(function (details) {
 	updateBrowserActionButton();
 });
 
-chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
-	if (request.method == "loadVariable") {
-		let varName = request.key;
-		let varValue = await loadVariable(varName);
-		sendResponse({ varName: varName, varValue: varValue });
-	} else if (request.method == "saveVariable") {
-		let varName = request.key;
-		let varValue = request.value;
+chrome.runtime.onMessage.addListener(handleContentScriptMessages);
+
+async function handleContentScriptMessages(message, sender) {
+	// Return early if this message isn't meant for the background script
+	if (message.target !== 'background') {
+		return;
+	}
+	let tabId = sender.tab.id;
+	if (message.type == "loadVariable") {
+		let keys = (message.keys) ? message.keys : [message.key];
+		let result = {};
+		for (const key of keys) {
+			result[key] = await loadVariable(key);
+		}
+		sendMessageToContentScript(tabId, 'loadVariable-result', result);
+	} else if (message.type == "saveVariable") {
+		let varName = message.key;
+		let varValue = message.value;
 		varValue = await saveVariable(varName, varValue);
-		sendResponse({ varName: varName, varValue: varValue });
-	} else if (request.method == "reportTrackerCount") {
-		let trackerCount = request.value;
-		let tabId = sender.tab.id;
+		let result = {};
+		result[varName] = varValue;
+		sendMessageToContentScript(tabId, 'saveVariable-result', result);
+	} else if (message.type == "reportTrackerCount") {
+		let trackerCount = message.value;
 		if (await loadVariable('showTrackerCount') == true) {
 			await updateBrowserActionButton(tabId, trackerCount);
 		} else {
 			await updateBrowserActionButton(tabId, 0);
 		}
-	} else if (request.method == "getTrackerLists") {
-		sendResponse({ openTrackers: await getOpenTrackerList(), clickTrackers: await getClickTrackerList(), webmails: webmails });
-	} else if (request.method == "addLimitedOpenPermission") {
-		limitedPermissions.addOpenPermission(request.key);
-		sendResponse({});
-	} else
-		sendResponse({}); // snub them.
-});
+	} else if (message.type == "getTrackerLists") {
+		sendMessageToContentScript(tabId, 'getTrackerLists-result', { 
+			openTrackers: await getOpenTrackerList(), clickTrackers: await getClickTrackerList(), webmails: webmails 
+		});
+	} else if (message.type == "addLimitedOpenPermission") {
+		limitedPermissions.addOpenPermission(message.key);
+	}
+	return;
+}
+
+function sendMessageToContentScript(tabId, type, data) {
+	chrome.tabs.sendMessage(tabId,
+		{
+			type: type,
+			target: 'content-script',
+			data: data
+		}
+	);
+}
 
 // Webmail image proxy domains we have to listen on
 // Gmail Example: https://ci5.googleusercontent.com/proxy/c98MiCwnx8WKJGocCSAHkb-hELC6NR1lEjYmgXearhWHPiAwdbhTHIriCpYAJF38AQ0hW8nU2fpxNpRcfX7WlIO5uQzoqUWv9hLk-tywdbEOkabGvgH83LRQK0cZqzoA_WMkHvFIJ6eF8aDzNAncocBmT48JP_KGGN8KjNaAxrYxtrmp6qx9YNGY__LPXhQs66jEYIgh1cnPrcTG9rQhAYLnAN1Tyi-aNfmFyTb2W0x8fD7jGjuhX-v7YpbAnXtUI2_wY9wowlYD7Q=s0-d-e1-ft#http://t.sidekickopen04.com/e1t/o/5/f18dQhb0S7ks8dDMPbW2n0x6l2B9gXrN7sKj6v5dwdFW7gs8107d-cvzW5vws_W3LvrVvW6fVgD81k1H6H0?si=5353798341492736&pi=e20e388a-468f-4643-9ab3-9a162c205522

@@ -86,17 +86,19 @@ async function sendMessageToOffscreenDocument(type, data) {
 	// Now that we have an offscreen document, we can dispatch the
 	// message.
 	chrome.runtime.sendMessage({
-		type,
+		type: type,
 		target: 'offscreen',
-		data
+		data: data
 	});
+	// Note that extensions cannot send messages to content scripts using this method (chrome.runtime.sendMessage). 
+	// To send messages to content scripts, use tabs.sendMessage.
 }
 
-chrome.runtime.onMessage.addListener(handleMessages);
+chrome.runtime.onMessage.addListener(handleOffscreenMessages);
 
 // This function performs basic filtering and error checking on messages before
 // dispatching the message to a more specific message handler.
-async function handleMessages(message) {
+async function handleOffscreenMessages(message) {
 	// Return early if this message isn't meant for the background script
 	if (message.target !== 'background') {
 		return;
@@ -111,6 +113,11 @@ async function handleMessages(message) {
 		case 'get-full-local-storage-result':
 			handleGetLocalStorageResult(message.data);
 			// closeOffscreenDocument();
+			break;
+		case 'loadVariable':
+		case 'getTrackerLists':
+		case 'reportTrackerCount':
+			// service worker will reply
 			break;
 		default:
 			console.warn(`Unexpected message type received: '${message.type}'.`);

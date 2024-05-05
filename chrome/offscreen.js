@@ -35,8 +35,8 @@ function loadObjectFromCache(objName) {
 
 function sendToBackground(type, data) {
     chrome.runtime.sendMessage({
-        type,
+        type: type,
         target: 'background',
-        data
+        data: data
     });
 }

@@ -796,52 +796,59 @@ var inRefractoryPeriod = false;
 var inOptionPersistancePeriod = false;
 var trockerOptions = {};
 var uiWhitelistCounter = 0;
+
+chrome.runtime.onMessage.addListener(handleMessages);
+async function handleMessages(message, sender) {
+	// Return early if this message isn't meant for the background script
+	if (message.target !== 'content-script') {
+		return;
+	}
+	// Dispatch the message to an appropriate handler.
+	switch (message.type) {
+		case 'loadVariable-result':
+			for (const [key, value] of Object.entries(message.data)) {
+				if (trockerOptions[key] != value) {
+					logEvent(`Setting fetched => ${key}: ${value}`);
+					trockerOptions[key] = value;
+					if (key == 'debug') {
+						prepareDebugHLCSS(trockerOptions.trockerEnable && trockerOptions.debug);
+					}
+				}
+			}
+			break;
+		case 'saveVariable-result':
+			// trockerOptions[message.data.varName] = message.data.varValue;
+			break;
+		case 'getTrackerLists-result':
+			for (const [key, value] of Object.entries(message.data)) {
+				trockerOptions[key] = value; // openTrackers, clickTrackers, webmails
+			}
+			break;
+		default:
+			console.warn(`Unexpected message type received: '${message.type}'.`);
+	}
+}
+
 checkAndDoYourDuty = function () {
 	if (inRefractoryPeriod) return; // In order to avoid back to back function calls triggered by fake hashchange events
 	if (inOptionPersistancePeriod) { // We have recently loaded the options, let's use them
 		var trackerCount = countTrackers(trockerOptions);
 	} else {
 		try {
-			//logEvent('fetching options', true);
+			response = chrome.runtime.sendMessage({
+				target: 'background', 
+				type: "loadVariable",
+				keys: ['trockerEnable', 'exposeLinks', 'verbose', 'debug']
+			});
+			response = chrome.runtime.sendMessage({
+				target: 'background', 
+				type: "getTrackerLists"
+			});
+			var trackerCount = countTrackers(trockerOptions);
 			chrome.runtime.sendMessage({
-				method: "loadVariable",
-				key: 'trockerEnable'
-			}, (response) => {
-				if (response) trockerOptions.trockerEnable = response.varValue;
-				//if (trockerOptions.trockerEnable) {
-				chrome.runtime.sendMessage({
-					method: "loadVariable",
-					key: 'exposeLinks'
-				}, function (response) {
-					if (response) trockerOptions.exposeTrackers = response.varValue;
-					chrome.runtime.sendMessage({
-						method: "getTrackerLists"
-					}, function (response) {
-						if (response) trockerOptions.openTrackers = response.openTrackers;
-						if (response) trockerOptions.clickTrackers = response.clickTrackers;
-						if (response) trockerOptions.webmails = response.webmails;
-						var trackerCount = countTrackers(trockerOptions);
-						chrome.runtime.sendMessage({
-							method: "reportTrackerCount",
-							value: trackerCount
-						}, function (response) { });
-
-					});
-				});
-				chrome.runtime.sendMessage({
-					method: "loadVariable",
-					key: 'verbose'
-				}, (response) => {
-					trockerOptions.verbose = response.varValue;
-				});
-				chrome.runtime.sendMessage({
-					method: "loadVariable",
-					key: 'debug'
-				}, (response) => {
-					trockerOptions.debug = response.varValue;
-					prepareDebugHLCSS(trockerOptions.trockerEnable && trockerOptions.debug);
-				});
-				//}
+				target: 'background', 
+				type: "reportTrackerCount",
+				value: trackerCount
 			});
 		} catch (error) {
 			logEvent('Lost connection to extension... The browser may have updated Trocker. Please refresh the page\n'+error, true);
@@ -1288,7 +1295,7 @@ countTrackers = function (options) {
 
 	var gmailUI = getGmailUI();
 
-	if ((options.exposeTrackers) && (gmailUI !== 'print')) {
+	if ((options.exposeLinks) && (gmailUI !== 'print')) {
 		prepareCSSRules();
 
 		// Expose Open Trackers
