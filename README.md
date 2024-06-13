@@ -8,4 +8,4 @@ Homepage: [https://trockerapp.github.io](https://trockerapp.github.io)
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=trockerapp/trockerapp,trockerapp/trocker&type=Date)](https://star-history.com/#trockerapp/trockerapp&trockerapp/trocker&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=trockerapp/trocker&type=Date)](https://star-history.com/#trockerapp/trocker&Date)
