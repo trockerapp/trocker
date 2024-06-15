@@ -13,7 +13,7 @@ function openOptionsPage() {
 	}
 }
 
-chrome.browserAction.onClicked.addListener(openOptionsPage);
+chrome.action.onClicked.addListener(openOptionsPage);
 
 chrome.runtime.onInstalled.addListener(function (details) {
 	if (details.reason == "update") {
@@ -282,7 +282,7 @@ function handleOnBeforeRequestClickTracker(details) {
 				if (loadVariable('trockerEnable') == true) {
 					if (!limitedPermissions.hasOpenPermission(details.url)) {
 						console.log((new Date()).toLocaleString() + ': A ' + openTrackers[i].name + ' click tracker ' + details.type + ' request was redirected!');
-						var redirectUrl = chrome.extension.getURL("bypasser.html") + '#' + details.url;
+						var redirectUrl = chrome.runtime.getURL("bypasser.html") + '#' + details.url;
 						return { redirectUrl: redirectUrl };
 					} else {
 						limitedPermissions.removeOpenPermission(details.url);

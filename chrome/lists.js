@@ -2,9 +2,12 @@ import { loadVariable } from './tools.js'
 
 export async function getOpenTrackerList(forceDefault = false) {
 	let openTrackers;
-	if (!forceDefault && await loadVariable('useCustomLists')) {
+	let useCustomLists = await loadVariable('useCustomLists');
+	if (!forceDefault && useCustomLists) {
 		try {
-			openTrackers = JSON.parse(await loadVariable('customOpenTrackers'));
+			let customOpenTrackers = await loadVariable('customOpenTrackers');
+			if (customOpenTrackers == '') { customOpenTrackers = '[]'; }
+			openTrackers = JSON.parse(customOpenTrackers);
 			return openTrackers;
 		} catch (error) {
 			console.log('Open trackers JSON does not exist or has some errors');
@@ -103,9 +106,12 @@ export async function getOpenTrackerList(forceDefault = false) {
 
 export async function getClickTrackerList(forceDefault = false) {
 	let clickTrackers;
-	if (!forceDefault && await loadVariable('useCustomLists')) {
+	let useCustomLists = await loadVariable('useCustomLists');
+	if (!forceDefault && useCustomLists) {
 		try {
-			clickTrackers = JSON.parse(await loadVariable('customClickTrackers'));
+			let customClickTrackers = await loadVariable('customClickTrackers');
+			if (customClickTrackers == '') { customClickTrackers = '[]'; }
+			clickTrackers = JSON.parse(customClickTrackers);
 			return clickTrackers;
 		} catch (error) {
 			console.log('Click trackers JSON does not exist or has some errors');

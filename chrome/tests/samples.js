@@ -1,4 +1,4 @@
-function getOpenTrackerSamples() {
+export function getOpenTrackerSamples() {
 	var openTrackers = [{
 		"name": "YW",
 		"samples": {
@@ -99,7 +99,7 @@ function getOpenTrackerSamples() {
 	return openTrackers;
 }
 
-function getClickTrackerSamples() {
+export function getClickTrackerSamples() {
 	var clickTrackers = [{
 		"name": "YW",
 		"samples": {

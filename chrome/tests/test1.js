@@ -1,18 +1,24 @@
+import { getOpenTrackerList, getClickTrackerList } from '../lists.js'
+import { getOpenTrackerSamples, getClickTrackerSamples } from './samples.js'
+
+// import { isTiny, isSusp } from "../trocker.js";
+// import "../trocker.js";
+
 window.addEventListener('load', function () {
   runTests();
   document.getElementById("showDetailsOpt").onchange = runTests;
 });
 
-function runTests() {
+async function runTests() {
   // Test set 1: matching urls as expected
   var resBox = document.getElementsByClassName('urlMatchRes')[0];
   resBox.innerHTML = '';
-  var openTrackers = getOpenTrackerList();
-  var openTrackerSamples = getOpenTrackerSamples();
+  var openTrackers = await getOpenTrackerList();
+  var openTrackerSamples = await getOpenTrackerSamples();
   runUrlMatchTests(resBox, openTrackers, openTrackerSamples, 'Open');
 
-  var clickTrackers = getClickTrackerList();
-  var clickTrackerSamples = getClickTrackerSamples();
+  var clickTrackers = await getClickTrackerList();
+  var clickTrackerSamples = await getClickTrackerSamples();
   runUrlMatchTests(resBox, clickTrackers, clickTrackerSamples, 'Click');
 
 
@@ -61,8 +67,8 @@ function runTinyImageTests(images, resBox, correctAns) {
 }
 
 function runUrlMatchTests(resBox, list, samples, prefix) {
-  listNum = 0;
-  caseFailCount = 0;
+  let listNum = 0;
+  let caseFailCount = 0;
   for (var i = 0; i < list.length; i++) {
     var ot = list[i];
     var name = ot.name;
@@ -77,7 +83,7 @@ function runUrlMatchTests(resBox, list, samples, prefix) {
         // Check that every hit sample matches some pattern
         for (var url of thisSamples.samples.hit) {
           testCount++;
-          hitCnt = 0;
+          let hitCnt = 0;
           hitCnt += checkDomainMatches(ot.domains, url);
           hitCnt += checkPatternMatches(ot.patterns, url);
           if (hitCnt > 0) { // At least one pattern matches the url
@@ -90,7 +96,7 @@ function runUrlMatchTests(resBox, list, samples, prefix) {
         // Check that no miss sample matches any pattern
         for (var url of thisSamples.samples.miss) {
           testCount++;
-          hitCnt = 0;
+          let hitCnt = 0;
           hitCnt += checkDomainMatches(ot.domains, url);
           hitCnt += checkPatternMatches(ot.patterns, url);
           if (hitCnt == 0) { // None of the patterns matche the url
@@ -121,7 +127,7 @@ function runUrlMatchTests(resBox, list, samples, prefix) {
 }
 
 function checkDomainMatches(domains, url) {
-  hitCnt = 0;
+  let hitCnt = 0;
   for (var d of domains) {
     var re = new RegExp(d, 'i');
     if (re.test(url)) {
@@ -132,7 +138,7 @@ function checkDomainMatches(domains, url) {
 }
 
 function checkPatternMatches(patterns, url) {
-  hitCnt = 0;
+  let hitCnt = 0;
   for (var p of patterns) {
     // Convert chrome's url patters to regexp (https://developer.chrome.com/extensions/match_patterns)
     if (p.indexOf('*://') == 0) p = p.replace('*://', 'https?://');

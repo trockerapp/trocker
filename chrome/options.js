@@ -50,7 +50,7 @@ async function saveOptions() {
 
 async function restoreDefaultLists(event) {
 	if ((event.target.id == 'customOpenTrackersRestore') || (event.target.id == 'customClickTrackersRestore')) {
-		optName = event.target.id.replace('Restore', '');
+		let optName = event.target.id.replace('Restore', '');
 		let list;
 		if (optName == 'customOpenTrackers') {
 			list = await getOpenTrackerList(true);
@@ -65,7 +65,7 @@ async function restoreDefaultLists(event) {
 
 async function saveCustomLists(event) {
 	if ((event.target.id == 'customOpenTrackersSave') || (event.target.id == 'customClickTrackersSave')) {
-		optName = event.target.id.replace('Save', '');
+		let optName = event.target.id.replace('Save', '');
 		try {
 			valueElem = document.getElementById(optName + 'Text');
 			jsonText = valueElem.value;

@@ -158,7 +158,9 @@ async function checkStorageTransition() {
 	let res = await chrome.storage.local.get(['V3_conversion']);
 	if (!res['V3_conversion']) {
 		// Commence V3 storage transition
-		sendMessageToOffscreenDocument('get-full-local-storage', null);
+		return sendMessageToOffscreenDocument('get-full-local-storage', null);
+	} else {
+		return;
 	}
 }
 

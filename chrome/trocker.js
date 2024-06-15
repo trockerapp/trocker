@@ -11,6 +11,7 @@ var resourceUrls = {
 	'trackedSign': chrome.runtime.getURL('tracked.png'),
 	'tr1': chrome.runtime.getURL("tl.png"),
 	'tr2': chrome.runtime.getURL("td.png"),
+	'tr3': chrome.runtime.getURL("tr.png"),
 	'trClick': chrome.runtime.getURL("tlc.png")
 }
 
@@ -263,59 +264,46 @@ class EmailOutlook extends Email {
 		var images = [].concat.apply([], bodyImages); // Merge images found from all body elements
 		return images;
 	}
-	getTrockerSignDOMElem(showSign) { // Revise to create if needed and return the trocker sign
-		var trackedSign = null;
-		if ((this.mainDOMElem.className.indexOf("SlLx9") > -1) || (this.mainDOMElem.className.indexOf("Q8TCC") > -1)) { // Main/popout email
-			var trackedSign = this.mainDOMElem.querySelector('.AvaBt img.' + trackedSignClass);
+	getTrockerSignParentElem(){
+		let e = null;
+		if ((this.mainDOMElem.className.indexOf("SlLx9") > -1) || (this.mainDOMElem.className.indexOf("Q8TCC") > -1)) {
+			e = this.mainDOMElem.querySelector('.t9ThB');
+			if (e === null) {  // Before 2024
+				e = this.mainDOMElem.querySelector('.AvaBt');
+			}
 			// Before updates ~Nov 2022
-		} else if (this.mainDOMElem.className.indexOf('QQC3U') > -1) { // Main email
-			var trackedSign = this.mainDOMElem.querySelector('.GtvxD img.' + trackedSignClass);
+		} else if (this.mainDOMElem.className.indexOf("QQC3U") > -1) {
+			e = this.mainDOMElem.querySelector('.GtvxD');
 			// Before updates ~July 2022
-		} else if (this.mainDOMElem.className.indexOf('_3BL964mseejjC_nzEeda9o') > -1) { // Main email
-			var trackedSign = this.mainDOMElem.querySelector('._3HWDmPvwbfbJdx0zvu6Bve img.' + trackedSignClass);
+		} else if (this.mainDOMElem.className.indexOf("_3BL964mseejjC_nzEeda9o") > -1) {
+			e = this.mainDOMElem.querySelector('._3HWDmPvwbfbJdx0zvu6Bve ');
 			// Before updates ~Oct 2021
-		} else if (this.mainDOMElem.className.indexOf('_2le66D_cFAbkq67CrgZcmE') > -1) { // Main email
-			var trackedSign = this.mainDOMElem.querySelector('._1Lo7BjmdsKZy3IMMxN7mVu img.' + trackedSignClass);
+		} else if (this.mainDOMElem.className.indexOf("_2le66D_cFAbkq67CrgZcmE") > -1) {
+			e = this.mainDOMElem.querySelector('._1Lo7BjmdsKZy3IMMxN7mVu');
 			// Before updates ~July 2019
 		} else if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
 			(this.mainDOMElem.className.indexOf('_103ouDFSzMvKVjD0UYmJQh') > -1)) { // Final version (main emails in popout)
-			var trackedSign = this.mainDOMElem.querySelector('div._3BM5wlNLStI0usWYsOv9Ka img.' + trackedSignClass);
-		} else if (this.mainDOMElem.className.indexOf('_2UEsN7oGn-H4ZnCcJIoc3Q') > -1) { // Final version (message history, e.g. forwarded)
-			var trackedSign = this.mainDOMElem.querySelector('._3WKppjPonmzz8_LIjympNq img.' + trackedSignClass);
-			// Old beta versions			
+			e = this.mainDOMElem.querySelector('div._3BM5wlNLStI0usWYsOv9Ka');
+		} else if (this.mainDOMElem.className.indexOf("_2UEsN7oGn-H4ZnCcJIoc3Q") > -1) { // Final version (message history, e.g. forwarded)
+			e = this.mainDOMElem.querySelector('._3WKppjPonmzz8_LIjympNq');
+			// Old beta versions
 		} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // outlook beta
-			var trackedSign = this.mainDOMElem.querySelector('div.EnHwYkExLYficI2goh5Zx img.' + trackedSignClass);
+			e = this.mainDOMElem.querySelector('div.EnHwYkExLYficI2goh5Zx');
 		} else {
-			var trackedSign = this.mainDOMElem.querySelector('div._rp_m1 div._rp_38._rp_48 img.' + trackedSignClass);
+			e = this.mainDOMElem.querySelector('div._rp_m1 div._rp_38._rp_48');
 		}
-		if (((trackedSign === null) || (trackedSign.length < 1)) && showSign) {
-			trackedSign = createTrackedSign();
-			//trackedSign.style.cursor = 'pointer';
-			let e = null;
-			if ((this.mainDOMElem.className.indexOf("SlLx9") > -1) || (this.mainDOMElem.className.indexOf("Q8TCC") > -1)) {
-				e = this.mainDOMElem.querySelector('.AvaBt');
-				// Before updates ~Nov 2022
-			} else if (this.mainDOMElem.className.indexOf("QQC3U") > -1) {
-				e = this.mainDOMElem.querySelector('.GtvxD');
-				// Before updates ~July 2022
-			} else if (this.mainDOMElem.className.indexOf("_3BL964mseejjC_nzEeda9o") > -1) {
-				e = this.mainDOMElem.querySelector('._3HWDmPvwbfbJdx0zvu6Bve ');
-				// Before updates ~Oct 2021
-			} else if (this.mainDOMElem.className.indexOf("_2le66D_cFAbkq67CrgZcmE") > -1) {
-				e = this.mainDOMElem.querySelector('._1Lo7BjmdsKZy3IMMxN7mVu');
-				// Before updates ~July 2019
-			} else if ((this.mainDOMElem.className.indexOf('_3irHoMUL9qIdRXbrljByA-') > -1) || // Final version (main emails)
-				(this.mainDOMElem.className.indexOf('_103ouDFSzMvKVjD0UYmJQh') > -1)) { // Final version (main emails in popout)
-				e = this.mainDOMElem.querySelector('div._3BM5wlNLStI0usWYsOv9Ka');
-			} else if (this.mainDOMElem.className.indexOf("_2UEsN7oGn-H4ZnCcJIoc3Q") > -1) { // Final version (message history, e.g. forwarded)
-				e = this.mainDOMElem.querySelector('._3WKppjPonmzz8_LIjympNq');
-				// Old beta versions
-			} else if (this.mainDOMElem.className.indexOf("_2D1p6xUSTPdw8LYT59VKoE") > -1) { // outlook beta
-				e = this.mainDOMElem.querySelector('div.EnHwYkExLYficI2goh5Zx');
-			} else {
-				e = this.mainDOMElem.querySelector('div._rp_m1 div._rp_38._rp_48');
-			}
-			if (e !== null) e.appendChild(trackedSign);
+		return e;
+	}
+	getTrockerSignDOMElem(showSign) { // Revise to create if needed and return the trocker sign
+		var trackedSign = null;
+		let e = this.getTrockerSignParentElem();
+		if (e !== null) {
+			let trackedSign = e.querySelector('img.'+trackedSignClass);
+			if (((trackedSign === null) || (trackedSign.length < 1)) && showSign) {
+				trackedSign = createTrackedSign();
+				//trackedSign.style.cursor = 'pointer';
+				e.appendChild(trackedSign);
+			}	
 		}
 		return trackedSign;
 	}
@@ -477,7 +465,8 @@ function prepareCSSRules() {
 		let content = '';
 		content += "span.trexpsd:before{position: absolute;content:'';background: url(" + resourceUrls['tr1'] + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
 		content += "span.trexpsds:before{position: absolute;content:'';background: url(" + resourceUrls['tr2'] + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
-		content += 'span.trexpsd:empty, span.trexpsds:empty, span[title="trexpsdspnelm"]:empty, span[title="trexpsdspnelm"] :not(img){display:none !important;}';
+		content += "span.trexpsdr:before{position: absolute;content:'';background: url(" + resourceUrls['tr3'] + ") 0 0 / 10px 10px no-repeat !important; width: 10px; height: 10px; pointer-events: none;} ";
+		content += 'span.trexpsd:empty, span.trexpsds:empty, span.trexpsdr:empty, span[title="trexpsdspnelm"]:empty, span[title="trexpsdspnelm"] :not(img){display:none !important;}';
 		content += "a.trexpsdl:hover{cursor: url(" + resourceUrls['trClick'] + "), auto; !important;}";
 		injectInlineCSS(styleSheetId, content);
 	}
@@ -615,6 +604,7 @@ function getUIWhitelistElems() {
 	}
 	return elems;
 }
+
 // This function gets return the proxy url of the environment
 function getProxyURLs() {
 	var env = getEnv();
@@ -829,13 +819,13 @@ async function handleMessages(message, sender) {
 	}
 }
 
-checkAndDoYourDuty = function () {
+function checkAndDoYourDuty() {
 	if (inRefractoryPeriod) return; // In order to avoid back to back function calls triggered by fake hashchange events
 	if (inOptionPersistancePeriod) { // We have recently loaded the options, let's use them
 		var trackerCount = countTrackers(trockerOptions);
 	} else {
 		try {
-			response = chrome.runtime.sendMessage({
+			let response = chrome.runtime.sendMessage({
 				target: 'background', 
 				type: "loadVariable",
 				keys: ['trockerEnable', 'exposeLinks', 'verbose', 'debug']
@@ -912,7 +902,7 @@ var clean_height_width = function (x) {
 }
 
 
-countTrackers = function (options) {
+function countTrackers(options) {
 	if (typeof options.openTrackers === "undefined") return 0; // A fix for initial loading of page when the asynchronous messaging has not returned even once
 
 	var openDomains = [];
@@ -1015,6 +1005,7 @@ countTrackers = function (options) {
 							break;
 						}
 					}
+					img.setAttribute("trproxified", isProxified?"1":"0");
 					
 					isKnownTracker = multiMatch(img.src, openDomains); // Check if it is a known tracker
 					isWhitelistedURL = webmailInfo.whiteList.length && multiMatch(img.src, webmailInfo.whiteList) && !multiMatch(img.src, webmailInfo.whiteListExcept); // Check if it is whitelisted url
@@ -1027,7 +1018,7 @@ countTrackers = function (options) {
 							addJudgment(img, 'allowTracking');
 						} else {
 							if (!isKnownTracker) { // If an unknown tracker
-								img.setAttribute("known", "0");
+								img.setAttribute("trknown", "0");
 							}
 							mailOpenTrackers++;
 							openTrackerURLs.push(img.src);
@@ -1303,18 +1294,20 @@ countTrackers = function (options) {
 			var img = trackerImages[i];
 			// Expose image (wrap the link in a specific span element. Because pseudo elems can't be used with the images themselves.)
 			var parent = img.parentNode;
-			if ((parent.className != "trexpsd") && (parent.className != "trexpsds") && parent.getAttribute("title") != "trexpsdspnelm") {
+			if ((parent.className != "trexpsd") && (parent.className != "trexpsds") && (parent.className != "trexpsdr") && parent.getAttribute("title") != "trexpsdspnelm") {
 				var span = document.createElement('span');
 				span.setAttribute("style", "border:0px;width:0px;min-height:0px;margin:0 5px;");
 				span.setAttribute("width", "0");
 				span.setAttribute("height", "0");
 				span.setAttribute("title", "trexpsdspnelm"); // We add this because gmail changes classes but looks like it doesn't change titles
 				span.setAttribute("class", "trexpsd");
-				if (img.getAttribute("known") === "0") span.setAttribute("class", "trexpsds"); // If unknown tracker
+				if (img.getAttribute("trproxified") === "0") span.setAttribute("class", "trexpsdr"); // If unproxified tracker (can't be blocked in Manifest V3)
+				else if (img.getAttribute("trknown") === "0") span.setAttribute("class", "trexpsds"); // If unknown tracker
 				wrap(span, img);
 			} else if (parent.getAttribute("title") == "trexpsdspnelm") { // If already wrapped in an exposer
 				parent.setAttribute("class", "trexpsd");
-				if (img.getAttribute("known") === "0") parent.setAttribute("class", "trexpsds"); // If unknown tracker
+				if (img.getAttribute("trproxified") === "0") parent.setAttribute("class", "trexpsdr"); // If unproxified tracker (can't be blocked in Manifest V3)
+				else if (img.getAttribute("trknown") === "0") parent.setAttribute("class", "trexpsds"); // If unknown tracker
 			}
 		}
 
