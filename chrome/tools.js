@@ -210,7 +210,11 @@ async function loadObjectFromCache(objName) {
 		let dataCache = JSON.parse(localStorage['dataCache']);
 		return dataCache[objName];
 	} else {
-		await checkStorageTransition();
+		try {
+			await checkStorageTransition();
+		} catch (err) {
+			logger.error(err)
+		}
 		return await loadFromStorage(objName);
 	}
 }

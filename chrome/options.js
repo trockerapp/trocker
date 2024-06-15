@@ -49,6 +49,8 @@ async function saveOptions() {
 }
 
 async function restoreDefaultLists(event) {
+	event.stopPropagation();
+	event.preventDefault();
 	if ((event.target.id == 'customOpenTrackersRestore') || (event.target.id == 'customClickTrackersRestore')) {
 		let optName = event.target.id.replace('Restore', '');
 		let list;
@@ -64,15 +66,17 @@ async function restoreDefaultLists(event) {
 }
 
 async function saveCustomLists(event) {
+	event.stopPropagation();
+	event.preventDefault();
 	if ((event.target.id == 'customOpenTrackersSave') || (event.target.id == 'customClickTrackersSave')) {
 		let optName = event.target.id.replace('Save', '');
 		try {
-			valueElem = document.getElementById(optName + 'Text');
-			jsonText = valueElem.value;
+			let valueElem = document.getElementById(optName + 'Text');
+			let jsonText = valueElem.value;
 			// Sanitize json
 			jsonText = JSON.stringify(JSON.parse(jsonText), null, 2);
 			await saveVariable(optName, jsonText);
-			valueElem.value = loadVariable(optName);
+			valueElem.value = await loadVariable(optName);
 			updateStatus('New list has been saved.', 'successMsg', 5000, optName + 'Status');
 		} catch (error) {
 			updateStatus('New list could not be saved because JSON format had errors.', 'warningMsg', 5000, optName + 'Status');
