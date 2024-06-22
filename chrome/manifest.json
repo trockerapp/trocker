@@ -46,6 +46,7 @@
    },
    "permissions": [
       "declarativeNetRequest",
+      "declarativeNetRequestFeedback",
       "declarativeNetRequestWithHostAccess",
       "storage",
       "offscreen"
@@ -68,7 +69,9 @@
          "tr.png",
          "tlc.png",
          "tracked.png",
-         "bypasser.html"
+         "trackedr.png",
+         "bypasser.html",
+         "updated.html"
       ],
       "matches": [
          "*://*/*"

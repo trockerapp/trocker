@@ -1,5 +1,33 @@
-bypasserUI = {
-  setup: function () {
+import { getClickTrackerList } from './lists.js'
+import { findOriginalLink, multiMatch, statPlusPlus } from './tools.js'
+
+let trockerOptions = {};
+chrome.runtime.onMessage.addListener(handleMessages);
+async function handleMessages(message, sender) {
+	// Return early if this message isn't meant for the background script
+	if (message.target !== 'content-script') {
+		return;
+	}
+	// Dispatch the message to an appropriate handler.
+	switch (message.type) {
+		case 'loadVariable-result':
+			for (const [key, value] of Object.entries(message.data)) {
+				if (trockerOptions[key] != value) {
+					trockerOptions[key] = value;
+				}
+			}
+			break;
+  }
+}
+
+let response = chrome.runtime.sendMessage({
+  target: 'background', 
+  type: "loadVariable",
+  keys: ['trockerEnable', 'linkBypassTimeout', 'verbose', 'debug']
+});
+
+let bypasserUI = {
+  setup: async function () {
     if (bypasserUI.toID) window.clearTimeout(bypasserUI.toID); // To avoid duplicate contdowns on hashchange
     bypasserUI.trackedURL = getTrackedURL();
     var trackedLink = document.querySelector('a#trackedLink');
@@ -8,7 +36,7 @@ bypasserUI = {
     trackedLink.onclick = function (e) { e.stopPropagation(); e.preventDefault(); bypasserUI.loadTrackedURL(); }
 
     bypasserUI.redirectURL = bypasserUI.trackedURL;
-    var origURL = findOriginalLink(bypasserUI.trackedURL);
+    var origURL = await findOriginalLink(bypasserUI.trackedURL);
     if (origURL) {
       bypasserUI.redirectURL = origURL;
       var origLink = document.querySelector('a#origLink');
@@ -21,16 +49,15 @@ bypasserUI = {
       document.querySelector('#cantbypass').classList.remove('hidden');
       document.querySelector('#willbypass').classList.add('hidden');
     }
-    chrome.runtime.sendMessage({ method: "loadVariable", key: 'linkBypassTimeout' }, function (response) {
-      if (response) {
-        bypasserUI.cntDown = response.varValue;
-      } else {
-        bypasserUI.cntDown = 11;
-      }
-      bypasserUI.updateCountdown();
-    });
+
+    if (trockerOptions.linkBypassTimeout) {
+      bypasserUI.cntDown = response.varValue;
+    } else {
+      bypasserUI.cntDown = 11;
+    }
+    bypasserUI.updateCountdown();
   },
-  updateCountdown: function () {
+  updateCountdown: async function () {
     bypasserUI.cntDown--;
     var cntDownSpan = document.querySelector('span#cntdown');
     cntDownSpan.innerHTML = bypasserUI.cntDown;
@@ -39,14 +66,14 @@ bypasserUI = {
       bypasserUI.toID = window.setTimeout(bypasserUI.updateCountdown, 1000);
     } else {// Redirect
       // Update Stats
-      var clickTrackers = getClickTrackerList();
+      var clickTrackers = await getClickTrackerList();
       for (var i = 0; i < clickTrackers.length; i++) {
         if (multiMatch(bypasserUI.trackedURL, clickTrackers[i].domains)) {
           if (bypasserUI.trackedURL == bypasserUI.redirectURL) {
-            statPlusPlus('clickTrackerStats', clickTrackers[i].name, 'allowed');
+            await statPlusPlus('clickTrackerStats', clickTrackers[i].name, 'allowed');
             bypasserUI.loadTrackedURL();
           } else {
-            statPlusPlus('clickTrackerStats', clickTrackers[i].name, 'bypassed');
+            await statPlusPlus('clickTrackerStats', clickTrackers[i].name, 'bypassed');
             window.location.replace(bypasserUI.redirectURL);
           }
           return;
@@ -56,9 +83,12 @@ bypasserUI = {
     }
   },
   loadTrackedURL: function () {
-    chrome.runtime.sendMessage({ method: "addLimitedOpenPermission", key: bypasserUI.trackedURL }, function () {
-      window.location.replace(bypasserUI.trackedURL);
-    });
+    // chrome.runtime.sendMessage({ method: "addLimitedOpenPermission", key: bypasserUI.trackedURL }, function () {
+    var url = new URL(bypasserUI.trackedURL);
+    // If your expected result is "http://foo.bar/?x=1&y=2&x=42"
+    url.searchParams.set('trfcallwmrk', 1);
+    window.location.replace(url.href);
+    // });
   }
 
 }
@@ -70,7 +100,12 @@ bypasserUI.setup();
 
 
 function getTrackedURL() {
-  return document.location.hash.split('#')[1];
+  let res = document.location.hash.split('#')[1];
+  if (!res) {
+    res = document.referrer;
+  }
+  console.log(`Redirected from "${res}"`)
+  return res;
 }
 
 function URLSummary(url, summaryLen) {

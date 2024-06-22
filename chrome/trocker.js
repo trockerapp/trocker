@@ -9,6 +9,7 @@ var trackedSignClass = 'trsgn';
 
 var resourceUrls = {
 	'trackedSign': chrome.runtime.getURL('tracked.png'),
+	'trackedSignR': chrome.runtime.getURL('trackedr.png'),
 	'tr1': chrome.runtime.getURL("tl.png"),
 	'tr2': chrome.runtime.getURL("td.png"),
 	'tr3': chrome.runtime.getURL("tr.png"),
@@ -301,6 +302,7 @@ class EmailOutlook extends Email {
 			let trackedSign = e.querySelector('img.'+trackedSignClass);
 			if (((trackedSign === null) || (trackedSign.length < 1)) && showSign) {
 				trackedSign = createTrackedSign();
+				trackedSign = setTrackedSignImage(trackedSign, false);
 				//trackedSign.style.cursor = 'pointer';
 				e.appendChild(trackedSign);
 			}	
@@ -618,13 +620,18 @@ function getProxyURLs() {
 // This function creates a trackedSign element
 function createTrackedSign() {
 	var trackedSign = document.createElement('img');
-	trackedSign.src = resourceUrls['trackedSign'];
+	trackedSign = setTrackedSignImage(trackedSign, true);
 	trackedSign.setAttribute("class", trackedSignClass);
 	//trackedSign.style.display = 'none';
 	trackedSign.height = 12;
 	trackedSign.width = 18;
 	trackedSign.style.verticalAlign = "0px";
 	trackedSign.style.paddingLeft = '6px';
+	return trackedSign;
+}
+
+function setTrackedSignImage(trackedSign, blocked=false) {
+	trackedSign.src = resourceUrls[blocked ? 'trackedSign' : 'trackedSignR'];
 	return trackedSign;
 }
 
@@ -1075,6 +1082,7 @@ function countTrackers(options) {
 					trackedSign.title = '';
 					if (trAllowTracking) {
 						trackedSign.title += ' Tracking Images: were permitted to work in this email per user request!   ';
+						trackedSign = setTrackedSignImage(trackedSign, false);
 					} else {
 						if (openTrackerURLs.length > 0) {
 							trackedSign.title += openTrackerURLs.length + ' Tracking Images (click if you want to allow them to load this time): ';

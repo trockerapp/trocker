@@ -1,4 +1,4 @@
-import { loadVariable, saveVariable, updateBrowserActionButton } from './tools.js'
+import { loadVariable, saveVariable, updateBrowserActionButton, updateDeclarativeNetRequestRules } from './tools.js'
 import { getOpenTrackerList, getClickTrackerList } from './lists.js'
 
 // Saves options to localStorage.
@@ -15,6 +15,7 @@ async function saveOptions() {
 
 	updatePermissionWarnings();
 	await updateBrowserActionButton();
+	await updateDeclarativeNetRequestRules();
 
 
 	let oldOpt1 = await loadVariable('useCustomLists');
@@ -24,7 +25,7 @@ async function saveOptions() {
 			saveCustomLists({
 				'target': {
 					'id': 'customOpenTrackersSave',
-					'value': JSON.stringify(getOpenTrackerList(true), null, 2)
+					'value': JSON.stringify(await getOpenTrackerList(true), null, 2)
 				}
 			});
 		}
@@ -32,7 +33,7 @@ async function saveOptions() {
 			saveCustomLists({
 				'target': {
 					'id': 'customClickTrackersSave',
-					'value': JSON.stringify(getClickTrackerList(true), null, 2)
+					'value': JSON.stringify(await getClickTrackerList(true), null, 2)
 				}
 			});
 		}

@@ -1,13 +1,26 @@
 import {getOpenTrackerList, getClickTrackerList} from './lists.js'
-import {parseVersionString, loadVariable, updateBrowserActionButton} from './tools.js'
+import {parseVersionString, loadVariable, updateBrowserActionButton, updateDeclarativeNetRequestRules} from './tools.js'
 
 console.log('service-worker.js');
+
+chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
+	const msg = `Navigation blocked to ${e.request.url} on tab ${e.request.tabId}, per rule:`;
+	console.log(msg);
+	console.log(e.rule)
+});
+
+chrome.tabs.onUpdated.addListener(checkTabForTrackedLinks);
+async function checkTabForTrackedLinks(tabId, changeInfo, tab) {
+	console.log(`Tab change info for ${tabId}`);
+	console.log(changeInfo);
+}
 
 async function switchTrockerState() {
 	if (await loadVariable('trockerEnable') == true) await saveVariable('trockerEnable', false);
 	else await saveVariable('trockerEnable', true);
 
 	updateBrowserActionButton();
+	updateDeclarativeNetRequestRules();
 }
 
 function openOptionsPage() {
@@ -53,6 +66,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
 	loadVariable('statsSinceDate'); // Attempt to load this so that it will be created if it doesn't exist
 
 	updateBrowserActionButton();
+	updateDeclarativeNetRequestRules();
 });
 
 chrome.runtime.onMessage.addListener(handleContentScriptMessages);

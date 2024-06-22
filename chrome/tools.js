@@ -1,4 +1,140 @@
+import { getOpenTrackerList, getClickTrackerList } from './lists.js'
+
 const manifest_version = chrome.runtime.getManifest().manifest_version;
+
+async function getRequestRules() {
+	let openList = await getOpenTrackerList();
+	let openBlockPatterns = [];
+	for (let item of openList) {
+		openBlockPatterns.push(...item.patterns);
+		openBlockPatterns.push(...item.domains);
+	}
+	let openRules = openBlockPatterns.map((pattern, index) => ({ 
+			"id": 1 + index, 
+			"priority": 1, 
+			"action": {
+				"type": "block"
+			},
+			"condition": {
+				"urlFilter": pattern,
+				"resourceTypes": [
+					"image",
+					"media",
+				]
+			}
+   		})
+   );
+
+//    {
+//        "id": 2,
+//        "priority": 5,
+//        "action": { "type": "allow" },
+//        "condition": {"urlFilter": "trfcallwmrk"}
+//    }
+
+	let clickList = await getClickTrackerList();
+	let clickBlockRegexPatterns = [];
+	let clickBlockPatterns = [];
+	for (let item of clickList){
+		if (item.regex) {
+			clickBlockRegexPatterns.push(item.regex);
+		} else {
+			clickBlockPatterns.push(...item.patterns);
+			clickBlockPatterns.push(...item.domains);
+		}
+	}
+	let clickRules = clickBlockRegexPatterns.map((pattern, index) => ({ 
+		"id": 1 + index + openRules.length, 
+		"priority": 1, 
+		"action": {
+			"type": "redirect",
+			"redirect": {
+				// "url": chrome.runtime.getURL("bypasser.html")
+				"regexSubstitution": chrome.runtime.getURL("bypasser.html") + '#\\0'
+			}
+		},
+		"condition": {
+			// "urlFilter": pattern,
+			"regexFilter": pattern,
+			// "regexFilter": "(.*t\.yesware.*)", // Temp test
+			// "regexFilter": '^.+$',
+			"excludedInitiatorDomains": [
+				chrome.runtime.id
+				// chrome.runtime.getURL('').slice(0, -1)
+			], // To allow forwarding after Trocker notice
+			"resourceTypes": [
+				"main_frame",
+				"sub_frame",
+				"stylesheet",
+				"script",
+				"image",
+				"font",
+				"object",
+				"xmlhttprequest",
+				"ping",
+				"csp_report",
+				"media",
+				"websocket",
+				"webtransport",
+				"webbundle",
+				"other"
+			]
+		}
+	   })
+	);
+	// {
+	// 	"id": 2,
+	// 	"priority": 1,
+	// 	"action": {
+	// 	  "type": "redirect",
+	// 	  "redirect": {
+	// 		"url": "https://developer.chrome.com/docs/extensions/reference/action/"
+	// 	  }
+	// 	},
+	// 	"condition": {
+	// 	  "urlFilter": "https://developer.chrome.com/docs/extensions/reference/browserAction/",
+	// 	  "resourceTypes": ["main_frame"]
+	// 	}
+	// }
+	let allRules = openRules.concat(clickRules);
+	return allRules;
+}
+
+export async function updateDeclarativeNetRequestRules(){
+	// Get arrays containing new and old rules
+	const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
+	const oldRuleIds = oldRules.map(rule => rule.id);
+	const newRules = await getRequestRules();
+
+	// Use the arrays to update the dynamic rules
+	await chrome.declarativeNetRequest.updateDynamicRules({
+		removeRuleIds: oldRuleIds,
+		addRules: newRules
+	});
+
+	// let TestMatchRequestDetailsList = [{
+	// 	initiator: "https://mail.google.com",
+	// 	method: "get",
+	// 	tabId: 1625521131,
+	// 	type: "sub_frame",
+	// 	url: "https://t.yesware.com/tl/9753ac6e46810c884c8c008a53991032923afab3/1531a6fa3bb44dcdf7ca6d2b7a8961b2/8ea2a6afa82c6ee10173c22c413e42f6?ytl=http%3A%2F%2Fgoogle.com"
+	// }, {
+	// 	initiator: "https://mail.google.com",
+	// 	method: "get",
+	// 	tabId: 1625521131,
+	// 	type: "image",
+	// 	url: "https://ci3.googleusercontent.com/meips/ADKq_Nbao412LzZzvlfPNFgd8rPBDmVj_DJuXNPAwb-ULpR8DevxlmgPYjHImvcXczX_PR17q8bXH5ReOl3QxG_n3nMK487yuVXOvs4I7Nn3_gIh4vClOHt_z64XkuiL2G8zXt5AmenudfYW4M36iEc9vL-drLmbVkNYf5OoQTvETMXrLvI=s0-d-e1-ft#https://t.yesware.com/t/9753ac6e46810c884c8c008a53991032923afab3/6bdce9bc54a5733f092ddd9aebc7cc85/spacer.gif"
+	// }];
+	// for (let TestMatchRequestDetails of TestMatchRequestDetailsList){
+	// 	chrome.declarativeNetRequest.testMatchOutcome(
+	// 		TestMatchRequestDetails,
+	// 		(res) => {
+	// 			console.log(`Rules matching ${TestMatchRequestDetails.url}`)
+	// 			console.log(res)
+	// 		},
+	// 	);
+	// }
+}
 
 function setBrowserActions(options) {
 	let iconCallback = function () {
@@ -33,9 +169,9 @@ export async function updateBrowserActionButton(tabId, trackerCount) {
 	setBrowserActions(browserActionOptions);
 }
 
-function findOriginalLink(trackedURL) {
+export async function findOriginalLink(trackedURL) {
 	let origLink = '';
-	let clickTrackers = getClickTrackerList();
+	let clickTrackers = await getClickTrackerList();
 	for (let i = 0; i < clickTrackers.length; i++) {
 		if (multiMatch(trackedURL, clickTrackers[i].domains)) {
 			if (clickTrackers[i]['param'] !== undefined) {
@@ -264,30 +400,30 @@ export async function loadVariable(varName) {
 }
 
 export async function saveVariable(varName, varValue) {
-	loadVariable(varName); // This make sure dataCache exists
-	cacheObject(varName, varValue);
-	return loadVariable(varName);
+	await loadVariable(varName); // This make sure dataCache exists
+	await cacheObject(varName, varValue);
+	return await loadVariable(varName);
 }
 
-function getStat(statObjName, statName, fieldName) {
-	let statObj = loadVariable(statObjName);
+async function getStat(statObjName, statName, fieldName) {
+	let statObj = await loadVariable(statObjName);
 	if (statObj[statName] === undefined) statObj[statName] = {};
 	if (isNaN(statObj[statName][fieldName])) {
 		statObj[statName][fieldName] = 0;
-		saveVariable(statObjName, statObj);
+		await saveVariable(statObjName, statObj);
 	}
 	return statObj[statName][fieldName];
 }
 
-function setStat(statObjName, statName, fieldName, fieldValue) {
-	getStat(statObjName, statName, fieldName); // Make sure stat exists
-	let statObj = loadVariable(statObjName);
+async function setStat(statObjName, statName, fieldName, fieldValue) {
+	await getStat(statObjName, statName, fieldName); // Make sure stat exists
+	let statObj = await loadVariable(statObjName);
 	statObj[statName][fieldName] = fieldValue;
-	saveVariable(statObjName, statObj);
+	await saveVariable(statObjName, statObj);
 }
 
-function statPlusPlus(statObjName, statName, fieldName) {
-	setStat(statObjName, statName, fieldName, getStat(statObjName, statName, fieldName) + 1);
+export async function statPlusPlus(statObjName, statName, fieldName) {
+	await setStat(statObjName, statName, fieldName, await getStat(statObjName, statName, fieldName) + 1);
 }
 
 function logSuspURL(url) {
@@ -335,7 +471,7 @@ function parseUrlParams(url) {
 		decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
 		query = url.slice(url.indexOf('?') + 1); // The query part of the url
 
-	urlParams = {};
+	let urlParams = {};
 	while (match = search.exec(query))
 		urlParams[decode(match[1])] = decode(match[2]);
 
@@ -357,7 +493,7 @@ export function parseVersionString(str) {
 }
 
 // returns true if str contains any of patterns in it
-function multiMatch(str, patterns) {
+export function multiMatch(str, patterns) {
 	for (let i = 0; i < patterns.length; i++) {
 		if (str.indexOf(patterns[i]) > -1) return true;
 	}
