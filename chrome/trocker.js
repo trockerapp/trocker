@@ -8,12 +8,12 @@
 var trackedSignClass = 'trsgn';
 
 var resourceUrls = {
-	'trackedSign': chrome.runtime.getURL('tracked.png'),
-	'trackedSignR': chrome.runtime.getURL('trackedr.png'),
-	'tr1': chrome.runtime.getURL("tl.png"),
-	'tr2': chrome.runtime.getURL("td.png"),
-	'tr3': chrome.runtime.getURL("tr.png"),
-	'trClick': chrome.runtime.getURL("tlc.png")
+	'trackedSign': chrome.runtime.getURL('img/tracked.png'),
+	'trackedSignR': chrome.runtime.getURL('img/trackedr.png'),
+	'tr1': chrome.runtime.getURL("img/tl.png"),
+	'tr2': chrome.runtime.getURL("img/td.png"),
+	'tr3': chrome.runtime.getURL("img/tr.png"),
+	'trClick': chrome.runtime.getURL("img/tlc.png")
 }
 
 // Some global vars

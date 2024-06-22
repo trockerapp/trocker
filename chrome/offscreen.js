@@ -13,7 +13,7 @@ async function handleMessages(message) {
         case 'get-full-local-storage':
             sendToBackground(
                 'get-full-local-storage-result',
-                JSON.parse(localStorage['dataCache'])
+                loadDataCache()
             );
             break;
         case 'get-local-storage':
@@ -28,8 +28,15 @@ async function handleMessages(message) {
     }
 }
 
+function loadDataCache() {
+    if (typeof localStorage['dataCache'] === "undefined") { localStorage['dataCache'] = JSON.stringify({}); }
+    let dataCache = JSON.parse(localStorage['dataCache']);
+    return dataCache;
+
+}
+
 function loadObjectFromCache(objName) {
-    var dataCache = JSON.parse(localStorage['dataCache']);
+    var dataCache = loadDataCache();
     return dataCache[objName];
 }
 

@@ -158,10 +158,10 @@ export async function updateBrowserActionButton(tabId, trackerCount) {
 	}
 
 	if (await loadVariable('trockerEnable') == true) {
-		browserActionOptions.iconPaths = "trocker.png";
+		browserActionOptions.iconPaths = "img/trocker.png";
 		browserActionOptions.color = [208, 0, 24, 255];
 	} else {
-		browserActionOptions.iconPaths = "trockerbw.png";
+		browserActionOptions.iconPaths = "img/trockerbw.png";
 		browserActionOptions.color = [190, 190, 190, 230];
 	}
 	browserActionOptions.badgeText = '';
@@ -372,7 +372,7 @@ export async function loadVariable(varName) {
 	if ((varName == 'trockerEnable') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); }
 	if ((varName == 'showTrackerCount') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); }
 	if ((varName == 'anyPage') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
-	if ((varName == 'exposeLinks') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
+	if ((varName == 'exposeLinks') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); } // Let the default be to expose tracking images
 	if ((varName == 'linkBypassTimeout') && (varValue === undefined)) { varValue = 11; cacheObject(varName, varValue); }
 	if ((varName == 'useCustomLists') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
 	if ((varName == 'customOpenTrackers') && (varValue === undefined)) { varValue = ''; cacheObject(varName, varValue); }
