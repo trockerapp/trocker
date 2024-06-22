@@ -120,6 +120,13 @@ export async function getClickTrackerList(forceDefault = false) {
 
 	clickTrackers = [
 		{
+			"name": "GG",
+			"domains": ["google.com/url"],
+			"patterns": [],
+			"regex": "(.*google\.com\/url\?.*)",
+			"param": "q",
+		},
+		{
 			"name": "YW",
 			"domains": ["t.yesware.com/tl"],
 			"patterns": [],
