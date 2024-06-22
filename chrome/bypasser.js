@@ -83,7 +83,6 @@ let bypasserUI = {
     }
   },
   loadTrackedURL: function () {
-    // chrome.runtime.sendMessage({ method: "addLimitedOpenPermission", key: bypasserUI.trackedURL }, function () {
     var url = new URL(bypasserUI.trackedURL);
     // If your expected result is "http://foo.bar/?x=1&y=2&x=42"
     url.searchParams.set('trfcallwmrk', 1);

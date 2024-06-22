@@ -34,6 +34,7 @@ class Email {
 	}
 	constructor(mainDOMElem) {
 		this.mainDOMElem = mainDOMElem;
+		this.proxifesImages = true;
 	}
 	getBody() { // Revise this to more specifically return the body of the email in each webmail
 		return [this.mainDOMElem];
@@ -178,6 +179,10 @@ class EmailInboxDraft extends Email {
 }
 
 class EmailOutlook extends Email {
+	constructor(){
+		super();
+		this.proxifesImages = false;
+	}
 	static getOpenEmails() {
 		// document.querySelectorAll('div.GjFKx') // Unopen emails
 		let emails = Array.from(document.querySelectorAll('div.SlLx9, div.uy30y')).map(a => new EmailOutlook(a)); // Opened emails in outlook, final version
@@ -1085,6 +1090,9 @@ function countTrackers(options) {
 						trackedSign = setTrackedSignImage(trackedSign, false);
 					} else {
 						if (openTrackerURLs.length > 0) {
+							if (!email.proxifesImages) {
+								trackedSign.title += 'Trackers may not be blocked because this webmail does not proxy images!     '
+							}
 							trackedSign.title += openTrackerURLs.length + ' Tracking Images (click if you want to allow them to load this time): ';
 							var maxItemsToShow = 5;
 							for (var i = 0; i < openTrackerURLs.length; i++) {
