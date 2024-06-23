@@ -1,7 +1,6 @@
 {
    "background": {
-      "service_worker": "service-worker.js",
-      "type": "module"
+      "page": "background-page.html"
    },
    "action": {
       "default_icon": {
@@ -40,6 +39,12 @@
    },
    "manifest_version": 3,
    "name": "__MSG_extension_name__",
+   "browser_specific_settings": {
+      "gecko": {
+        "id": "{4f6dcd29-0a10-4235-a473-211111e98604}",
+        "strict_min_version": "42.0"
+      }
+   },    
    "options_ui": {
       "open_in_tab": true,
       "page": "options.html"
