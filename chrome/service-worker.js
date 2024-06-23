@@ -8,11 +8,11 @@ chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
 	console.log(msg);
 });
 
-chrome.tabs.onUpdated.addListener(checkTabForTrackedLinks);
-async function checkTabForTrackedLinks(tabId, changeInfo, tab) {
-	console.log(`Tab change info for ${tabId}`);
-	console.log(changeInfo);
-}
+// chrome.tabs.onUpdated.addListener(checkTabForTrackedLinks);
+// async function checkTabForTrackedLinks(tabId, changeInfo, tab) {
+// 	console.log(`Tab change info for ${tabId}`);
+// 	console.log(changeInfo);
+// }
 
 async function switchTrockerState() {
 	if (await loadVariable('trockerEnable') == true) await saveVariable('trockerEnable', false);

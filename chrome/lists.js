@@ -130,7 +130,7 @@ export async function getClickTrackerList(forceDefault = false) {
 			"name": "SK",
 			"domains": ["track.getsidekick.com", "t.sigopn01.com", "t.sigopn02.com", "t.sigopn03.com", "t.sigopn04.com", "t.sigopn05.com", "t.strk01.email", "t.strk02.email", "t.strk03.email", "t.strk04.email", "t.strk05.email", "t.strk06.email", "t.strk07.email", "t.strk08.email", "t.strk09.email", "t.strk10.email", "t.strk11.email", "t.strk12.email", "t.strk13.email", "t.sidekickopen01.com", "t.sidekickopen02.com", "t.sidekickopen03.com", "t.sidekickopen04.com", "t.sidekickopen05.com", "t.sidekickopen06.com", "t.sidekickopen07.com", "t.sidekickopen08.com", "t.sidekickopen09.com", "t.sidekickopen10.com", "t.sidekickopen11.com", "t.sidekickopen12.com"],
 			"patterns": [],
-			"regex": "(.*t\.(?:sidekickopen\d*|sigopn\d*|strk\d*|getsidekick)\.com.*)",
+			"regex": "(.*t\.(?:sidekickopen\\d*|sigopn\\d*|strk\\d*|getsidekick)\.com.*)",
 			"param": "t"
 		},
 		{
@@ -158,7 +158,7 @@ export async function getClickTrackerList(forceDefault = false) {
 			"name": "MC",
 			"domains": ["mandrillapp.com/track", "list-manage.com/track", "list-manage1.com/track"],
 			"patterns": ["*://*.mandrillapp.com/track/click*", "*://*.list-manage.com/track/click*", "*://*.list-manage1.com/track/click*"],
-			"regex": "(.*(?:mandrillapp|list\-manage.+)\.com\/track\/click.*)",
+			"regex": "(.*(?:mandrillapp|list\\-manage\\d*)\.com\/track\/click.*)",
 		},
 		{
 			"name": "SG",
