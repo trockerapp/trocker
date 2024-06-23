@@ -1,5 +1,5 @@
 import {getOpenTrackerList, getClickTrackerList} from './lists.js'
-import {parseVersionString, loadVariable, updateBrowserActionButton, updateDeclarativeNetRequestRules} from './tools.js'
+import {parseVersionString, loadVariable, updateBrowserActionButton, updateDeclarativeNetRequestRules, statPlusN} from './tools.js'
 
 console.log('service-worker.js');
 
@@ -75,12 +75,32 @@ async function handleContentScriptMessages(message, sender) {
 		let result = {};
 		result[varName] = varValue;
 		sendMessageToContentScript(tabId, 'saveVariable-result', result);
-	} else if (message.type == "reportTrackerCount") {
-		let trackerCount = message.value;
-		if (await loadVariable('showTrackerCount') == true) {
-			await updateBrowserActionButton(tabId, trackerCount);
-		} else {
-			await updateBrowserActionButton(tabId, 0);
+	} else if (message.type == "reportTrackerStats") {
+		let trackerStats = message.value;
+		if (trackerStats.total_count) {
+			if (await loadVariable('showTrackerCount') == true) {
+				await updateBrowserActionButton(tabId, trackerStats.total_count);
+			} else {
+				await updateBrowserActionButton(tabId, 0);
+			}	
+		}
+		if (!trackerStats.open || isNaN(trackerStats.open)) {
+			trackerStats.open = 0;
+		}
+		if (!trackerStats.open_allowed || isNaN(trackerStats.open_allowed)) {
+			trackerStats.open_allowed = 0;
+		}
+		if (!trackerStats.click || isNaN(trackerStats.click)) {
+			trackerStats.click = 0;
+		}
+		if (trackerStats.open > 0 && trackerStats.open > trackerStats.open_allowed) {
+			await statPlusN('openTrackerStats', 'etc', 'blocked', trackerStats.open - trackerStats.open_allowed);
+		}
+		if (trackerStats.open_allowed > 0) {
+			await statPlusN('openTrackerStats', 'etc', 'allowed', trackerStats.open_allowed);
+		}
+		if (trackerStats.click > 0) {
+			await statPlusN('clickTrackerStats', 'etc', 'exposed', trackerStats.click);
 		}
 	} else if (message.type == "getTrackerLists") {
 		sendMessageToContentScript(tabId, 'getTrackerLists-result', { 

@@ -179,8 +179,8 @@ class EmailInboxDraft extends Email {
 }
 
 class EmailOutlook extends Email {
-	constructor(){
-		super();
+	constructor(mainDOMElem){
+		super(mainDOMElem);
 		this.proxifesImages = false;
 	}
 	static getOpenEmails() {
@@ -798,6 +798,7 @@ var inRefractoryPeriod = false;
 var inOptionPersistancePeriod = false;
 var trockerOptions = {};
 var uiWhitelistCounter = 0;
+var trackerStatsPrevious = {};
 
 chrome.runtime.onMessage.addListener(handleMessages);
 async function handleMessages(message, sender) {
@@ -833,10 +834,8 @@ async function handleMessages(message, sender) {
 
 function checkAndDoYourDuty() {
 	if (inRefractoryPeriod) return; // In order to avoid back to back function calls triggered by fake hashchange events
-	if (inOptionPersistancePeriod) { // We have recently loaded the options, let's use them
-		var trackerCount = countTrackers(trockerOptions);
-	} else {
-		try {
+	try {
+		if (!inOptionPersistancePeriod) { // It's been a while since we fetched Trocker options, let's sync again
 			let response = chrome.runtime.sendMessage({
 				target: 'background', 
 				type: "loadVariable",
@@ -846,22 +845,25 @@ function checkAndDoYourDuty() {
 				target: 'background', 
 				type: "getTrackerLists"
 			});
-			var trackerCount = countTrackers(trockerOptions);
+			inOptionPersistancePeriod = true;
+			window.setTimeout(() => {
+				inOptionPersistancePeriod = false;
+			}, 1000);
+		}
+		let trackerStats = countTrackers(trockerOptions);
+		if (trackerStats.total_count > 0 || trackerStatsPrevious.total_count) {
 			chrome.runtime.sendMessage({
 				target: 'background', 
-				type: "reportTrackerCount",
-				value: trackerCount
+				type: "reportTrackerStats",
+				value: trackerStats
 			});
-		} catch (error) {
-			logEvent('Lost connection to extension... The browser may have updated Trocker. Please refresh the page\n'+error, true);
 		}
-		inOptionPersistancePeriod = true;
-		window.setTimeout(function () {
-			inOptionPersistancePeriod = false;
-		}, 1000);
+		trackerStatsPrevious = trackerStats;
+	} catch (error) {
+		logEvent('Lost connection to extension... The browser may have updated Trocker. Please refresh the page\n'+error, true);
 	}
 	inRefractoryPeriod = true;
-	window.setTimeout(function () {
+	window.setTimeout(() => {
 		inRefractoryPeriod = false;
 	}, 90);
 }
@@ -924,6 +926,13 @@ function countTrackers(options) {
 	for (var i = 0; i < options.clickTrackers.length; i++) clickDomains = clickDomains.concat(options.clickTrackers[i].domains);
 
 	var trackerCount = 0;
+	let trackerStats = {
+		open: 0,
+		click: 0,
+		open_allowed: 0,
+		click_allowed: 0,
+		total_count: 0
+	};
 	var trackerImages = [];
 	var safeImages = [];
 	var trackerLinks = [];
@@ -1032,13 +1041,13 @@ function countTrackers(options) {
 							if (!isKnownTracker) { // If an unknown tracker
 								img.setAttribute("trknown", "0");
 							}
-							mailOpenTrackers++;
 							openTrackerURLs.push(img.src);
 							addJudgment(img, 'suspicious');
 							//openTrackerURLs.push(img.src.split("#")[1]);
 							//if (img.src.indexOf(suspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+suspMark+'#');
 						}
 						thisEmailTrackerImages.push(img);
+						mailOpenTrackers++;
 					} else { // Mark non-tracking images
 						addJudgment(img, 'non-suspicious');
 						//if (img.src.indexOf(nonSuspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+nonSuspMark+'#');
@@ -1052,6 +1061,10 @@ function countTrackers(options) {
 					newFindings = true;
 				}
 				mailTrackers += mailOpenTrackers;
+				trackerStats.open += mailOpenTrackers;
+				if (trAllowTracking || !email.proxifesImages) {
+					trackerStats.open_allowed += mailOpenTrackers;
+				}
 				// Whitelist any UI images for this email (attachement image, etc)
 				for (var i = 0; i < ui_images.length; i++) { // Loop over all images in the email
 					var img = ui_images[i];
@@ -1078,6 +1091,7 @@ function countTrackers(options) {
 				}
 				email.setAttribute("trctrckrs", mailClickTrackers);
 				mailTrackers += mailClickTrackers;
+				trackerStats.click += mailClickTrackers;
 				newFindings = true;
 			}
 
@@ -1214,6 +1228,7 @@ function countTrackers(options) {
 					email.setAttribute("trimgs", images.length);
 				}
 				suspCount += mailOpenTrackers;
+				trackerStats.open += mailOpenTrackers;
 				// Whitelist any UI images for this email (attachement image, etc)
 				for (var i = 0; i < ui_images.length; i++) { // Loop over all images in the email
 					var img = ui_images[i];
@@ -1229,28 +1244,29 @@ function countTrackers(options) {
 		}
 		if (suspCount) logEvent(suspCount + ' suspicious images were found in the compose windows', false);
 
-		// Whitelist UI elements that are blocked by default and are not separable via address
-		// This does not need to repeat with the same period as the rest
-		uiWhitelistCounter += 1;
-		if (uiWhitelistCounter % 5 == 0) {
-			var elems = getUIWhitelistElems();
-			for (var ei = 0; ei < elems.length; ei++) {
-				var elem = elems[ei];
-				var images = elem.querySelectorAll('img');
-				for (var i = 0; i < images.length; i++) { // Loop over all images in the ui segment
-					var img = images[i];
-					// removeJudgments(img); // Remove any previous judgment
-					addJudgment(img, 'non-suspicious');
-				}
-				var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw, .aT5-aOt-I-JX-Jw');
-				for (var i = 0; i < bgDivs.length; i++) { // Loop over all divs with bg images in the ui segment
-					var dv = bgDivs[i];
-					if (dv.style.backgroundImage != '') {
-						dv.style.backgroundImage = addJudgmentToSrc(dv.style.backgroundImage, 'non-suspicious');
-					}
-				}
-			}
-		}
+		// No longer needed because we are now only blocking proxied images, and UI elements should not be proxied
+		// // Whitelist UI elements that are blocked by default and are not separable via address
+		// // This does not need to repeat with the same period as the rest
+		// uiWhitelistCounter += 1;
+		// if (uiWhitelistCounter % 5 == 0) {
+		// 	var elems = getUIWhitelistElems();
+		// 	for (var ei = 0; ei < elems.length; ei++) {
+		// 		var elem = elems[ei];
+		// 		var images = elem.querySelectorAll('img');
+		// 		for (var i = 0; i < images.length; i++) { // Loop over all images in the ui segment
+		// 			var img = images[i];
+		// 			// removeJudgments(img); // Remove any previous judgment
+		// 			addJudgment(img, 'non-suspicious');
+		// 		}
+		// 		var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw, .aT5-aOt-I-JX-Jw');
+		// 		for (var i = 0; i < bgDivs.length; i++) { // Loop over all divs with bg images in the ui segment
+		// 			var dv = bgDivs[i];
+		// 			if (dv.style.backgroundImage != '') {
+		// 				dv.style.backgroundImage = addJudgmentToSrc(dv.style.backgroundImage, 'non-suspicious');
+		// 			}
+		// 		}
+		// 	}
+		// }
 	} else { // The general case
 		var logPrefix = 'Across the webpage';
 		// Open Trackers
@@ -1266,6 +1282,7 @@ function countTrackers(options) {
 
 				if (isKnownTracker) {
 					trackerCount++;
+					trackerStats.open++;
 					trackerImages.push(img);
 				} else {
 					removeJudgments(img); // Remove any previous judgment
@@ -1286,6 +1303,7 @@ function countTrackers(options) {
 				var link = links[i];
 				if (multiMatch(link.href, clickDomains)) {
 					trackerCount++;
+					trackerStats.click++;
 					trackerLinks.push(link);
 				}
 			}
@@ -1350,7 +1368,8 @@ function countTrackers(options) {
 	var elems = document.querySelectorAll('span[title="trexpsdspnelm"]:empty'); // Empty exposers
 	for (var i = 0; i < elems.length; i++) elems[i].parentNode.removeChild(elems[i]);
 
-	return trackerCount;
+	trackerStats.total_count = trackerCount;
+	return trackerStats;
 }
 
 window.addEventListener("hashchange", function () {

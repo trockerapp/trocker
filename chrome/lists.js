@@ -222,6 +222,13 @@ export async function getClickTrackerList(forceDefault = false) {
 			"domains": ["pstmrk.it"],
 			"patterns": ["*://click.pstmrk.it/*"],
 			"regex": "(.*click\.pstmrk\.it.*)",
+		}, // Example: https://trk.klclick1.com/ls/click?upn=u001randomcode
+		{
+			"name": "KV",
+			"domains": ["klclick1.com"],
+			"patterns": ["*://trk.klclick1.com/*"],
+			"regex": "(.*trk\.klclick1\.com.*)",
+
 		}
 	];
 	return clickTrackers;

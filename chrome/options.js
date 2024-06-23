@@ -1,8 +1,17 @@
 import { loadVariable, saveVariable, updateBrowserActionButton, updateDeclarativeNetRequestRules } from './tools.js'
 import { getOpenTrackerList, getClickTrackerList } from './lists.js'
 
+let updatingSettings = false;
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+	if (!updatingSettings) {
+		restoreOptions();
+	}
+});
+
 // Saves options to localStorage.
 async function saveOptions() {
+	updatingSettings = true;
 	await saveVariable('trockerEnable', document.getElementById("trockerEnableOpt").checked);
 	await saveVariable('showTrackerCount', document.getElementById("showTrackerCountOpt").checked);
 	await saveVariable('anyPage', document.getElementById("anyPageOpt").checked);
@@ -47,6 +56,7 @@ async function saveOptions() {
 
 	// Update status to let user know options were saved.
 	updateStatus('Options were saved!');
+	updatingSettings = false;
 }
 
 async function restoreDefaultLists(event) {
@@ -98,6 +108,7 @@ function updateStatus(innerText, className = '', timeOutMs = 1000, statusElemId 
 
 // Restores select box state to saved value from cache.
 async function restoreOptions() {
+	updatingSettings = true;
 	document.getElementById("trockerEnableOpt").checked = await loadVariable('trockerEnable');
 	document.getElementById("trockerEnableOpt").onchange = saveOptions;
 
@@ -143,7 +154,7 @@ async function restoreOptions() {
 	// Open Tracker Stats
 	let allOpenTrackerBlocks = 0;
 	let allOpenTrackerAllows = 0;
-	let statsObj = loadVariable('openTrackerStats');
+	let statsObj = await loadVariable('openTrackerStats');
 	for (let key in statsObj) {
 		if (statsObj.hasOwnProperty(key)) {
 			let val = statsObj[key];
@@ -154,16 +165,19 @@ async function restoreOptions() {
 	document.getElementById("blockedOpenTrackers").innerHTML = allOpenTrackerBlocks;
 	document.getElementById("allowedOpenTrackers").innerHTML = allOpenTrackerAllows;
 	// Click Tracker Stats
+	let allExposedTrackedLinks = 0;
 	let allClickTrackerBypasses = 0;
 	let allClickTrackerAllows = 0;
-	statsObj = loadVariable('clickTrackerStats');
+	statsObj = await loadVariable('clickTrackerStats');
 	for (let key in statsObj) {
 		if (statsObj.hasOwnProperty(key)) {
 			let val = statsObj[key];
+			if (!isNaN(val['exposed'])) allExposedTrackedLinks = allExposedTrackedLinks + val['exposed'];
 			if (!isNaN(val['bypassed'])) allClickTrackerBypasses = allClickTrackerBypasses + val['bypassed'];
 			if (!isNaN(val['allowed'])) allClickTrackerAllows = allClickTrackerAllows + val['allowed'];
 		}
 	}
+	document.getElementById("exposedClickTrackers").innerHTML = allExposedTrackedLinks;
 	document.getElementById("bypassedClickTrackers").innerHTML = allClickTrackerBypasses;
 	document.getElementById("allowedClickTrackers").innerHTML = allClickTrackerAllows;
 	// Stats start date
@@ -187,7 +201,7 @@ async function restoreOptions() {
 			document.getElementById("allowedClickTrackers").parentElement.innerHTML += '<li><span class="stat_name">Suspicious Domains: </span><span class="stat_value" id="suspDomains">Nothing in the log!</span>';
 		}
 		// Susp Domain List
-		let suspDomainsObj = loadVariable('suspDomains');
+		let suspDomainsObj = await loadVariable('suspDomains');
 		//document.getElementById("suspDomains").innerHTML = Object.keys(suspDomainsObj).length+'<br />';
 		let listHTML = '<div><ol>';
 		for (let key in suspDomainsObj) {
@@ -212,7 +226,7 @@ async function restoreOptions() {
 		document.getElementById("spreadtheword").innerHTML = 'So Trocker has blocked ' + (allOpenTrackerBlocks + allClickTrackerBypasses) + ' trackers in your emails. <a href="https://twitter.com/intent/tweet?text=' + tweetmsg + '">Tweet this to spread the word!</a>';
 	}
 
-	// setTimeout(restoreOptions, 30*1000); // Update stats every few seconds
+	updatingSettings = false;
 }
 
 function restoreOptionalPermissions() {

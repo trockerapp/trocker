@@ -260,7 +260,7 @@ async function handleOffscreenMessages(message) {
 			break;
 		case 'loadVariable':
 		case 'getTrackerLists':
-		case 'reportTrackerCount':
+		case 'reportTrackerStats':
 			// service worker will reply
 			break;
 		default:
@@ -396,8 +396,8 @@ export async function loadVariable(varName) {
 	// Obsolete
 	if ((varName == 'allowedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'blockedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
-	if ((varName == 'allowedYWOpenTrackers') && isNaN(varValue)) { varValue = loadVariable('allowedTrackerLinks'); cacheObject(varName, varValue); }
-	if ((varName == 'blockedYWOpenTrackers') && isNaN(varValue)) { varValue = loadVariable('blockedTrackerLinks'); cacheObject(varName, varValue); }
+	if ((varName == 'allowedYWOpenTrackers') && isNaN(varValue)) { varValue = await loadVariable('allowedTrackerLinks'); cacheObject(varName, varValue); }
+	if ((varName == 'blockedYWOpenTrackers') && isNaN(varValue)) { varValue = await loadVariable('blockedTrackerLinks'); cacheObject(varName, varValue); }
 	if ((varName == 'allowedSKOpenTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'blockedSKOpenTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
 	if ((varName == 'allowedYWClickTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
@@ -430,14 +430,18 @@ async function setStat(statObjName, statName, fieldName, fieldValue) {
 	await saveVariable(statObjName, statObj);
 }
 
-export async function statPlusPlus(statObjName, statName, fieldName) {
-	await setStat(statObjName, statName, fieldName, await getStat(statObjName, statName, fieldName) + 1);
+export async function statPlusN(statObjName, statName, fieldName, N) {
+	await setStat(statObjName, statName, fieldName, await getStat(statObjName, statName, fieldName) + N);
 }
 
-function logSuspURL(url) {
+export async function statPlusPlus(statObjName, statName, fieldName) {
+	await statPlusN(statObjName, statName, fieldName, 1);
+}
+
+async function logSuspURL(url) {
 	if (loadVariable('advanced')) {
 		if (!url) return;
-		let suspDomainsObj = loadVariable('suspDomains'); // This make sure dataCache exists
+		let suspDomainsObj = await loadVariable('suspDomains'); // This make sure dataCache exists
 		let urlDomain = extractDomain(url);
 		if (suspDomainsObj[urlDomain] === undefined) suspDomainsObj[urlDomain] = {
 			"loads": 0,
@@ -453,7 +457,7 @@ function logSuspURL(url) {
 		if (keys.length > maxKeysToKeep)  // Only keep the last 100 elements
 			for (let i = 0; i < (keys.length - maxKeysToKeep); i++)
 				delete (suspDomainsObj[keys[i]]);
-		saveVariable('suspDomains', suspDomainsObj);
+		await saveVariable('suspDomains', suspDomainsObj);
 	}
 }
 
