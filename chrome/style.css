@@ -18,6 +18,7 @@ a:visited {
 /* a:hover{text-decoration:underline} */
 p {
   margin: 0.5em;
+  line-height: 1.5em;
 }
 
 ul {
@@ -39,7 +40,8 @@ ul {
 
 .title {
   color: #333;
-  font-size: 20px;
+  font-size: 1.6em;
+  line-height: 1.6em;
   margin: 0 auto;
   text-align: center;
   max-width: 80%;
@@ -74,8 +76,11 @@ textarea.jsonOption {
   float: left;
   font-weight: bold;
   margin-top: 2px;
-  width: 5%;
-  padding-right: 10px;
+  width: 7%;
+  padding: 0.2em;
+  border-radius: 0.5em;
+  background-color: #1b94e025;
+  text-align: center;
 }
 
 .changlog_value {
@@ -87,6 +92,8 @@ textarea.jsonOption {
 }
 
 .supportcall {
+  /* font-size: 1.25em;
+  line-height: 1.5em; */
   background-color: rgb(223, 255, 224);
   border-color: rgb(170, 221, 194);
   border-style: solid;
@@ -94,7 +101,6 @@ textarea.jsonOption {
   margin: 0.5em auto;
   padding: 0px;
   -webkit-border-radius: 12px;
-  
 }
 
 .gap_horiz {
@@ -125,17 +131,19 @@ textarea.jsonOption {
 }
 
 #advancedswitch {
+  font-size: 1.25em;
   float: left;
   position: relative;
   left: 10px;
-  bottom: 20px;
+  bottom: 1.6em;
 }
 
 #contactus {
+  font-size: 1.25em;
   float: right;
   position: relative;
   right: 10px;
-  bottom: 20px;
+  bottom: 1.6em;
 }
 
 #contactus a {
@@ -199,6 +207,8 @@ a.tfbtn:active {
   clear: left;
   margin: 5px auto;
   padding: 5px 10px;
+  font-size: 1.25em;
+  line-height: 1.5em;
 }
 
 .gap {

@@ -11,10 +11,13 @@
   <div class="title">
     <img src="img/header.png" title="Trocker" alt="Trocker">
     <p>Trocker has been updated! Changes are listed below.</p>
+    <p>The update to <span class="successMsg">version 3.0.0</span> was a significant undertaking.</p>
+    <p>We have transitioned to <a href="https://developer.chrome.com/docs/extensions/develop/migrate">Manifest V3</a>, while keeping almost all features. 🎉</p>
+    <p>Trocker has always been an open source project, maintained for free.<p>
+    <p><b>If you like Trocker and would like to support it, you can:</b></p>
   </div>
-  <div class="supportcall gap_horiz">
+  <div class="supportcall centeredsec gap_horiz">
     <p>
-      <b>If you like Trocker and would like to support it, you can:</b>
       <ul>
         <li>
           Report any issues with Trocker by emailing us at <a href="mailto:trockerapp@gmail.com" target="_blank">trockerapp@gmail.com</a> or opening an issue on <a href="https://github.com/trockerapp/trocker/issues" target="_blank">GitHub</a>.
@@ -43,7 +46,22 @@
     </p>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.7.0:</div>
+    <div class="changlog_name"><span class="successMsg">v3.0.0</span></div>
+    <div class="changlog_value">
+    <ul>
+      <li>This release makes Trocker compatible with the newly mandated <a href="https://developer.chrome.com/docs/extensions/develop/migrate">Manifest V3</a>, which required significant rewriting of all blocking/redirecting features since the API we used before (webRequestBlocking) to block tracking images/links before they loaded <a href="https://developer.chrome.com/docs/extensions/develop/migrate/blocking-web-requests">is no longer available for extensions to use</a>.</li>
+      <li>In the new <a href="https://developer.chrome.com/docs/extensions/develop/migrate">Manifest V3</a>, with the <a href="https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest">declarativeNetRequest API</a>, we are only allowed to block images/urls that match <em>pre-specified domains</em>.</li> 
+      <li>This means that we can only block listed trackers and all trackers in webmails that use proxies to load all images. Only Gmail and Yahoo mail consistently load images via proxy urls, so we can block all proxied images from these webmails unless they are proved safe and whitelisted.</li>
+      <li>For Outlook, unfortunately images are not loaded with a proxy (at least not consistently as of June 2024), so in Outlook, Trocker will only be able to (i) expose all tracked emails, (ii) block tracked emails that use pre-known tracking services. Blocking <em>unknown trackers</em> in Outlook is <b>the only</b> functionality from the previous versions of Trocker that we could not implement in the new version. 🎉</li>
+      <li>Background page has been replaced with a service-worker page <a href="https://developer.chrome.com/docs/extensions/develop/migrate/to-service-workers">as required by Manifest V3</a>.</li>
+      <li>Tracked emails are now marked with a red envelope (<img src="img/trackedr.png" style="height: 0.8em;"></img>) if Trocker was only able to expose the trackers but was not able to block them (e.g. in Outlook).</li>
+      <li>A blue envelope (<img src="img/tracked.png" style="height: 0.8em;"></img>) means that Trocker both exposed and blocked the trackers in the email. </li>
+      <li>Various other visual updates in the <a href="options.html">settings</a> and <a href="updated.html">change log</a> pages</li>
+    </ul>
+    </div>
+  </div>
+  <div class="centeredsec">
+    <div class="changlog_name">v2.7.0</div>
     <div class="changlog_value">
     <ul>
       <li>Improves handling of drafts, print previous, quotes, and general stability in YMail, Outlook and Gmail.</li>
@@ -53,7 +71,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.27:</div>
+    <div class="changlog_name">v2.6.27</div>
     <div class="changlog_value">
     <ul>
       <li>Improves handling of drafts and general stability in YMail.</li>
@@ -61,7 +79,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.26:</div>
+    <div class="changlog_name">v2.6.26</div>
     <div class="changlog_value">
     <ul>
       <li>Improves handling of changes in email content.</li>
@@ -71,7 +89,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.24:</div>
+    <div class="changlog_name">v2.6.24</div>
     <div class="changlog_value">
     <ul>
       <li>Adapts to changes in Gmail.</li>
@@ -79,7 +97,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.23:</div>
+    <div class="changlog_name">v2.6.23</div>
     <div class="changlog_value">
     <ul>
       <li>Adds support for new Outlook design updates.</li>
@@ -87,7 +105,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.21:</div>
+    <div class="changlog_name">v2.6.21</div>
     <div class="changlog_value">
     <ul>
       <li>Adds support for new Outlook design updates.</li>
@@ -95,7 +113,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.20:</div>
+    <div class="changlog_name">v2.6.20</div>
     <div class="changlog_value">
     <ul>
       <li>Fixes Outlook sidebar icon issue in Firefox.</li>
@@ -103,7 +121,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.19:</div>
+    <div class="changlog_name">v2.6.19</div>
     <div class="changlog_value">
     <ul>
       <li>Fixes Outlook sidebar icon issue in Firefox.</li>
@@ -111,7 +129,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.16:</div>
+    <div class="changlog_name">v2.6.16</div>
     <div class="changlog_value">
     <ul>
       <li>Adapts to new under the hood changes in Outlook.</li>
@@ -120,7 +138,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.15:</div>
+    <div class="changlog_name">v2.6.15</div>
     <div class="changlog_value">
     <ul>
       <li>Fixes Yahoo/Outlook bug in the new heuristic.</li>
@@ -129,7 +147,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.14:</div>
+    <div class="changlog_name">v2.6.14</div>
     <div class="changlog_value">
     <ul>
       <li>Adds heuristic detection of tracking images based on patterns in the url.</li>
@@ -137,7 +155,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.12:</div>
+    <div class="changlog_name">v2.6.12</div>
     <div class="changlog_value">
     <ul>
       <li>Fixes handling of attachments in Outlook.</li>
@@ -146,7 +164,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.11:</div>
+    <div class="changlog_name">v2.6.11</div>
     <div class="changlog_value">
     <ul>
       <li>Improves handling of webmails that load images gradually (e.g. Outlook).</li>
@@ -155,7 +173,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.10:</div>
+    <div class="changlog_name">v2.6.10</div>
     <div class="changlog_value">
     <ul>
       <li>Adds support for classic Yahoo mail.</li>
@@ -163,7 +181,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.9:</div>
+    <div class="changlog_name">v2.6.9</div>
     <div class="changlog_value">
     <ul>
       <li>Fixes interference with Gmail's signature switch (<a href="https://github.com/trockerapp/trocker/issues/10">GitHub issue</a>).</li>
@@ -171,7 +189,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.8:</div>
+    <div class="changlog_name">v2.6.8</div>
     <div class="changlog_value">
     <ul>
       <li>Adds advanced option to customize known open/click tracker lists.</li>
@@ -180,7 +198,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.7:</div>
+    <div class="changlog_name">v2.6.7</div>
     <div class="changlog_value">
     <ul>
       <li>Fixes new issue with Gmail sidebar that blocked some extension icons.</li>
@@ -188,7 +206,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.5:</div>
+    <div class="changlog_name">v2.6.5</div>
     <div class="changlog_value">
     <ul>
       <li>Fixes new issue that blocked some Outlook UI images.</li>
@@ -198,7 +216,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.4:</div>
+    <div class="changlog_name">v2.6.4</div>
     <div class="changlog_value">
     <ul>
       <li>Fixes new Yahoo mail proxy issue that blocked all images.</li>
@@ -207,7 +225,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.3:</div>
+    <div class="changlog_name">v2.6.3</div>
     <div class="changlog_value">
     <ul>
       <li>Improves detection of hidden tracking images.</li>
@@ -216,7 +234,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.2:</div>
+    <div class="changlog_name">v2.6.2</div>
     <div class="changlog_value">
     <ul>
       <li>Adds support for the outlook.office.com url for Outlook.</li>
@@ -224,7 +242,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.1:</div>
+    <div class="changlog_name">v2.6.1</div>
     <div class="changlog_value">
     <ul>
       <li>Adds support for the updated outlook.com and office365.</li>
@@ -232,7 +250,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.6.0:</div>
+    <div class="changlog_name">v2.6.0</div>
     <div class="changlog_value">
     <ul>
       <li>Adds heuristic blocking support in Yahoo mail.</li>
@@ -242,7 +260,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.5.2:</div>
+    <div class="changlog_name">v2.5.2</div>
     <div class="changlog_value">
     <ul>
       <li>Makes non-essential permissions optional (for more info see the Trocker options).</li>
@@ -252,7 +270,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.4.3:</div>
+    <div class="changlog_name">v2.4.3</div>
     <div class="changlog_value">
     <ul>
       <li>Adds support for outlook.office365.com.</li>
@@ -261,7 +279,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.4.2:</div>
+    <div class="changlog_name">v2.4.2</div>
     <div class="changlog_value">
     <ul>
 	    <li>Adds support for the new outlook.com.</li>
@@ -269,7 +287,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.4.1:</div>
+    <div class="changlog_name">v2.4.1</div>
     <div class="changlog_value">
     <ul>
 	    <li>Adds support for Firefox.</li>
@@ -277,7 +295,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.3.7:</div>
+    <div class="changlog_name">v2.3.7</div>
     <div class="changlog_value">
     <ul>
 	    <li>Improves tests. Adds link to test page from advanced options.</li>
@@ -285,7 +303,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.3.6:</div>
+    <div class="changlog_name">v2.3.6</div>
     <div class="changlog_value">
     <ul>
 	    <li>Adds a small fix to improve efficiency.</li>
@@ -293,7 +311,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.3.5:</div>
+    <div class="changlog_name">v2.3.5</div>
     <div class="changlog_value">
       <ul>
 	    <li>Fixes broken inline image bug in Gmail.</li>
@@ -304,7 +322,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.3.4:</div>
+    <div class="changlog_name">v2.3.4</div>
     <div class="changlog_value">
       <ul>
 	    <li>Fixes bug that blocked contact images in Inbox.</li>
@@ -313,7 +331,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.3.3:</div>
+    <div class="changlog_name">v2.3.3</div>
     <div class="changlog_value">
       <ul>
 	    <li>Fixes bug that blocked images in Gmail side add-ons.</li>
@@ -321,7 +339,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.3.2:</div>
+    <div class="changlog_name">v2.3.2</div>
     <div class="changlog_value">
       <ul>
 	    <li>Fixes bug that could block Google images outside Gmail if they used the same proxy url as Gmail.</li>
@@ -329,7 +347,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.3.1:</div>
+    <div class="changlog_name">v2.3.1</div>
     <div class="changlog_value">
       <ul>
 	    <li>Fixes bug in heuristic blocking in outlook.com.</li>
@@ -337,7 +355,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.3.0:</div>
+    <div class="changlog_name">v2.3.0</div>
     <div class="changlog_value">
       <ul>
 	    <li>Adds the option to allow tracking temporarily for a specific email, i.e. sending read receipts. Simply click on the <img src="img/tracked.png" title="tracked" alt="tracked" style="height: 0.8em;"> icon above the email to do this.</li>
@@ -348,7 +366,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.2.1:</div>
+    <div class="changlog_name">v2.2.1</div>
     <div class="changlog_value">
       <ul>
 	    <li>bugfix for outlook.com.</li>
@@ -356,7 +374,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.2.0:</div>
+    <div class="changlog_name">v2.2.0</div>
     <div class="changlog_value">
       <ul>
 	    <li>Added support for the redesigned outlook.com.</li>
@@ -364,7 +382,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.1.4:</div>
+    <div class="changlog_name">v2.1.4</div>
     <div class="changlog_value">
       <ul>
 	    <li>1 tracker was added to block list.</li>
@@ -372,7 +390,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.1.3:</div>
+    <div class="changlog_name">v2.1.3</div>
     <div class="changlog_value">
       <ul>
 	    <li>4 trackers were added to block list.</li>
@@ -380,7 +398,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.1.1:</div>
+    <div class="changlog_name">v2.1.1</div>
     <div class="changlog_value">
       <ul>
 	    <li>Better handling of "view entire message" in Gmail and "view full email" in Inbox.</li>
@@ -389,7 +407,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.1.0:</div>
+    <div class="changlog_name">v2.1.0</div>
     <div class="changlog_value">
       <ul>
 	    <li>Added support for Google Inbox and Microsoft Outlook. Heuristic tracker detection and showing number of trackers in each email now works in Google's Inbox and Microsoft's Outlook.com in addition to Gmail.</li>
@@ -398,7 +416,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.0.3:</div>
+    <div class="changlog_name">v2.0.3</div>
     <div class="changlog_value">
       <ul>
 		<li>Improvements in how Trocker works in Gmail</li>
@@ -406,7 +424,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.0.2:</div>
+    <div class="changlog_name">v2.0.2</div>
     <div class="changlog_value">
       <ul>
 		<li>Fixed a newly created bug in Gmail when images are not displayed by default</li>
@@ -414,7 +432,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.0.1:</div>
+    <div class="changlog_name">v2.0.1</div>
     <div class="changlog_value">
       <ul>
 	  	<li>Block even more trackers (now Bananatag and Mixmax in addition to others)</li>
@@ -425,7 +443,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v2.0.0:</div>
+    <div class="changlog_name">v2.0.0</div>
     <div class="changlog_value">
       <ul>
 	  	<li>Special Gmail treatment. In Gmail, an icon is shown on top of each email that is found to have a tracker in it.</li>
@@ -437,7 +455,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v1.2.2:</div>
+    <div class="changlog_name">v1.2.2</div>
     <div class="changlog_value">
       <ul>
 	    <li>Block even more trackers (now MailTrack and Mandrill in addition to Yesware and SideKick)</li>
@@ -445,7 +463,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v1.2.1:</div>
+    <div class="changlog_name">v1.2.1</div>
     <div class="changlog_value">
       <ul>
 	    <li><strike>Stop tracking extensions from reloading the tracking url in background</strike> (not possible if extensions use their background page to reroute their tracking)</li>
@@ -453,7 +471,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v1.2.0:</div>
+    <div class="changlog_name">v1.2.0</div>
     <div class="changlog_value">
       <ul>
 	    <li>Blocking more Trackers! (now Sidekick in addition to Yesware) </li>
@@ -467,7 +485,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v1.1.1:</div>
+    <div class="changlog_name">v1.1.1</div>
     <div class="changlog_value">
       <p><ul>
 		<li>Don't open changelog on small updates</li>
@@ -476,7 +494,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v1.1.0:</div>
+    <div class="changlog_name">v1.1.0</div>
     <div class="changlog_value">
       <p><ul>
 		<li>Open changelog in a new tab on update</li>
@@ -484,7 +502,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v1.0.6:</div>
+    <div class="changlog_name">v1.0.6</div>
     <div class="changlog_value">
       <p><ul>
 		<li><b>Extension's name was changed to Trocker</b> in order to avoid similarities with trademarked names.</li>
@@ -495,7 +513,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v1.0.5:</div>
+    <div class="changlog_name">v1.0.5</div>
     <div class="changlog_value">
       <p><ul>
 		<li>Exposing Tracker Links is disabled by default. You can enable it from the options page if you like!</li>
@@ -504,7 +522,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v1.0.4:</div>
+    <div class="changlog_name">v1.0.4</div>
     <div class="changlog_value">
       <p><ul>
 		<li>Improvements in exposing tracker links.</li>
@@ -512,7 +530,7 @@
     </div>
   </div>
   <div class="centeredsec">
-    <div class="changlog_name">v1.0.3:</div>
+    <div class="changlog_name">v1.0.3</div>
     <div class="changlog_value">
       <p><ul>
 		<li>The extension can now make tracking images visible. You can disable this feature in the options page.</li>
