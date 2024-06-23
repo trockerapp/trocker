@@ -104,6 +104,14 @@ function getTrackedURL() {
     res = document.referrer;
   }
   console.log(`Redirected from "${res}"`)
+  
+  // Check if url starts with https://google.com/url?q= and remove that part. This is needed in case the declarativeNetRequest rules 
+  // for removing the google redirects (DNR_bypass_redirects) is matched with lower priority than our dynamic DNR rules for tracked links.
+  if (res.startsWith('https://www.google.com/url?q=')) {
+    let url = new URL(res);
+    res = url.searchParams.getAll('q')[0];
+    console.log(`Stripped Google redirect to get "${res}"`)
+  }
   return res;
 }
 

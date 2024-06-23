@@ -79,9 +79,13 @@
    }],
    "declarative_net_request" : {
       "rule_resources" : [{
-        "id": "ruleset_1",
+        "id": "DNR_proxy_rules",
         "enabled": true,
-        "path": "rules_1.json"
+        "path": "data/DNR_proxy_rules.json"
+      }, {
+         "id": "DNR_bypass_redirects",
+         "enabled": true,
+         "path": "data/DNR_bypass_redirects.json"
       }]
     }
 }

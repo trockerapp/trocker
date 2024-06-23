@@ -4,9 +4,8 @@ import {parseVersionString, loadVariable, updateBrowserActionButton, updateDecla
 console.log('service-worker.js');
 
 chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
-	const msg = `Navigation blocked to ${e.request.url} on tab ${e.request.tabId}, per rule:`;
+	const msg = `Navigation blocked to ${e.request.url} on tab ${e.request.tabId}, per rule: ${JSON.stringify(e.rule)}`;
 	console.log(msg);
-	console.log(e.rule)
 });
 
 chrome.tabs.onUpdated.addListener(checkTabForTrackedLinks);
@@ -33,27 +32,12 @@ function openOptionsPage() {
 
 chrome.action.onClicked.addListener(openOptionsPage);
 
-chrome.runtime.onInstalled.addListener(function (details) {
+chrome.runtime.onInstalled.addListener(onInstallHandler);
+	
+async function onInstallHandler(details) {
 	if (details.reason == "update") {
 		let newVer = parseVersionString(chrome.runtime.getManifest().version);
 		let prevVer = parseVersionString(details.previousVersion);
-
-		if ((prevVer.major <= 1) && (prevVer.minor <= 0) && (prevVer.patch <= 5)) {
-			// Migrating from old system of storing stuff
-			if (typeof localStorage['dataCache'] === "undefined") {
-				if (typeof localStorage["nowareEnable"] !== "undefined") { saveVariable('trockerEnable', ((localStorage["nowareEnable"] === "true") || localStorage.nowareEnable == true)); }
-				if (typeof localStorage["exposeLinks"] !== "undefined") { saveVariable('exposeLinks', ((localStorage["exposeLinks"] === "true") || localStorage.exposeLinks == true)); }
-				if (!isNaN(f["allowedYeswareLinks"])) { saveVariable('allowedTrackerLinks', parseInt(localStorage["allowedYeswareLinks"])); }
-				if (!isNaN(localStorage["blockedYeswareLinks"])) { saveVariable('blockedTrackerLinks', parseInt(localStorage["blockedYeswareLinks"])); }
-				if ((typeof localStorage["statsSinceDate"] !== "undefined") && (new Date(localStorage["statsSinceDate"]) != "Invalid Date")) {
-					saveVariable('statsSinceDate', new Date(localStorage["statsSinceDate"]));
-				}
-			}
-		}
-		if ((prevVer.major <= 1) && (prevVer.minor < 2)) { // Migrate stats to the new form in version 2
-			setStat('openTrackerStats', 'YW', 'blocked', loadVariable('blockedYWOpenTrackers'));
-			setStat('openTrackerStats', 'YW', 'allowed', loadVariable('allowedYWOpenTrackers'));
-		}
 
 		if ((prevVer.major < newVer.major) || (prevVer.minor < newVer.minor)) {
 			// Open updated page in a new tab
@@ -63,17 +47,17 @@ chrome.runtime.onInstalled.addListener(function (details) {
 	}
 
 	// Initializations for new installs
-	loadVariable('statsSinceDate'); // Attempt to load this so that it will be created if it doesn't exist
+	await loadVariable('statsSinceDate'); // Attempt to load this so that it will be created if it doesn't exist
 
-	updateBrowserActionButton();
-	updateDeclarativeNetRequestRules();
-});
+	await updateBrowserActionButton();
+	await updateDeclarativeNetRequestRules();
+}
 
 chrome.runtime.onMessage.addListener(handleContentScriptMessages);
 
 async function handleContentScriptMessages(message, sender) {
 	// Return early if this message isn't meant for the background script
-	if (message.target !== 'background') {
+	if (message.target !== 'background' || typeof sender.tab === "undefined") {
 		return;
 	}
 	let tabId = sender.tab.id;

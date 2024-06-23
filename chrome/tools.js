@@ -50,34 +50,32 @@ async function getRequestRules() {
 			"type": "redirect",
 			"redirect": {
 				// "url": chrome.runtime.getURL("bypasser.html")
-				"regexSubstitution": chrome.runtime.getURL("bypasser.html") + '#\\0'
+				"regexSubstitution": chrome.runtime.getURL("bypasser.html") + "#\\1"
 			}
 		},
 		"condition": {
 			// "urlFilter": pattern,
 			"regexFilter": pattern,
-			// "regexFilter": "(.*t\.yesware.*)", // Temp test
-			// "regexFilter": '^.+$',
 			"excludedInitiatorDomains": [
 				chrome.runtime.id
 				// chrome.runtime.getURL('').slice(0, -1)
 			], // To allow forwarding after Trocker notice
 			"resourceTypes": [
 				"main_frame",
-				"sub_frame",
-				"stylesheet",
-				"script",
-				"image",
-				"font",
-				"object",
-				"xmlhttprequest",
-				"ping",
-				"csp_report",
-				"media",
-				"websocket",
-				"webtransport",
-				"webbundle",
-				"other"
+				// "sub_frame",
+				// "stylesheet",
+				// "script",
+				// "image",
+				// "font",
+				// "object",
+				// "xmlhttprequest",
+				// "ping",
+				// "csp_report",
+				// "media",
+				// "websocket",
+				// "webtransport",
+				// "webbundle",
+				// "other"
 			]
 		}
 	   })
@@ -104,12 +102,22 @@ export async function updateDeclarativeNetRequestRules(){
 	// Get arrays containing new and old rules
 	const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
 	const oldRuleIds = oldRules.map(rule => rule.id);
-	const newRules = await getRequestRules();
+	let trockerEnabled = await loadVariable('trockerEnable');
+	const newRules = trockerEnabled ? (await getRequestRules()) : [];
 
 	// Use the arrays to update the dynamic rules
 	await chrome.declarativeNetRequest.updateDynamicRules({
 		removeRuleIds: oldRuleIds,
 		addRules: newRules
+	});
+
+	const ruleSetIds = ['DNR_bypass_redirects', 'DNR_proxy_rules'];
+	await chrome.declarativeNetRequest.updateEnabledRulesets(trockerEnabled ? {
+		disableRulesetIds: [],
+		enableRulesetIds: ruleSetIds,
+	}:{
+		disableRulesetIds: ruleSetIds,
+		enableRulesetIds: [],
 	});
 
 	// let TestMatchRequestDetailsList = [{
