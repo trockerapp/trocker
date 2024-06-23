@@ -23,6 +23,17 @@ Moreover, some links are click tracked meaning that if you click on them, your c
 No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. In Gmail, Inbox and Outlook.com, Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if it is unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
 
 Change log:
+3.0.0:
+- This release makes Trocker compatible with the newly mandated Manifest V3, which required significant rewriting of all blocking/redirecting features since the API we used before (webRequestBlocking) to block tracking images/links before they loaded is no longer available for extensions to use.
+- In the new Manifest V3, with the declarativeNetRequest API, we are only allowed to block images/urls that match pre-specified domains.
+- This means that we can only block listed trackers and all trackers in webmails that use proxies to load all images. Only Gmail and Yahoo mail consistently load images via proxy urls, so we can block all proxied images from these webmails unless they are proved safe and whitelisted.
+- For Outlook, unfortunately images are not loaded with a proxy (at least not consistently as of June 2024), so in Outlook, Trocker will only be able to (i) expose all tracked emails, (ii) block tracked emails that use pre-known tracking services. Blocking unknown trackers in Outlook is the only functionality from the previous versions of Trocker that we could not implement in the new version. 🎉
+- Background page has been replaced with a service-worker page as required by Manifest V3.
+- Tracked emails are now marked with a red envelope if Trocker was only able to expose the trackers but was not able to block them (e.g. in Outlook).
+- A blue envelope means that Trocker both exposed and blocked the trackers in the email.
+- Show live blocked/exposed statistics in the settings page.
+- Various other visual updates in the settings and change log pages.
+
 2.7.0:
 - Improves handling of drafts, print previous, quotes, and general stability in YMail, Outlook and Gmail.
 - Adds visual debugging tools for webmails.
