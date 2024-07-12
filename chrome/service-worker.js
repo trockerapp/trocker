@@ -3,10 +3,14 @@ import {parseVersionString, loadVariable, updateBrowserActionButton, updateDecla
 
 console.log('service-worker.js');
 
-chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
-	const msg = `Navigation blocked to ${e.request.url} on tab ${e.request.tabId}, per rule: ${JSON.stringify(e.rule)}`;
-	console.log(msg);
-});
+try {
+	chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
+		const msg = `Navigation blocked to ${e.request.url} on tab ${e.request.tabId}, per rule: ${JSON.stringify(e.rule)}`;
+		console.log(msg);
+	});	
+} catch (e) {
+	console.log('declarativeNetRequest.onRuleMatchedDebug not available');
+}
 
 // chrome.tabs.onUpdated.addListener(checkTabForTrackedLinks);
 // async function checkTabForTrackedLinks(tabId, changeInfo, tab) {

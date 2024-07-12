@@ -23,6 +23,9 @@ Moreover, some links are click tracked meaning that if you click on them, your c
 No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. In Gmail, Inbox and Outlook.com, Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if it is unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
 
 Change log:
+3.0.1:
+- Fixed bug with service worker not starting at all.
+
 3.0.0:
 - This release makes Trocker compatible with the newly mandated Manifest V3, which required significant rewriting of all blocking/redirecting features since the API we used before (webRequestBlocking) to block tracking images/links before they loaded is no longer available for extensions to use.
 - In the new Manifest V3, with the declarativeNetRequest API, we are only allowed to block images/urls that match pre-specified domains.

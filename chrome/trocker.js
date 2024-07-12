@@ -39,7 +39,7 @@ class Email {
 	getBody() { // Revise this to more specifically return the body of the email in each webmail
 		return [this.mainDOMElem];
 	}
-	getULElements() {
+	getUIElements() {
 		return [];
 	}
 	getUIImages() { // Revise this to more specifically return the body of the email in each webmail
@@ -83,7 +83,7 @@ class Email {
 				elem.setAttribute("trecont", val);
 			}
 		}
-		for (const elem of this.getULElements()) {
+		for (const elem of this.getUIElements()) {
 			if (elem.getAttribute("treui") === null) {
 				elem.setAttribute("treui", val);
 			}
@@ -101,7 +101,11 @@ class EmailGmail extends Email {
 		}
 	}
 	static getDraftEmails() {
-		return Array.from(document.querySelectorAll('.M9')).map(a => new EmailGmailDraft(a)); // Compose windows (reply, forward, new message)
+		let elems = document.querySelectorAll('.M9,.mTRrYc,.PFSfIf');
+		// .M9 => compose elements
+		// .mTRrYc and .PFSfIf => popped-up chat conversations
+		// .mTRrYc and .PFSfIf => full screen chat conversations
+		return Array.from(elems).map(a => new EmailGmailDraft(a)); // Compose windows (reply, forward, new message)
 	}
 	constructor(mainDOMElem) {
 		super(mainDOMElem);
@@ -218,7 +222,7 @@ class EmailOutlook extends Email {
 			return [this.mainDOMElem];
 		}
 	}
-	getULElements() {
+	getUIElements() {
 		const attachmentElems = this.mainDOMElem.querySelectorAll('.T3idP');
 		return attachmentElems;
 	}
