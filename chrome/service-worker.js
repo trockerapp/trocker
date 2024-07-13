@@ -43,10 +43,13 @@ chrome.runtime.onInstalled.addListener(onInstallHandler);
 	
 async function onInstallHandler(details) {
 	if (details.reason == "update") {
-		let newVer = parseVersionString(chrome.runtime.getManifest().version);
+		let newVerStr = chrome.runtime.getManifest().version;
+		let newVer = parseVersionString(newVerStr);
 		let prevVer = parseVersionString(details.previousVersion);
 
-		if ((prevVer.major < newVer.major) || (prevVer.minor < newVer.minor)) {
+		if ((prevVer.major < newVer.major) || (prevVer.minor < newVer.minor) || 
+			(newVerStr == '3.0.2')
+		) {
 			// Open updated page in a new tab
 			let url = "updated.html";
 			chrome.tabs.create({ url: url, active: true });
