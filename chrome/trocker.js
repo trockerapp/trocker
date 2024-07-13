@@ -25,6 +25,12 @@ var trackLinkCntBU = 0;
 var openEmailCount=null;
 var composeEmailCount=null;
 
+function addAttributeIfMissing(elem, attrib, value){
+	if (elem.getAttribute(attrib) === null){
+		elem.setAttribute(attrib, value);
+	}
+}
+
 class Email {
 	static getOpenEmails(){
 		return [];
@@ -79,14 +85,10 @@ class Email {
 	}
 	addUIDebugClasses(val){
 		for (const elem of this.getBody()){
-			if (elem.getAttribute("trecont") === null) {
-				elem.setAttribute("trecont", val);
-			}
+			addAttributeIfMissing(elem, "trecont", val);
 		}
 		for (const elem of this.getUIElements()) {
-			if (elem.getAttribute("treui") === null) {
-				elem.setAttribute("treui", val);
-			}
+			addAttributeIfMissing(elem, "treui", val);
 		}	
 	}
 }
@@ -612,7 +614,7 @@ function getUIWhitelistElems() {
 		var gmailUI = getGmailUI();
 		if (gmailUI == 'main') { // Normal view of conversations in Gmail
 			// Some selectors: .nH.oy8Mbf.qp: Header, .nH.oy8Mbf.aeN: Left bar, .nH.bAw: Right add-on bar with add-on icons, .bq9: right add-on load area
-			elems = document.querySelectorAll('.nH.bAw, .bq9'); // Header, Left Bar, Right add-on bar
+			elems = document.querySelectorAll('.nH.bAw, .bq9, .brC-aT5-aOt-bsf-Jw'); // Header, Left Bar, Right add-on bar
 		}
 	} else if (env === 'outlook2') {
 		// Some selectors: .___1d1gxkh: Left bar, .___7y4pq70: Left bar app overflow box
@@ -1258,28 +1260,32 @@ function countTrackers(options) {
 		if (suspCount) logEvent(suspCount + ' suspicious images were found in the compose windows', false);
 
 		// No longer needed because we are now only blocking proxied images, and UI elements should not be proxied
-		// // Whitelist UI elements that are blocked by default and are not separable via address
-		// // This does not need to repeat with the same period as the rest
-		// uiWhitelistCounter += 1;
-		// if (uiWhitelistCounter % 5 == 0) {
-		// 	var elems = getUIWhitelistElems();
-		// 	for (var ei = 0; ei < elems.length; ei++) {
-		// 		var elem = elems[ei];
-		// 		var images = elem.querySelectorAll('img');
-		// 		for (var i = 0; i < images.length; i++) { // Loop over all images in the ui segment
-		// 			var img = images[i];
-		// 			// removeJudgments(img); // Remove any previous judgment
-		// 			addJudgment(img, 'non-suspicious');
-		// 		}
-		// 		var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw, .aT5-aOt-I-JX-Jw');
-		// 		for (var i = 0; i < bgDivs.length; i++) { // Loop over all divs with bg images in the ui segment
-		// 			var dv = bgDivs[i];
-		// 			if (dv.style.backgroundImage != '') {
-		// 				dv.style.backgroundImage = addJudgmentToSrc(dv.style.backgroundImage, 'non-suspicious');
-		// 			}
-		// 		}
-		// 	}
-		// }
+		// Correction: actually, some UI elements, for example the side bar third party tool icons in gmail do run through the proxy url
+		// Whitelist UI elements that are blocked by default and are not separable via address
+		// This does not need to repeat with the same period as the rest
+		uiWhitelistCounter += 1;
+		if (uiWhitelistCounter % 5 == 0) {
+			var elems = getUIWhitelistElems();
+			for (var ei = 0; ei < elems.length; ei++) {
+				var elem = elems[ei];
+				if (trockerOptions.debug) { 
+					addAttributeIfMissing(elem, "treui", ei); 
+				}
+				var images = elem.querySelectorAll('img');
+				for (var i = 0; i < images.length; i++) { // Loop over all images in the ui segment
+					var img = images[i];
+					// removeJudgments(img); // Remove any previous judgment
+					addJudgment(img, 'non-suspicious');
+				}
+				var bgDivs = elem.querySelectorAll('.bse-bvF-JX-Jw, .aT5-aOt-I-JX-Jw');
+				for (var i = 0; i < bgDivs.length; i++) { // Loop over all divs with bg images in the ui segment
+					var dv = bgDivs[i];
+					if (dv.style.backgroundImage != '') {
+						dv.style.backgroundImage = addJudgmentToSrc(dv.style.backgroundImage, 'non-suspicious');
+					}
+				}
+			}
+		}
 	// } else if (env === 'gchat' || env === 'iframe-in-gmail') {
 	// 	var proxyURLs = getProxyURLs();
 	// 	var proxifesImages = (proxyURLs.length > 0);
