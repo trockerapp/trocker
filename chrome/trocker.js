@@ -101,10 +101,7 @@ class EmailGmail extends Email {
 		}
 	}
 	static getDraftEmails() {
-		let elems = document.querySelectorAll('.M9,.mTRrYc,.PFSfIf');
-		// .M9 => compose elements
-		// .mTRrYc and .PFSfIf => popped-up chat conversations
-		// .mTRrYc and .PFSfIf => full screen chat conversations
+		let elems = document.querySelectorAll('.M9'); // .M9 => compose elements
 		return Array.from(elems).map(a => new EmailGmailDraft(a)); // Compose windows (reply, forward, new message)
 	}
 	constructor(mainDOMElem) {
@@ -517,14 +514,20 @@ function prepareDebugHLCSS(debug) {
 }
 
 // This function returns the environment we are running in
-function getEnv() {
-	if (document.location.host.indexOf("mail.google.com") > -1) return 'gmail';
-	if (document.location.host.indexOf("inbox.google.com") > -1) return 'inbox';
-	if (document.location.host.indexOf("mail.live.com") > -1) return 'outlook';
-	if (document.location.host.indexOf("outlook.live.com") > -1) return 'outlook2';
-	if (document.location.host.indexOf("outlook.office365.com") > -1) return 'outlook2';
-	if (document.location.host.indexOf("outlook.office.com") > -1) return 'outlook2';
-	if (document.location.host.indexOf("mail.yahoo.com") > -1) return 'ymail';
+function getEnv(host = null) {
+	if (!host) host = document.location.host;
+	if (host == '' && document.referrer !== '') { // We are inside an iframe
+		return 'iframe-in-'+getEnv(document.referrer);
+	}
+	if (host == '') return 'no-host iframe';
+	if (host.indexOf("chat.google.com") > -1) return 'gchat';
+	if (host.indexOf("mail.google.com") > -1) return 'gmail';
+	if (host.indexOf("inbox.google.com") > -1) return 'inbox';
+	if (host.indexOf("mail.live.com") > -1) return 'outlook';
+	if (host.indexOf("outlook.live.com") > -1) return 'outlook2';
+	if (host.indexOf("outlook.office365.com") > -1) return 'outlook2';
+	if (host.indexOf("outlook.office.com") > -1) return 'outlook2';
+	if (host.indexOf("mail.yahoo.com") > -1) return 'ymail';
 	return '';
 }
 
@@ -581,6 +584,8 @@ function getDraftEmails() {
 	var env = getEnv();
 	if (env === 'gmail') {
 		emails = EmailGmail.getDraftEmails();
+	} else if (env === 'iframe-in-gmail') {
+		emails = EmailGmail.getDraftEmails();
 	} else if (env === 'inbox') {
 		emails = EmailInbox.getDraftEmails();
 	} else if (env === 'outlook') {
@@ -619,7 +624,11 @@ function getUIWhitelistElems() {
 // This function gets return the proxy url of the environment
 function getProxyURLs() {
 	var env = getEnv();
-	if ((env === 'gmail') || (env === 'inbox')) return ["googleusercontent.com/proxy", "googleusercontent.com/meips"];
+	if ((env === 'gmail') || (env === 'gchat') || (env === 'iframe-in-gmail') || (env === 'inbox')) 
+		return [
+				"googleusercontent.com/proxy", 
+				"googleusercontent.com/meips"
+			];
 	if (env === 'outlook') return ["mail.live.com/Handlers"];
 	if (env === 'outlook2') return []; // Does not proxify
 	if (env === 'ymail') return ['yusercontent.com/mail'];
@@ -648,7 +657,7 @@ function getUnproxifiedUrl(src) {
 	var proxyURLs = getProxyURLs();
 	for (const proxyURL of proxyURLs) {
 		if (src.indexOf(proxyURL)) {
-			if ((env === 'gmail') || (env === 'inbox')) {
+			if (env === 'gmail' || env === 'gchat' || env === 'iframe-in-gmail' || env === 'inbox') {
 				if (src.indexOf('#') > -1) {
 					return src.split("#")[1];
 				}
@@ -696,7 +705,7 @@ function addJudgmentToSrc(src, judgment) {
 		return src;
 	}
 
-	if ((env === 'gmail') || (env === 'inbox')) {
+	if ((env === 'gmail' || env === 'gchat' || env === 'iframe-in-gmail' || env === 'inbox')) {
 		if (src.indexOf('#') > -1) {
 			if (src.indexOf(markToAdd) == -1) src = src.replace('#', (((src.indexOf('?') == -1) || (src.indexOf('?') > src.indexOf('#'))) ? '?' : '&') + markToAdd + '#');
 		} else {
@@ -1271,6 +1280,30 @@ function countTrackers(options) {
 		// 		}
 		// 	}
 		// }
+	// } else if (env === 'gchat' || env === 'iframe-in-gmail') {
+	// 	var proxyURLs = getProxyURLs();
+	// 	var proxifesImages = (proxyURLs.length > 0);
+
+	// 	// document.body.setAttribute("trimgs", document.images.length);
+	// 	// Find all images with the gmail proxy
+	// 	var logPrefix = 'within the iframe';
+	// 	var images = document.getElementsByTagName('img');
+	// 	document.body.setAttribute("trimgs", images.length);
+	// 	let imageSrcs = Array.from(images).map(e => e.src).join(' ');
+	// 	// if (imageSrcs !== imageSrcsBU) {
+	// 		for (var i = 0; i < images.length; i++) {
+	// 			var img = images[i];
+	// 			if (multiMatch(img.src, proxyURLs) && 
+	// 					(!hasJudgments(img) || img.classList.contains('HQLhSc'))
+	// 				) {
+	// 				removeJudgments(img); // Remove any previous judgment
+	// 				addJudgment(img, 'non-suspicious');
+	// 				img.style.addremove('HQLhSc'); // Remove display: None; class
+	// 				img.setAttribute("trjudged", "true");
+	// 			}
+	// 		}
+	// 		imageSrcsBU = imageSrcs;
+	// 	// }
 	} else { // The general case
 		var logPrefix = 'Across the webpage';
 		// Open Trackers
@@ -1391,4 +1424,4 @@ if ((env === 'gmail') || (env === 'inbox') || (env === 'outlook') || (env === 'o
 	window.setInterval(checkAndDoYourDuty, 1000);
 }
 console.log('[Trocker] version: ' + chrome.runtime.getManifest().version);
-logEvent('Env="' + env + '"', true);
+logEvent('Env="' + env + '", host: '+document.location.host, true);
