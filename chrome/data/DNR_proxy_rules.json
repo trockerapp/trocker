@@ -3,7 +3,9 @@
         "id": 1,
         "priority": 5,
         "action": { "type": "allow" },
-        "condition": {"urlFilter": "trnonsuspmrk"}
+        "condition": {
+            "urlFilter": "trnonsuspmrk"
+        }
     },
     {
         "id": 2,
@@ -21,13 +23,30 @@
         "id": 4,
         "priority": 4,
         "action": { "type": "block" },
-        "condition": {"urlFilter": ".googleusercontent.com/proxy"}
+        "condition": {
+            "urlFilter": ".googleusercontent.com/proxy",
+            "resourceTypes": [
+                "image",    
+                "media"
+            ],
+            "excludedInitiatorDomains": [
+                "chat.google.com"
+            ]
+        }
     }, 
     {
         "id": 5,
         "priority": 4,
         "action": { "type": "block" },
-        "condition": {"urlFilter": ".googleusercontent.com/meips"}
+        "condition": {"urlFilter": ".googleusercontent.com/meips",
+            "resourceTypes": [
+                "image",    
+                "media"
+            ],
+            "excludedInitiatorDomains": [
+                "chat.google.com"
+            ]
+        }
     }, 
     {
         "id": 7,

@@ -4,8 +4,11 @@ import {parseVersionString, loadVariable, updateBrowserActionButton, updateDecla
 console.log('service-worker.js');
 
 try {
-	chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
-		const msg = `Navigation blocked to ${e.request.url} on tab ${e.request.tabId}, per rule: ${JSON.stringify(e.rule)}`;
+	chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (e) => {
+		// const ruleSets = await chrome.declarativeNetRequest.getEnabledRulesets();
+		// const dynamicRules = await chrome.declarativeNetRequest.getDynamicRules();
+		// const matchedRules = await chrome.declarativeNetRequest.getMatchedRules({tabId: e.request.tabId});
+		const msg = `Navigation allowed/blocked [check rule] to ${e.request.url} on tab ${e.request.tabId}, per rule: ${JSON.stringify(e.rule)}`;
 		console.log(msg);
 	});	
 } catch (e) {
