@@ -16,6 +16,7 @@ async function handleMessages(message, sender) {
 					trockerOptions[key] = value;
 				}
 			}
+      bypasserUI.setup();
 			break;
   }
 }
@@ -28,6 +29,8 @@ let response = chrome.runtime.sendMessage({
 
 let bypasserUI = {
   setup: async function () {
+    if (bypasserUI.setup_started) return;
+    bypasserUI.setup_started = true;
     if (bypasserUI.toID) window.clearTimeout(bypasserUI.toID); // To avoid duplicate contdowns on hashchange
     bypasserUI.trackedURL = getTrackedURL();
     var trackedLink = document.querySelector('a#trackedLink');
@@ -51,7 +54,7 @@ let bypasserUI = {
     }
 
     if (trockerOptions.linkBypassTimeout) {
-      bypasserUI.cntDown = response.varValue;
+      bypasserUI.cntDown = trockerOptions.linkBypassTimeout;
     } else {
       bypasserUI.cntDown = 11;
     }
@@ -95,7 +98,7 @@ let bypasserUI = {
 window.addEventListener("hashchange", function () {
   bypasserUI.setup();
 }, false);
-bypasserUI.setup();
+window.setTimeout(bypasserUI.setup, 1000);
 
 
 function getTrackedURL() {
