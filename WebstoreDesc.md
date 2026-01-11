@@ -23,6 +23,9 @@ Moreover, some links are click tracked meaning that if you click on them, your c
 No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. In Gmail, Inbox and Outlook.com, Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if it is unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
 
 Change log:
+3.0.4:
+- Improves tracker detection in background images.
+
 3.0.3:
 - Fixes bug in the relevant Trocker setting being able to control the count down time in the tracked link bypasser.
 

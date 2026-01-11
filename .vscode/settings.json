@@ -7,5 +7,8 @@
 	},
 	"[json]": {
 		"editor.defaultFormatter": "prettier.prettier-vscode"
+	},
+	"[markdown]": {
+		"editor.formatOnSave": false
 	}
 }
