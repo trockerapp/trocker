@@ -24,13 +24,13 @@ async function runTests() {
 	// Test set 2: detection of tiny images as tiny
 	var resBox = document.getElementsByClassName('tinyImagesRes')[0];
 	resBox.innerHTML = '';
-	var images = document.querySelectorAll('.tinyImages img');
+	var images = document.querySelectorAll('.tinyImages img, .tinyImages div[style*="background-image"]');
 	runTinyImageTests(images, resBox, true);
 
 	// Test set 3: detection of normal images as non-tiny
 	var resBox = document.getElementsByClassName('normalImagesRes')[0];
 	resBox.innerHTML = '';
-	var images = document.querySelectorAll('.normalImages img');
+	var images = document.querySelectorAll('.normalImages img, .normalImages div[style*="background-image"]');
 	runTinyImageTests(images, resBox, false);
 }
 

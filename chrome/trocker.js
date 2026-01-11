@@ -55,7 +55,9 @@ class Email {
 	}
 	getImages() {
 		// Revise this to return images in the email body
-		var bodyImages = this.getBody().map((b) => Array.from(b.querySelectorAll('img')));
+		var bodyImages = this.getBody().map((b) =>
+			Array.from(b.querySelectorAll('img, div[style*="background-image"]'))
+		);
 		var images = [].concat.apply([], bodyImages); // Merge images found from all body elements
 		return images;
 	}
@@ -752,7 +754,11 @@ function getUnproxifiedUrl(src) {
 
 // This function adds judgment url to an image's src, it also returns the non proxied src
 function addJudgment(img, judgment) {
-	img.src = addJudgmentToSrc(img.src, judgment);
+	let src = getSrc(img);
+	if (src) {
+		let newSrc = addJudgmentToSrc(src, judgment);
+		setSrc(img, newSrc);
+	}
 }
 
 // This function adds judgment url to an image's src, it also returns the non proxied src
@@ -831,7 +837,11 @@ function addJudgmentToSrc(src, judgment) {
 }
 
 function removeJudgments(img) {
-	img.src = removeJudgmentsFromSrc(img.src);
+	let src = getSrc(img);
+	if (src) {
+		let newSrc = removeJudgmentsFromSrc(src);
+		setSrc(img, newSrc);
+	}
 }
 
 function removeJudgmentsFromSrc(src) {
@@ -871,7 +881,7 @@ function hasJudgments(img) {
 	var trIgnoreMark = 'trfcallwmrk' + eq1String; // Any previous judgment will be replaced by this
 	var trIgnoreMarkRem = 'trfcallwremmrk' + eq1String; // Any previous ignored judgment will be replaced by this
 
-	var srcUrl = img.src;
+	var srcUrl = getSrc(img);
 	if (srcUrl.indexOf('data:image') == 0 || srcUrl.indexOf('blob:') == 0) return true; // Don't modify if a data image
 	if (
 		srcUrl.indexOf(nonSuspMark) > -1 ||
@@ -969,17 +979,44 @@ function checkAndDoYourDuty() {
 	}, 90);
 }
 
+// Helper to get source URL from img or div
+function getSrc(elem) {
+	if (elem.tagName === 'IMG') {
+		return elem.src;
+	} else if (elem.tagName === 'DIV') {
+		let bg = elem.style.backgroundImage;
+		if (bg && bg.indexOf('url(') > -1) {
+			// Extract url from url("...") or url('...') or url(...)
+			// Simple match
+			let match = bg.match(/url\(['"]?(.*?)['"]?\)/);
+			if (match && match[1]) return match[1];
+		}
+	}
+	return '';
+}
+
+// Helper to set source URL to img or div
+function setSrc(elem, url) {
+	if (elem.tagName === 'IMG') {
+		elem.src = url;
+	} else if (elem.tagName === 'DIV') {
+		elem.style.backgroundImage = 'url("' + url + '")';
+	}
+}
+
 function getSize(img) {
 	var h =
 		img.style.height || img.style.minHeight || img.style.maxHeight
 			? parseInt(img.style.height || img.style.minHeight || img.style.maxHeight)
 			: -1;
-	if (img.getAttribute('height') !== null && !isNaN(img.height)) h = img.height || img.getAttribute('height');
+	// Use getAttribute check primarily since .height property doesn't exist on divs
+	if (img.getAttribute('height') !== null) h = parseInt(img.getAttribute('height'));
+
 	var w =
 		img.style.width || img.style.minWidth || img.style.maxWidth
 			? parseInt(img.style.width || img.style.minWidth || img.style.maxWidth)
 			: -1;
-	if (img.getAttribute('width') !== null && !isNaN(img.width)) w = img.width || img.getAttribute('width');
+	if (img.getAttribute('width') !== null) w = parseInt(img.getAttribute('width'));
 
 	return {
 		h: h,
@@ -988,11 +1025,17 @@ function getSize(img) {
 }
 
 function isSusp(img) {
-	var src = img.src;
+	var src = getSrc(img);
 	if (src.indexOf('data:image') == 0 || src.indexOf('blob:') == 0) return false; // Don't declare susp if a data image
+	if (!src) return false;
 
 	const origSrc = getUnproxifiedUrl(src);
-	const pathname = origSrc.replace(new URL(origSrc).origin, '');
+	let pathname = '';
+	try {
+		pathname = origSrc.replace(new URL(origSrc).origin, '');
+	} catch (e) {
+		pathname = origSrc;
+	}
 	// Patterns usually only seen in tracking images
 	const susPatterns = ['/open', '=open', '/trace', '/track'];
 	for (let susP of susPatterns) {
@@ -1002,8 +1045,9 @@ function isSusp(img) {
 }
 
 function isTiny(img) {
-	var src = img.src;
+	var src = getSrc(img);
 	if (src.indexOf('data:image') == 0 || src.indexOf('blob:') == 0) return false; // Don't declare tiny if a data image
+	if (!src) return false;
 
 	var s = getSize(img);
 	var h = s.h;
@@ -1128,18 +1172,19 @@ function countTrackers(options) {
 				logEvent(logPrefix + '=> Evaluating images!', true);
 				var mailOpenTrackers = 0;
 				var imagesSrcs = [];
-				for (var j = 0; j < images.length; j++) imagesSrcs[j] = images[j].src; // Store src for all images
+				for (var j = 0; j < images.length; j++) imagesSrcs[j] = getSrc(images[j]); // Store src for all images
 				var isKnownTracker = false;
 				for (var i = 0; i < images.length; i++) {
 					// Loop over all images in the email
 					var img = images[i];
+					var imgSrc = getSrc(img);
 					// Count repetitions of image URL among images in email -> good for distinguishing design 1x1 images from tracking images
 					var reps = 0;
-					for (var j = 0; j < imagesSrcs.length; j++) if (imagesSrcs[j] == img.src) reps++;
+					for (var j = 0; j < imagesSrcs.length; j++) if (imagesSrcs[j] == imgSrc) reps++;
 
 					isProxified = false;
 					for (const proxyURL of proxyURLs) {
-						if (proxyURL != '' && img.src.indexOf(proxyURL) > -1) {
+						if (proxyURL != '' && imgSrc.indexOf(proxyURL) > -1) {
 							// Check if it is proxified
 							isProxified = true;
 							break;
@@ -1147,11 +1192,11 @@ function countTrackers(options) {
 					}
 					img.setAttribute('trproxified', isProxified ? '1' : '0');
 
-					isKnownTracker = multiMatch(img.src, openDomains); // Check if it is a known tracker
+					isKnownTracker = multiMatch(imgSrc, openDomains); // Check if it is a known tracker
 					isWhitelistedURL =
 						webmailInfo.whiteList.length &&
-						multiMatch(img.src, webmailInfo.whiteList) &&
-						!multiMatch(img.src, webmailInfo.whiteListExcept); // Check if it is whitelisted url
+						multiMatch(imgSrc, webmailInfo.whiteList) &&
+						!multiMatch(imgSrc, webmailInfo.whiteListExcept); // Check if it is whitelisted url
 
 					//console.log('Trocker: Image '+img.src+' has '+reps+ 'reps!'+(isKnownTracker?' is known':' is NOT known')+' - '+(isTiny(img)?' is tiny!':' is NOT tiny.')+' - w:'+getSize(img).w+' - h:'+getSize(img).h);
 
@@ -1170,7 +1215,7 @@ function countTrackers(options) {
 								// If an unknown tracker
 								img.setAttribute('trknown', '0');
 							}
-							openTrackerURLs.push(img.src);
+							openTrackerURLs.push(imgSrc);
 							addJudgment(img, 'suspicious');
 							//openTrackerURLs.push(img.src.split("#")[1]);
 							//if (img.src.indexOf(suspMark) == -1) img.src = img.src.replace('#', (((img.src.indexOf('?')==-1) || (img.src.indexOf('?') > img.src.indexOf('#')))?'?':'&')+suspMark+'#');
@@ -1361,8 +1406,9 @@ function countTrackers(options) {
 				for (var i = 0; i < images.length; i++) {
 					// Loop over all images in the email
 					var img = images[i];
+					var imgSrc = getSrc(img);
 					// Check if it is a known tracker
-					if (multiMatch(img.src, openDomains)) isKnownTracker = true;
+					if (multiMatch(imgSrc, openDomains)) isKnownTracker = true;
 					else isKnownTracker = false;
 
 					removeJudgments(img); // Remove any previous judgment
@@ -1462,16 +1508,18 @@ function countTrackers(options) {
 		// The general case
 		var logPrefix = 'Across the webpage';
 		// Open Trackers
-		var images = document.getElementsByTagName('img');
+		var images = document.querySelectorAll('img, div[style*="background-image"]');
 		let imageSrcs = Array.from(images)
-			.map((e) => e.src)
+			.map((e) => getSrc(e))
 			.join(' ');
 		if (imageSrcs !== imageSrcsBU) {
 			for (var i = 0; i < images.length; i++) {
 				var img = images[i];
+				var imgSrc = getSrc(img);
+				if (!imgSrc) continue;
 
 				// Check if it is a known tracker
-				if (multiMatch(img.src, openDomains)) isKnownTracker = true;
+				if (multiMatch(imgSrc, openDomains)) isKnownTracker = true;
 				else isKnownTracker = false;
 
 				if (isKnownTracker) {
