@@ -1,96 +1,180 @@
 <html>
-<head>
-	<meta charset="utf-8">
-	<title>Trocker Tests</title>
-</head>
-<body>
+	<head>
+		<meta charset="utf-8" />
+		<title>Trocker Tests</title>
+	</head>
+	<body>
+		<input type="checkbox" name="showDetails" id="showDetailsOpt" />
+		<label for="showDetails">Show details</label> <br />
 
-<input type="checkbox" name="showDetails" id="showDetailsOpt">
-<label for="showDetails">Show details</label> <br/>
-
-<div>
-<h2>Test tracker lists match url samples for each tracker</h2>
-<h3>Results:</h3>
-<div class="urlMatchRes"></div>
-<hr />
-</div>
-
-<div>
-<h2>Test that tiny images are detected as tiny</h2>
-<h3>Results:</h3>
-<div class="tinyImagesRes"></div>
-<hr />
-</div>
-
-<div>
-<h2>Test that normal images are detected as normal [not tiny]</h2>
-<h3>Results:</h3>
-<div class="normalImagesRes"></div>
-<hr />
-</div>
-
-<div>
-<h2>Test that tracked links are bypassed</h2>
-<p><a href="http://t.yesware.com/tl/daljkshd87we?ytl=http%3A%2F%2Ftrockerapp.github.io">Example tracked link with recoverable origin</a></p>
-<p><a href="http://test.sendgrid.net/wf/click?kjhwkjehw">Example tracked link with unrecoverable origin</a></p>
-</div>
-
-<hr />
-<div style="opacity:0.1;">
-	<h3>Test Images [ignore everything below this]:</h3>
-
-	<div class="tinyImages">
-
-		<h4>Detectable prior to loading:</h4>
-		<div title="Detectable prior to loading" failColor="#e55353">
-			<img width="0" height="0" class="yiv-img" src="" id="yui">
-			<img src="" height="0" width="0" alt="Rocket Fuel" class="CToWUd">
-			<img src="" height="0" alt="Rocket Fuel" class="CToWUd">
-			<img src="" width="0" alt="Rocket Fuel" class="CToWUd">
-			<img height="1" width="3" src="img/3pixel.gif" class="CToWUd">
-			<img alt="" src="https://example.com/jkshl37/?jsbdhfbj3i64=232" style="display:none" class="CToWUd">
-			<img src="https://ci6.googleusercontent.com/proxy/ieurlkjdhf#http://r20.rs6.net/on.jsp?ca=ksjhd87-dh87e-kajas93-sjkd0098&a=8927345&c=23kjhg-3746h-32lj-wekljl-lk5&ch=mdjsuy76-43hg-45hgh-453" alt="" class="CToWUd" style="visibility: hidden;">
-			<img height="1" width="3" src="https://www.searchengine.com/appserve/mkt/im=g/hskgdkjahg327867307ghasdlkbsdl.gif">
+		<div>
+			<h2>Test tracker lists match url samples for each tracker</h2>
+			<h3>Results:</h3>
+			<div class="urlMatchRes"></div>
+			<hr />
 		</div>
 
-		<h4>Indirectly detectable prior to loading:</h4>
-		<div title="Indirectly detectable prior to loading" failColor="#e55353">
-			<table cellpadding="0" cellspacing="0" style="border:0px;padding:0px;margin:0px;display:none;float:left">
-				<tbody><tr><td height="1" style="font-size:1px;line-height:1px;padding:0px" title="Indirectly detectable prior to loading">
-				<br><img src="img/1x1pixel.gif" class="CToWUd">
-				</td></tr></tbody>
-			</table>
+		<div>
+			<h2>Test that tiny images are detected as tiny</h2>
+			<h3>Results:</h3>
+			<div class="tinyImagesRes"></div>
+			<hr />
 		</div>
 
-		<h4>Undetectable prior to loading:</h4>
-		<div title="Undetectable prior to loading" failColor="orange">
-			<img src="http://somecompany.example.com/track/745610937846502345/4583749587345/email.gif" border="0" alt="" class="CToWUd">
-			<img alt="" src="https://ci5.googleusercontent.com/proxy/sddfsdf=s0-d-e1-ft#https://example.com/l.php?n2=15&amp;d=237&amp;p=44367&amp;s=jhfksdgfyetiufesg87394hgdefkj&amp;l=open" class="CToWUd" border="0">
+		<div>
+			<h2>Test that normal images are detected as normal [not tiny]</h2>
+			<h3>Results:</h3>
+			<div class="normalImagesRes"></div>
+			<hr />
 		</div>
 
-	</div>
-
-	<div class="normalImages">
-		<h4>Visible non-tracking images:</h4>
-		<div title="Visible non-tracking images" failColor="#e55353">
-			<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd" known="0">
-			<img src="Clover_sunrise_550x440.jpg" width="380" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:380px;max-height:304px" class="CToWUd">
-			<img src="werwe" width="830" height="" border="0" style="display:block;width:100%;min-height:auto;max-width:830px" class="CToWUd">
-			<img src="werwe" width height="" border="0" style="display:block;width:100%;min-height:auto;max-width:830px" class="CToWUd">
-			<img src="werwer" width="32" height="32" style="display:block;border:none" alt="" class="CToWUd">
-			<img src="erter" style="display:block" width="15" height="15" class="CToWUd">
-			<img src="someicon.png" alt="Logo" width="24" height="24" style="display: inline-block; font-family: Helvetica, Arial, sans-serif; color: rgb(89, 89, 89); font-size: 16px;" border="0">
+		<div>
+			<h2>Test that tracked links are bypassed</h2>
+			<p>
+				<a href="http://t.yesware.com/tl/daljkshd87we?ytl=http%3A%2F%2Ftrockerapp.github.io"
+					>Example tracked link with recoverable origin</a
+				>
+			</p>
+			<p>
+				<a href="http://test.sendgrid.net/wf/click?kjhwkjehw">Example tracked link with unrecoverable origin</a>
+			</p>
 		</div>
-		<h4>Invisible non-tracking images:</h4>
-		<div title="Invisible non-tracking images" failColor="orange">
-		
+
+		<hr />
+		<div style="opacity: 0.1">
+			<h3>Test Images [ignore everything below this]:</h3>
+
+			<div class="tinyImages">
+				<h4>Detectable prior to loading:</h4>
+				<div title="Detectable prior to loading" failColor="#e55353">
+					<img width="0" height="0" class="yiv-img" src="" id="yui" />
+					<img src="" height="0" width="0" alt="Rocket Fuel" class="CToWUd" />
+					<img src="" height="0" alt="Rocket Fuel" class="CToWUd" />
+					<img src="" width="0" alt="Rocket Fuel" class="CToWUd" />
+					<img height="1" width="3" src="img/3pixel.gif" class="CToWUd" />
+					<img
+						alt=""
+						src="https://example.com/jkshl37/?jsbdhfbj3i64=232"
+						style="display: none"
+						class="CToWUd"
+					/>
+					<img
+						src="https://ci6.googleusercontent.com/proxy/ieurlkjdhf#http://r20.rs6.net/on.jsp?ca=ksjhd87-dh87e-kajas93-sjkd0098&a=8927345&c=23kjhg-3746h-32lj-wekljl-lk5&ch=mdjsuy76-43hg-45hgh-453"
+						alt=""
+						class="CToWUd"
+						style="visibility: hidden"
+					/>
+					<img
+						height="1"
+						width="3"
+						src="https://www.searchengine.com/appserve/mkt/im=g/hskgdkjahg327867307ghasdlkbsdl.gif"
+					/>
+				</div>
+
+				<h4>Indirectly detectable prior to loading:</h4>
+				<div title="Indirectly detectable prior to loading" failColor="#e55353">
+					<table
+						cellpadding="0"
+						cellspacing="0"
+						style="border: 0px; padding: 0px; margin: 0px; display: none; float: left"
+					>
+						<tbody>
+							<tr>
+								<td
+									height="1"
+									style="font-size: 1px; line-height: 1px; padding: 0px"
+									title="Indirectly detectable prior to loading"
+								>
+									<br /><img src="img/1x1pixel.gif" class="CToWUd" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<h4>Undetectable prior to loading:</h4>
+				<div title="Undetectable prior to loading" failColor="orange">
+					<img
+						src="http://somecompany.example.com/track/745610937846502345/4583749587345/email.gif"
+						border="0"
+						alt=""
+						class="CToWUd"
+					/>
+					<img
+						alt=""
+						src="https://ci5.googleusercontent.com/proxy/sddfsdf=s0-d-e1-ft#https://example.com/l.php?n2=15&amp;d=237&amp;p=44367&amp;s=jhfksdgfyetiufesg87394hgdefkj&amp;l=open"
+						class="CToWUd"
+						border="0"
+					/>
+				</div>
+			</div>
+
+			<div class="normalImages">
+				<h4>Visible non-tracking images:</h4>
+				<div title="Visible non-tracking images" failColor="#e55353">
+					<img
+						src="Clover_sunrise_550x440.jpg"
+						width="380"
+						height=""
+						border="0"
+						style="display: block; width: 100%; min-height: auto; max-width: 380px; max-height: 304px"
+						class="CToWUd"
+						known="0"
+					/>
+					<img
+						src="Clover_sunrise_550x440.jpg"
+						width="380"
+						height=""
+						border="0"
+						style="display: block; width: 100%; min-height: auto; max-width: 380px; max-height: 304px"
+						class="CToWUd"
+					/>
+					<img
+						src="werwe"
+						width="830"
+						height=""
+						border="0"
+						style="display: block; width: 100%; min-height: auto; max-width: 830px"
+						class="CToWUd"
+					/>
+					<img
+						src="werwe"
+						width
+						height=""
+						border="0"
+						style="display: block; width: 100%; min-height: auto; max-width: 830px"
+						class="CToWUd"
+					/>
+					<img
+						src="werwer"
+						width="32"
+						height="32"
+						style="display: block; border: none"
+						alt=""
+						class="CToWUd"
+					/>
+					<img src="erter" style="display: block" width="15" height="15" class="CToWUd" />
+					<img
+						src="someicon.png"
+						alt="Logo"
+						width="24"
+						height="24"
+						style="
+							display: inline-block;
+							font-family: Helvetica, Arial, sans-serif;
+							color: rgb(89, 89, 89);
+							font-size: 16px;
+						"
+						border="0"
+					/>
+				</div>
+				<h4>Invisible non-tracking images:</h4>
+				<div title="Invisible non-tracking images" failColor="orange"></div>
+			</div>
 		</div>
-	</div>
-</div>
 
-<script type="module" src="./samples.js"></script>
-<script type="module" src="./test1.js"></script>
-<script src="../trocker.js"></script>
-
-</body>
+		<script type="module" src="./samples.js"></script>
+		<script type="module" src="./test1.js"></script>
+		<script src="../trocker.js"></script>
+	</body>
 </html>

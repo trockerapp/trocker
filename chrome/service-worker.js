@@ -1,5 +1,11 @@
-import {getOpenTrackerList, getClickTrackerList} from './lists.js'
-import {parseVersionString, loadVariable, updateBrowserActionButton, updateDeclarativeNetRequestRules, statPlusN} from './tools.js'
+import { getOpenTrackerList, getClickTrackerList } from './lists.js';
+import {
+	parseVersionString,
+	loadVariable,
+	updateBrowserActionButton,
+	updateDeclarativeNetRequestRules,
+	statPlusN,
+} from './tools.js';
 
 console.log('service-worker.js');
 
@@ -10,7 +16,7 @@ try {
 		// const matchedRules = await chrome.declarativeNetRequest.getMatchedRules({tabId: e.request.tabId});
 		const msg = `Navigation allowed/blocked [check rule] to ${e.request.url} on tab ${e.request.tabId}, per rule: ${JSON.stringify(e.rule)}`;
 		console.log(msg);
-	});	
+	});
 } catch (e) {
 	console.log('declarativeNetRequest.onRuleMatchedDebug not available');
 }
@@ -22,7 +28,7 @@ try {
 // }
 
 async function switchTrockerState() {
-	if (await loadVariable('trockerEnable') == true) await saveVariable('trockerEnable', false);
+	if ((await loadVariable('trockerEnable')) == true) await saveVariable('trockerEnable', false);
 	else await saveVariable('trockerEnable', true);
 
 	updateBrowserActionButton();
@@ -40,18 +46,16 @@ function openOptionsPage() {
 chrome.action.onClicked.addListener(openOptionsPage);
 
 chrome.runtime.onInstalled.addListener(onInstallHandler);
-	
+
 async function onInstallHandler(details) {
-	if (details.reason == "update") {
+	if (details.reason == 'update') {
 		let newVerStr = chrome.runtime.getManifest().version;
 		let newVer = parseVersionString(newVerStr);
 		let prevVer = parseVersionString(details.previousVersion);
 
-		if ((prevVer.major < newVer.major) || (prevVer.minor < newVer.minor) || 
-			(newVerStr == '3.0.2')
-		) {
+		if (prevVer.major < newVer.major || prevVer.minor < newVer.minor || newVerStr == '3.0.2') {
 			// Open updated page in a new tab
-			let url = "updated.html";
+			let url = 'updated.html';
 			chrome.tabs.create({ url: url, active: true });
 		}
 	}
@@ -67,32 +71,32 @@ chrome.runtime.onMessage.addListener(handleContentScriptMessages);
 
 async function handleContentScriptMessages(message, sender) {
 	// Return early if this message isn't meant for the background script
-	if (message.target !== 'background' || typeof sender.tab === "undefined") {
+	if (message.target !== 'background' || typeof sender.tab === 'undefined') {
 		return;
 	}
 	let tabId = sender.tab.id;
-	if (message.type == "loadVariable") {
-		let keys = (message.keys) ? message.keys : [message.key];
+	if (message.type == 'loadVariable') {
+		let keys = message.keys ? message.keys : [message.key];
 		let result = {};
 		for (const key of keys) {
 			result[key] = await loadVariable(key);
 		}
 		sendMessageToContentScript(tabId, 'loadVariable-result', result);
-	} else if (message.type == "saveVariable") {
+	} else if (message.type == 'saveVariable') {
 		let varName = message.key;
 		let varValue = message.value;
 		varValue = await saveVariable(varName, varValue);
 		let result = {};
 		result[varName] = varValue;
 		sendMessageToContentScript(tabId, 'saveVariable-result', result);
-	} else if (message.type == "reportTrackerStats") {
+	} else if (message.type == 'reportTrackerStats') {
 		let trackerStats = message.value;
 		if (trackerStats.total_count) {
-			if (await loadVariable('showTrackerCount') == true) {
+			if ((await loadVariable('showTrackerCount')) == true) {
 				await updateBrowserActionButton(tabId, trackerStats.total_count);
 			} else {
 				await updateBrowserActionButton(tabId, 0);
-			}	
+			}
 		}
 		if (!trackerStats.open || isNaN(trackerStats.open)) {
 			trackerStats.open = 0;
@@ -112,22 +116,22 @@ async function handleContentScriptMessages(message, sender) {
 		if (trackerStats.click > 0) {
 			await statPlusN('clickTrackerStats', 'etc', 'exposed', trackerStats.click);
 		}
-	} else if (message.type == "getTrackerLists") {
-		sendMessageToContentScript(tabId, 'getTrackerLists-result', { 
-			openTrackers: await getOpenTrackerList(), clickTrackers: await getClickTrackerList(), webmails: webmails 
+	} else if (message.type == 'getTrackerLists') {
+		sendMessageToContentScript(tabId, 'getTrackerLists-result', {
+			openTrackers: await getOpenTrackerList(),
+			clickTrackers: await getClickTrackerList(),
+			webmails: webmails,
 		});
-	} 
+	}
 	return;
 }
 
 function sendMessageToContentScript(tabId, type, data) {
-	chrome.tabs.sendMessage(tabId,
-		{
-			type: type,
-			target: 'content-script',
-			data: data
-		}
-	);
+	chrome.tabs.sendMessage(tabId, {
+		type: type,
+		target: 'content-script',
+		data: data,
+	});
 }
 
 // Webmail image proxy domains we have to listen on
@@ -140,24 +144,35 @@ let webmails = [
 		name: 'google',
 		matchUrls: ['://mail.google.com', '://inbox.google.com'],
 		whiteList: [],
-		whiteListExcept: ['.googleusercontent.com/proxy', '.googleusercontent.com/meips'] // Google's image proxy
+		whiteListExcept: ['.googleusercontent.com/proxy', '.googleusercontent.com/meips'], // Google's image proxy
 	},
 	{
 		name: 'outlook',
 		matchUrls: ['outlook.live.com', 'outlook.office.com'],
-		whiteList: ['https://c.live.com/', 'https://c.bing.com/', 'https://outlook.live.com/', 'https://avatar.skype.com',
-			'http://c.live.com/', 'http://c.bing.com/', 'http://outlook.live.com/',
-			'http://avatar.skype.com', 'msecnd.net/dam/skype/',
-			'office365.com', 'office.com', 'storage.live.com', 'cdn.office.net',
-			'https://attachment.outlook.live.net', 'https://attachment.outlook.office.com',
-			'officeapps.live.com'
+		whiteList: [
+			'https://c.live.com/',
+			'https://c.bing.com/',
+			'https://outlook.live.com/',
+			'https://avatar.skype.com',
+			'http://c.live.com/',
+			'http://c.bing.com/',
+			'http://outlook.live.com/',
+			'http://avatar.skype.com',
+			'msecnd.net/dam/skype/',
+			'office365.com',
+			'office.com',
+			'storage.live.com',
+			'cdn.office.net',
+			'https://attachment.outlook.live.net',
+			'https://attachment.outlook.office.com',
+			'officeapps.live.com',
 		],
-		whiteListExcept: []
+		whiteListExcept: [],
 	},
 	{
 		name: 'ymail',
 		matchUrls: ['mail.yahoo.com'],
 		whiteList: [],
-		whiteListExcept: ['.yusercontent.com/mail']  // Yahoo's image proxy
-	}
+		whiteListExcept: ['.yusercontent.com/mail'], // Yahoo's image proxy
+	},
 ];

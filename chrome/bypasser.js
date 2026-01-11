@@ -1,5 +1,5 @@
-import { getClickTrackerList } from './lists.js'
-import { findOriginalLink, multiMatch, statPlusPlus } from './tools.js'
+import { getClickTrackerList } from './lists.js';
+import { findOriginalLink, multiMatch, statPlusPlus } from './tools.js';
 
 let trockerOptions = {};
 chrome.runtime.onMessage.addListener(handleMessages);
@@ -16,108 +16,115 @@ async function handleMessages(message, sender) {
 					trockerOptions[key] = value;
 				}
 			}
-      bypasserUI.setup();
+			bypasserUI.setup();
 			break;
-  }
+	}
 }
 
 let response = chrome.runtime.sendMessage({
-  target: 'background', 
-  type: "loadVariable",
-  keys: ['trockerEnable', 'linkBypassTimeout', 'verbose', 'debug']
+	target: 'background',
+	type: 'loadVariable',
+	keys: ['trockerEnable', 'linkBypassTimeout', 'verbose', 'debug'],
 });
 
 let bypasserUI = {
-  setup: async function () {
-    if (bypasserUI.setup_started) return;
-    bypasserUI.setup_started = true;
-    if (bypasserUI.toID) window.clearTimeout(bypasserUI.toID); // To avoid duplicate contdowns on hashchange
-    bypasserUI.trackedURL = getTrackedURL();
-    var trackedLink = document.querySelector('a#trackedLink');
-    trackedLink.href = bypasserUI.trackedURL;
-    trackedLink.innerHTML = URLSummary(bypasserUI.trackedURL, 40);
-    trackedLink.onclick = function (e) { e.stopPropagation(); e.preventDefault(); bypasserUI.loadTrackedURL(); }
+	setup: async function () {
+		if (bypasserUI.setup_started) return;
+		bypasserUI.setup_started = true;
+		if (bypasserUI.toID) window.clearTimeout(bypasserUI.toID); // To avoid duplicate contdowns on hashchange
+		bypasserUI.trackedURL = getTrackedURL();
+		var trackedLink = document.querySelector('a#trackedLink');
+		trackedLink.href = bypasserUI.trackedURL;
+		trackedLink.innerHTML = URLSummary(bypasserUI.trackedURL, 40);
+		trackedLink.onclick = function (e) {
+			e.stopPropagation();
+			e.preventDefault();
+			bypasserUI.loadTrackedURL();
+		};
 
-    bypasserUI.redirectURL = bypasserUI.trackedURL;
-    var origURL = await findOriginalLink(bypasserUI.trackedURL);
-    if (origURL) {
-      bypasserUI.redirectURL = origURL;
-      var origLink = document.querySelector('a#origLink');
-      origLink.href = origURL;
-      origLink.innerHTML = URLSummary(origURL, 40);
+		bypasserUI.redirectURL = bypasserUI.trackedURL;
+		var origURL = await findOriginalLink(bypasserUI.trackedURL);
+		if (origURL) {
+			bypasserUI.redirectURL = origURL;
+			var origLink = document.querySelector('a#origLink');
+			origLink.href = origURL;
+			origLink.innerHTML = URLSummary(origURL, 40);
 
-      document.querySelector('#willbypass').classList.remove('hidden');
-      document.querySelector('#cantbypass').classList.add('hidden');
-    } else {
-      document.querySelector('#cantbypass').classList.remove('hidden');
-      document.querySelector('#willbypass').classList.add('hidden');
-    }
+			document.querySelector('#willbypass').classList.remove('hidden');
+			document.querySelector('#cantbypass').classList.add('hidden');
+		} else {
+			document.querySelector('#cantbypass').classList.remove('hidden');
+			document.querySelector('#willbypass').classList.add('hidden');
+		}
 
-    if (trockerOptions.linkBypassTimeout) {
-      bypasserUI.cntDown = trockerOptions.linkBypassTimeout;
-    } else {
-      bypasserUI.cntDown = 11;
-    }
-    bypasserUI.updateCountdown();
-  },
-  updateCountdown: async function () {
-    bypasserUI.cntDown--;
-    var cntDownSpan = document.querySelector('span#cntdown');
-    cntDownSpan.innerHTML = bypasserUI.cntDown;
+		if (trockerOptions.linkBypassTimeout) {
+			bypasserUI.cntDown = trockerOptions.linkBypassTimeout;
+		} else {
+			bypasserUI.cntDown = 11;
+		}
+		bypasserUI.updateCountdown();
+	},
+	updateCountdown: async function () {
+		bypasserUI.cntDown--;
+		var cntDownSpan = document.querySelector('span#cntdown');
+		cntDownSpan.innerHTML = bypasserUI.cntDown;
 
-    if (bypasserUI.cntDown >= 1) {
-      bypasserUI.toID = window.setTimeout(bypasserUI.updateCountdown, 1000);
-    } else {// Redirect
-      // Update Stats
-      var clickTrackers = await getClickTrackerList();
-      for (var i = 0; i < clickTrackers.length; i++) {
-        if (multiMatch(bypasserUI.trackedURL, clickTrackers[i].domains)) {
-          if (bypasserUI.trackedURL == bypasserUI.redirectURL) {
-            await statPlusPlus('clickTrackerStats', clickTrackers[i].name, 'allowed');
-            bypasserUI.loadTrackedURL();
-          } else {
-            await statPlusPlus('clickTrackerStats', clickTrackers[i].name, 'bypassed');
-            window.location.replace(bypasserUI.redirectURL);
-          }
-          return;
-        }
-      }
-      window.location.replace(bypasserUI.redirectURL); // This shouldn't happen
-    }
-  },
-  loadTrackedURL: function () {
-    var url = new URL(bypasserUI.trackedURL);
-    // If your expected result is "http://foo.bar/?x=1&y=2&x=42"
-    url.searchParams.set('trfcallwmrk', 1);
-    window.location.replace(url.href);
-    // });
-  }
+		if (bypasserUI.cntDown >= 1) {
+			bypasserUI.toID = window.setTimeout(bypasserUI.updateCountdown, 1000);
+		} else {
+			// Redirect
+			// Update Stats
+			var clickTrackers = await getClickTrackerList();
+			for (var i = 0; i < clickTrackers.length; i++) {
+				if (multiMatch(bypasserUI.trackedURL, clickTrackers[i].domains)) {
+					if (bypasserUI.trackedURL == bypasserUI.redirectURL) {
+						await statPlusPlus('clickTrackerStats', clickTrackers[i].name, 'allowed');
+						bypasserUI.loadTrackedURL();
+					} else {
+						await statPlusPlus('clickTrackerStats', clickTrackers[i].name, 'bypassed');
+						window.location.replace(bypasserUI.redirectURL);
+					}
+					return;
+				}
+			}
+			window.location.replace(bypasserUI.redirectURL); // This shouldn't happen
+		}
+	},
+	loadTrackedURL: function () {
+		var url = new URL(bypasserUI.trackedURL);
+		// If your expected result is "http://foo.bar/?x=1&y=2&x=42"
+		url.searchParams.set('trfcallwmrk', 1);
+		window.location.replace(url.href);
+		// });
+	},
+};
 
-}
-
-window.addEventListener("hashchange", function () {
-  bypasserUI.setup();
-}, false);
+window.addEventListener(
+	'hashchange',
+	function () {
+		bypasserUI.setup();
+	},
+	false
+);
 window.setTimeout(bypasserUI.setup, 1000);
 
-
 function getTrackedURL() {
-  let res = document.location.hash.split('#')[1];
-  if (!res) {
-    res = document.referrer;
-  }
-  console.log(`Redirected from "${res}"`)
-  
-  // Check if url starts with https://google.com/url?q= and remove that part. This is needed in case the declarativeNetRequest rules 
-  // for removing the google redirects (DNR_bypass_redirects) is matched with lower priority than our dynamic DNR rules for tracked links.
-  if (res.startsWith('https://www.google.com/url?q=')) {
-    let url = new URL(res);
-    res = url.searchParams.getAll('q')[0];
-    console.log(`Stripped Google redirect to get "${res}"`)
-  }
-  return res;
+	let res = document.location.hash.split('#')[1];
+	if (!res) {
+		res = document.referrer;
+	}
+	console.log(`Redirected from "${res}"`);
+
+	// Check if url starts with https://google.com/url?q= and remove that part. This is needed in case the declarativeNetRequest rules
+	// for removing the google redirects (DNR_bypass_redirects) is matched with lower priority than our dynamic DNR rules for tracked links.
+	if (res.startsWith('https://www.google.com/url?q=')) {
+		let url = new URL(res);
+		res = url.searchParams.getAll('q')[0];
+		console.log(`Stripped Google redirect to get "${res}"`);
+	}
+	return res;
 }
 
 function URLSummary(url, summaryLen) {
-  return url.substr(0, summaryLen) + ((url.length > summaryLen) ? '...' : '');
+	return url.substr(0, summaryLen) + (url.length > summaryLen ? '...' : '');
 }

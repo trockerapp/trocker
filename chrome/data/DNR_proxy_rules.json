@@ -1,63 +1,54 @@
 [
-    {
-        "id": 1,
-        "priority": 5,
-        "action": { "type": "allow" },
-        "condition": {
-            "urlFilter": "trnonsuspmrk"
-        }
-    },
-    {
-        "id": 2,
-        "priority": 5,
-        "action": { "type": "allow" },
-        "condition": {"urlFilter": "trfcallwmrk"}
-    },
-    {
-        "id": 3,
-        "priority": 5,
-        "action": { "type": "block" },
-        "condition": {"urlFilter": "trsuspmrk"}
-    },
-    {
-        "id": 4,
-        "priority": 4,
-        "action": { "type": "block" },
-        "condition": {
-            "urlFilter": ".googleusercontent.com/proxy",
-            "resourceTypes": [
-                "image",    
-                "media"
-            ],
-            "excludedInitiatorDomains": [
-                "chat.google.com"
-            ]
-        }
-    }, 
-    {
-        "id": 5,
-        "priority": 4,
-        "action": { "type": "block" },
-        "condition": {"urlFilter": ".googleusercontent.com/meips",
-            "resourceTypes": [
-                "image",    
-                "media"
-            ],
-            "excludedInitiatorDomains": [
-                "chat.google.com"
-            ]
-        }
-    }, 
-    {
-        "id": 7,
-        "priority": 4,
-        "action": { "type": "block" },
-        "condition": {"urlFilter": ".yusercontent.com/mail"}
-    }, 
-    {
-        "id": 8,
-        "priority": 4,
-        "action": { "type": "block" },
-        "condition": {"urlFilter": ".outlook.com/proxy/"}
-    }    
+	{
+		"id": 1,
+		"priority": 5,
+		"action": { "type": "allow" },
+		"condition": {
+			"urlFilter": "trnonsuspmrk"
+		}
+	},
+	{
+		"id": 2,
+		"priority": 5,
+		"action": { "type": "allow" },
+		"condition": { "urlFilter": "trfcallwmrk" }
+	},
+	{
+		"id": 3,
+		"priority": 5,
+		"action": { "type": "block" },
+		"condition": { "urlFilter": "trsuspmrk" }
+	},
+	{
+		"id": 4,
+		"priority": 4,
+		"action": { "type": "block" },
+		"condition": {
+			"urlFilter": ".googleusercontent.com/proxy",
+			"resourceTypes": ["image", "media"],
+			"excludedInitiatorDomains": ["chat.google.com"]
+		}
+	},
+	{
+		"id": 5,
+		"priority": 4,
+		"action": { "type": "block" },
+		"condition": {
+			"urlFilter": ".googleusercontent.com/meips",
+			"resourceTypes": ["image", "media"],
+			"excludedInitiatorDomains": ["chat.google.com"]
+		}
+	},
+	{
+		"id": 7,
+		"priority": 4,
+		"action": { "type": "block" },
+		"condition": { "urlFilter": ".yusercontent.com/mail" }
+	},
+	{
+		"id": 8,
+		"priority": 4,
+		"action": { "type": "block" },
+		"condition": { "urlFilter": ".outlook.com/proxy/" }
+	}
 ]

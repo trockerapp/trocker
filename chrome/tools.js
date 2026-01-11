@@ -1,4 +1,4 @@
-import { getOpenTrackerList, getClickTrackerList } from './lists.js'
+import { getOpenTrackerList, getClickTrackerList } from './lists.js';
 
 const manifest_version = chrome.runtime.getManifest().manifest_version;
 
@@ -9,33 +9,29 @@ async function getRequestRules() {
 		openBlockPatterns.push(...item.patterns);
 		openBlockPatterns.push(...item.domains);
 	}
-	let openRules = openBlockPatterns.map((pattern, index) => ({ 
-			"id": 1 + index, 
-			"priority": 1, 
-			"action": {
-				"type": "block"
-			},
-			"condition": {
-				"urlFilter": pattern,
-				"resourceTypes": [
-					"image",
-					"media",
-				]
-			}
-   		})
-   );
+	let openRules = openBlockPatterns.map((pattern, index) => ({
+		id: 1 + index,
+		priority: 1,
+		action: {
+			type: 'block',
+		},
+		condition: {
+			urlFilter: pattern,
+			resourceTypes: ['image', 'media'],
+		},
+	}));
 
-//    {
-//        "id": 2,
-//        "priority": 5,
-//        "action": { "type": "allow" },
-//        "condition": {"urlFilter": "trfcallwmrk"}
-//    }
+	//    {
+	//        "id": 2,
+	//        "priority": 5,
+	//        "action": { "type": "allow" },
+	//        "condition": {"urlFilter": "trfcallwmrk"}
+	//    }
 
 	let clickList = await getClickTrackerList();
 	let clickBlockRegexPatterns = [];
 	let clickBlockPatterns = [];
-	for (let item of clickList){
+	for (let item of clickList) {
 		if (item.regex) {
 			clickBlockRegexPatterns.push(item.regex);
 		} else {
@@ -43,25 +39,25 @@ async function getRequestRules() {
 			clickBlockPatterns.push(...item.domains);
 		}
 	}
-	let clickRules = clickBlockRegexPatterns.map((pattern, index) => ({ 
-		"id": 1 + index + openRules.length, 
-		"priority": 1, 
-		"action": {
-			"type": "redirect",
-			"redirect": {
+	let clickRules = clickBlockRegexPatterns.map((pattern, index) => ({
+		id: 1 + index + openRules.length,
+		priority: 1,
+		action: {
+			type: 'redirect',
+			redirect: {
 				// "url": chrome.runtime.getURL("bypasser.html")
-				"regexSubstitution": chrome.runtime.getURL("bypasser.html") + "#\\1"
-			}
+				regexSubstitution: chrome.runtime.getURL('bypasser.html') + '#\\1',
+			},
 		},
-		"condition": {
+		condition: {
 			// "urlFilter": pattern,
-			"regexFilter": pattern,
-			"excludedInitiatorDomains": [
-				chrome.runtime.id
+			regexFilter: pattern,
+			excludedInitiatorDomains: [
+				chrome.runtime.id,
 				// chrome.runtime.getURL('').slice(0, -1)
 			], // To allow forwarding after Trocker notice
-			"resourceTypes": [
-				"main_frame",
+			resourceTypes: [
+				'main_frame',
 				// "sub_frame",
 				// "stylesheet",
 				// "script",
@@ -76,10 +72,9 @@ async function getRequestRules() {
 				// "webtransport",
 				// "webbundle",
 				// "other"
-			]
-		}
-	   })
-	);
+			],
+		},
+	}));
 	// {
 	// 	"id": 2,
 	// 	"priority": 1,
@@ -98,27 +93,31 @@ async function getRequestRules() {
 	return allRules;
 }
 
-export async function updateDeclarativeNetRequestRules(){
+export async function updateDeclarativeNetRequestRules() {
 	// Get arrays containing new and old rules
 	const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
-	const oldRuleIds = oldRules.map(rule => rule.id);
+	const oldRuleIds = oldRules.map((rule) => rule.id);
 	let trockerEnabled = await loadVariable('trockerEnable');
-	const newRules = trockerEnabled ? (await getRequestRules()) : [];
+	const newRules = trockerEnabled ? await getRequestRules() : [];
 
 	// Use the arrays to update the dynamic rules
 	await chrome.declarativeNetRequest.updateDynamicRules({
 		removeRuleIds: oldRuleIds,
-		addRules: newRules
+		addRules: newRules,
 	});
 
 	const ruleSetIds = ['DNR_bypass_redirects', 'DNR_proxy_rules'];
-	await chrome.declarativeNetRequest.updateEnabledRulesets(trockerEnabled ? {
-		disableRulesetIds: [],
-		enableRulesetIds: ruleSetIds,
-	}:{
-		disableRulesetIds: ruleSetIds,
-		enableRulesetIds: [],
-	});
+	await chrome.declarativeNetRequest.updateEnabledRulesets(
+		trockerEnabled
+			? {
+					disableRulesetIds: [],
+					enableRulesetIds: ruleSetIds,
+				}
+			: {
+					disableRulesetIds: ruleSetIds,
+					enableRulesetIds: [],
+				}
+	);
 
 	// let TestMatchRequestDetailsList = [{
 	// 	initiator: "https://mail.google.com",
@@ -163,17 +162,17 @@ function setBrowserActions(options) {
 export async function updateBrowserActionButton(tabId, trackerCount) {
 	let browserActionOptions = {
 		tabId: tabId,
-	}
+	};
 
-	if (await loadVariable('trockerEnable') == true) {
-		browserActionOptions.iconPaths = "img/trocker.png";
+	if ((await loadVariable('trockerEnable')) == true) {
+		browserActionOptions.iconPaths = 'img/trocker.png';
 		browserActionOptions.color = [208, 0, 24, 255];
 	} else {
-		browserActionOptions.iconPaths = "img/trockerbw.png";
+		browserActionOptions.iconPaths = 'img/trockerbw.png';
 		browserActionOptions.color = [190, 190, 190, 230];
 	}
 	browserActionOptions.badgeText = '';
-	if (trackerCount > 0) browserActionOptions.badgeText = (trackerCount).toString();
+	if (trackerCount > 0) browserActionOptions.badgeText = trackerCount.toString();
 	setBrowserActions(browserActionOptions);
 }
 
@@ -197,10 +196,7 @@ export async function findOriginalLink(trackedURL) {
 
 // To monitor storage changes
 chrome.storage.onChanged.addListener((changes, namespace) => {
-	for (let [key, {
-			oldValue,
-			newValue
-		}] of Object.entries(changes)) {
+	for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
 		console.log(
 			`Storage key "${key}" in namespace "${namespace}" changed.`,
 			`Old value was "${oldValue}", new value is "${newValue}".`
@@ -211,7 +207,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 // Create offscreen document to transition local storage data
 // https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/functional-samples/cookbook.offscreen-dom/background.js
 const OFFSCREEN_DOCUMENT_PATH = '/offscreen.html';
-let creating_offscreen=false; // A global promise to avoid concurrency issues
+let creating_offscreen = false; // A global promise to avoid concurrency issues
 async function sendMessageToOffscreenDocument(type, data) {
 	// Create an offscreen document if one doesn't exist yet
 	if (!(await hasDocument())) {
@@ -221,10 +217,10 @@ async function sendMessageToOffscreenDocument(type, data) {
 			creating_offscreen = chrome.offscreen.createDocument({
 				url: OFFSCREEN_DOCUMENT_PATH,
 				reasons: ['LOCAL_STORAGE'],
-				justification: 'Port data over from local storage'
+				justification: 'Port data over from local storage',
 			});
 			await creating_offscreen;
-    		creating_offscreen = null;
+			creating_offscreen = null;
 		}
 	}
 	// Now that we have an offscreen document, we can dispatch the
@@ -232,9 +228,9 @@ async function sendMessageToOffscreenDocument(type, data) {
 	chrome.runtime.sendMessage({
 		type: type,
 		target: 'offscreen',
-		data: data
+		data: data,
 	});
-	// Note that extensions cannot send messages to content scripts using this method (chrome.runtime.sendMessage). 
+	// Note that extensions cannot send messages to content scripts using this method (chrome.runtime.sendMessage).
 	// To send messages to content scripts, use tabs.sendMessage.
 }
 
@@ -269,7 +265,7 @@ async function handleOffscreenMessages(message) {
 }
 
 async function handleGetFullLocalStorageResult(data) {
-	console.log('Received data from offscreen: ', data);	
+	console.log('Received data from offscreen: ', data);
 	data['V3_conversion'] = new Date(); // Store the date for latest import of local storage to avoid redoing it
 	return await saveToStorage(data);
 }
@@ -289,7 +285,7 @@ async function hasDocument() {
 	const offscreenUrl = chrome.runtime.getURL(OFFSCREEN_DOCUMENT_PATH);
 	const existingContexts = await chrome.runtime.getContexts({
 		contextTypes: ['OFFSCREEN_DOCUMENT'],
-		documentUrls: [offscreenUrl]
+		documentUrls: [offscreenUrl],
 	});
 
 	if (existingContexts.length > 0) {
@@ -308,31 +304,32 @@ async function checkStorageTransition() {
 	}
 }
 
-function getStorageForKey(key){
-	if (key == '???') { // To sync settings across devices, add their names here
-		return 'sync'
+function getStorageForKey(key) {
+	if (key == '???') {
+		// To sync settings across devices, add their names here
+		return 'sync';
 	} else {
 		return 'local';
 	}
 }
 
-async function loadFromStorage(objName, namespace='auto'){
+async function loadFromStorage(objName, namespace = 'auto') {
 	if (namespace == 'auto') {
-		namespace = getStorageForKey(objName)	
+		namespace = getStorageForKey(objName);
 	}
-	let storageAPI = (namespace == 'sync') ? chrome.storage.sync : chrome.storage.local;
+	let storageAPI = namespace == 'sync' ? chrome.storage.sync : chrome.storage.local;
 	let res = await storageAPI.get([objName]);
 	return res[objName];
 }
 
 function pick(o, ...props) {
-    return Object.assign({}, ...props.map(prop => ({[prop]: o[prop]})));
+	return Object.assign({}, ...props.map((prop) => ({ [prop]: o[prop] })));
 }
 
-async function saveToStorage(dict, namespace='auto'){
+async function saveToStorage(dict, namespace = 'auto') {
 	if (namespace == 'auto') {
-		const syncKeys = Object.keys(dict).filter( key => getStorageForKey(key) == 'sync' );
-		const localKeys = Object.keys(dict).filter( key => getStorageForKey(key) == 'local' );
+		const syncKeys = Object.keys(dict).filter((key) => getStorageForKey(key) == 'sync');
+		const localKeys = Object.keys(dict).filter((key) => getStorageForKey(key) == 'local');
 		const syncDict = pick(dict, ...syncKeys);
 		const localDict = pick(dict, ...localKeys);
 		if (Object.keys(syncDict).length) {
@@ -343,21 +340,23 @@ async function saveToStorage(dict, namespace='auto'){
 		}
 		return;
 	} else {
-		let storageAPI = (namespace == 'sync') ? chrome.storage.sync : chrome.storage.local;
+		let storageAPI = namespace == 'sync' ? chrome.storage.sync : chrome.storage.local;
 		return await storageAPI.set(dict);
 	}
 }
 
 async function loadObjectFromCache(objName) {
 	if (manifest_version < 3) {
-		if (typeof localStorage['dataCache'] === "undefined") { localStorage['dataCache'] = JSON.stringify({}); }
+		if (typeof localStorage['dataCache'] === 'undefined') {
+			localStorage['dataCache'] = JSON.stringify({});
+		}
 		let dataCache = JSON.parse(localStorage['dataCache']);
 		return dataCache[objName];
 	} else {
 		try {
 			await checkStorageTransition();
 		} catch (err) {
-			logger.error(err)
+			logger.error(err);
 		}
 		return await loadFromStorage(objName);
 	}
@@ -369,7 +368,7 @@ async function cacheObject(objName, obj) {
 		dataCache[objName] = obj;
 		localStorage['dataCache'] = JSON.stringify(dataCache);
 	} else {
-		return await saveToStorage({[objName]: obj});
+		return await saveToStorage({ [objName]: obj });
 	}
 }
 
@@ -377,32 +376,100 @@ export async function loadVariable(varName) {
 	let varValue = await loadObjectFromCache(varName);
 
 	// If variable is not valid or not defined, return and save the default value
-	if ((varName == 'trockerEnable') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); }
-	if ((varName == 'showTrackerCount') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); }
-	if ((varName == 'anyPage') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
-	if ((varName == 'exposeLinks') && (varValue === undefined)) { varValue = true; cacheObject(varName, varValue); } // Let the default be to expose tracking images
-	if ((varName == 'linkBypassTimeout') && (varValue === undefined)) { varValue = 11; cacheObject(varName, varValue); }
-	if ((varName == 'useCustomLists') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
-	if ((varName == 'customOpenTrackers') && (varValue === undefined)) { varValue = ''; cacheObject(varName, varValue); }
-	if ((varName == 'customClickTrackers') && (varValue === undefined)) { varValue = ''; cacheObject(varName, varValue); }
-	if ((varName == 'openTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
-	if ((varName == 'clickTrackerStats') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
-	if ((varName == 'statsSinceDate') && ((varValue === undefined) || (new Date(varValue) == "Invalid Date"))) { varValue = new Date(); cacheObject(varName, varValue); }
-	if ((varName == 'suspDomains') && (varValue === undefined)) { varValue = {}; cacheObject(varName, varValue); }
-	if ((varName == 'advanced') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
-	if ((varName == 'verbose') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
-	if ((varName == 'debug') && (varValue === undefined)) { varValue = false; cacheObject(varName, varValue); }
+	if (varName == 'trockerEnable' && varValue === undefined) {
+		varValue = true;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'showTrackerCount' && varValue === undefined) {
+		varValue = true;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'anyPage' && varValue === undefined) {
+		varValue = false;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'exposeLinks' && varValue === undefined) {
+		varValue = true;
+		cacheObject(varName, varValue);
+	} // Let the default be to expose tracking images
+	if (varName == 'linkBypassTimeout' && varValue === undefined) {
+		varValue = 11;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'useCustomLists' && varValue === undefined) {
+		varValue = false;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'customOpenTrackers' && varValue === undefined) {
+		varValue = '';
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'customClickTrackers' && varValue === undefined) {
+		varValue = '';
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'openTrackerStats' && varValue === undefined) {
+		varValue = {};
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'clickTrackerStats' && varValue === undefined) {
+		varValue = {};
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'statsSinceDate' && (varValue === undefined || new Date(varValue) == 'Invalid Date')) {
+		varValue = new Date();
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'suspDomains' && varValue === undefined) {
+		varValue = {};
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'advanced' && varValue === undefined) {
+		varValue = false;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'verbose' && varValue === undefined) {
+		varValue = false;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'debug' && varValue === undefined) {
+		varValue = false;
+		cacheObject(varName, varValue);
+	}
 
 	// Obsolete
-	if ((varName == 'allowedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
-	if ((varName == 'blockedTrackerLinks') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
-	if ((varName == 'allowedYWOpenTrackers') && isNaN(varValue)) { varValue = await loadVariable('allowedTrackerLinks'); cacheObject(varName, varValue); }
-	if ((varName == 'blockedYWOpenTrackers') && isNaN(varValue)) { varValue = await loadVariable('blockedTrackerLinks'); cacheObject(varName, varValue); }
-	if ((varName == 'allowedSKOpenTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
-	if ((varName == 'blockedSKOpenTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
-	if ((varName == 'allowedYWClickTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
-	if ((varName == 'bypassedYWClickTrackers') && isNaN(varValue)) { varValue = 0; cacheObject(varName, varValue); }
-
+	if (varName == 'allowedTrackerLinks' && isNaN(varValue)) {
+		varValue = 0;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'blockedTrackerLinks' && isNaN(varValue)) {
+		varValue = 0;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'allowedYWOpenTrackers' && isNaN(varValue)) {
+		varValue = await loadVariable('allowedTrackerLinks');
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'blockedYWOpenTrackers' && isNaN(varValue)) {
+		varValue = await loadVariable('blockedTrackerLinks');
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'allowedSKOpenTrackers' && isNaN(varValue)) {
+		varValue = 0;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'blockedSKOpenTrackers' && isNaN(varValue)) {
+		varValue = 0;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'allowedYWClickTrackers' && isNaN(varValue)) {
+		varValue = 0;
+		cacheObject(varName, varValue);
+	}
+	if (varName == 'bypassedYWClickTrackers' && isNaN(varValue)) {
+		varValue = 0;
+		cacheObject(varName, varValue);
+	}
 
 	return varValue;
 }
@@ -431,7 +498,7 @@ async function setStat(statObjName, statName, fieldName, fieldValue) {
 }
 
 export async function statPlusN(statObjName, statName, fieldName, N) {
-	await setStat(statObjName, statName, fieldName, await getStat(statObjName, statName, fieldName) + N);
+	await setStat(statObjName, statName, fieldName, (await getStat(statObjName, statName, fieldName)) + N);
 }
 
 export async function statPlusPlus(statObjName, statName, fieldName) {
@@ -443,20 +510,23 @@ async function logSuspURL(url) {
 		if (!url) return;
 		let suspDomainsObj = await loadVariable('suspDomains'); // This make sure dataCache exists
 		let urlDomain = extractDomain(url);
-		if (suspDomainsObj[urlDomain] === undefined) suspDomainsObj[urlDomain] = {
-			"loads": 0,
-			"sampleUrls": []
-		};
+		if (suspDomainsObj[urlDomain] === undefined)
+			suspDomainsObj[urlDomain] = {
+				loads: 0,
+				sampleUrls: [],
+			};
 		suspDomainsObj[urlDomain].loads++;
 		if (suspDomainsObj[urlDomain].sampleUrls.indexOf(url) == -1) {
 			suspDomainsObj[urlDomain].sampleUrls.push(url);
-			suspDomainsObj[urlDomain].sampleUrls = suspDomainsObj[urlDomain].sampleUrls.slice(Math.max(suspDomainsObj[urlDomain].sampleUrls.length - 5, 0)); // Only keep the last 5 elements
+			suspDomainsObj[urlDomain].sampleUrls = suspDomainsObj[urlDomain].sampleUrls.slice(
+				Math.max(suspDomainsObj[urlDomain].sampleUrls.length - 5, 0)
+			); // Only keep the last 5 elements
 		}
 		let keys = Object.keys(suspDomainsObj);
 		let maxKeysToKeep = 15;
-		if (keys.length > maxKeysToKeep)  // Only keep the last 100 elements
-			for (let i = 0; i < (keys.length - maxKeysToKeep); i++)
-				delete (suspDomainsObj[keys[i]]);
+		if (keys.length > maxKeysToKeep)
+			// Only keep the last 100 elements
+			for (let i = 0; i < keys.length - maxKeysToKeep; i++) delete suspDomainsObj[keys[i]];
 		await saveVariable('suspDomains', suspDomainsObj);
 	}
 }
@@ -464,7 +534,7 @@ async function logSuspURL(url) {
 function extractDomain(url) {
 	let domain;
 	//find & remove protocol (http, ftp, etc.) and get domain
-	if (url.indexOf("://") > -1) {
+	if (url.indexOf('://') > -1) {
 		domain = url.split('/')[2];
 	} else {
 		domain = url.split('/')[0];
@@ -478,20 +548,23 @@ function extractDomain(url) {
 
 function parseUrlParams(url) {
 	let match,
-		pl = /\+/g,  // Regex for replacing addition symbol with a space
+		pl = /\+/g, // Regex for replacing addition symbol with a space
 		search = /([^&=]+)=?([^&]*)/g,
-		decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+		decode = function (s) {
+			return decodeURIComponent(s.replace(pl, ' '));
+		},
 		query = url.slice(url.indexOf('?') + 1); // The query part of the url
 
 	let urlParams = {};
-	while (match = search.exec(query))
-		urlParams[decode(match[1])] = decode(match[2]);
+	while ((match = search.exec(query))) urlParams[decode(match[1])] = decode(match[2]);
 
 	return urlParams;
 }
 
 export function parseVersionString(str) {
-	if (typeof (str) != 'string') { return false; }
+	if (typeof str != 'string') {
+		return false;
+	}
 	let x = str.split('.');
 	// parse from string or default to 0 if can't parse
 	let maj = parseInt(x[0]) || 0;
@@ -500,8 +573,8 @@ export function parseVersionString(str) {
 	return {
 		major: maj,
 		minor: min,
-		patch: pat
-	}
+		patch: pat,
+	};
 }
 
 // returns true if str contains any of patterns in it
