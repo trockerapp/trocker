@@ -55,7 +55,7 @@ async function getRequestRules() {
 			excludedInitiatorDomains: [
 				chrome.runtime.id,
 				// chrome.runtime.getURL('').slice(0, -1)
-			], // To allow forwarding after Trocker notice
+			].filter((d) => d.indexOf('@') === -1), // To allow forwarding after Trocker notice
 			resourceTypes: [
 				'main_frame',
 				// "sub_frame",
@@ -283,10 +283,18 @@ async function closeOffscreenDocument() {
 
 async function hasDocument() {
 	const offscreenUrl = chrome.runtime.getURL(OFFSCREEN_DOCUMENT_PATH);
-	const existingContexts = await chrome.runtime.getContexts({
-		contextTypes: ['OFFSCREEN_DOCUMENT'],
-		documentUrls: [offscreenUrl],
-	});
+	try {
+		const existingContexts = await chrome.runtime.getContexts({
+			contextTypes: ['OFFSCREEN_DOCUMENT'],
+			documentUrls: [offscreenUrl],
+		});
+		if (existingContexts.length > 0) {
+			return true;
+		}
+	} catch (e) {
+		console.warn('runtime.getContexts failed:', e);
+		return false;
+	}
 
 	if (existingContexts.length > 0) {
 		return true;
@@ -356,7 +364,7 @@ async function loadObjectFromCache(objName) {
 		try {
 			await checkStorageTransition();
 		} catch (err) {
-			logger.error(err);
+			console.error(err);
 		}
 		return await loadFromStorage(objName);
 	}
