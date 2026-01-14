@@ -3,6 +3,14 @@ import { getOpenTrackerList, getClickTrackerList } from './lists.js';
 const manifest_version = chrome.runtime.getManifest().manifest_version;
 
 async function getRequestRules() {
+	let extensionHost = chrome.runtime.id;
+	try {
+		const url = new URL(chrome.runtime.getURL(''));
+		if (url.hostname) {
+			extensionHost = url.hostname;
+		}
+	} catch (e) {}
+
 	let openList = await getOpenTrackerList();
 	let openBlockPatterns = [];
 	for (let item of openList) {
@@ -52,7 +60,7 @@ async function getRequestRules() {
 		condition: {
 			// "urlFilter": pattern,
 			regexFilter: pattern,
-			excludedInitiatorDomains: [new URL(chrome.runtime.getURL('')).hostname],
+			excludedInitiatorDomains: [extensionHost], // To allow forwarding after Trocker notice
 			resourceTypes: [
 				'main_frame',
 				// "sub_frame",
