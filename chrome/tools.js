@@ -52,10 +52,7 @@ async function getRequestRules() {
 		condition: {
 			// "urlFilter": pattern,
 			regexFilter: pattern,
-			excludedInitiatorDomains: [
-				chrome.runtime.id,
-				// chrome.runtime.getURL('').slice(0, -1)
-			].filter((d) => d.indexOf('@') === -1), // To allow forwarding after Trocker notice
+			excludedInitiatorDomains: [new URL(chrome.runtime.getURL('')).hostname],
 			resourceTypes: [
 				'main_frame',
 				// "sub_frame",

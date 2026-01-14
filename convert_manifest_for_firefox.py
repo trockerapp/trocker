@@ -27,7 +27,7 @@ def main():
         # 3. Add Gecko specific settings
         data['browser_specific_settings'] = {
             'gecko': {
-                'id': 'trocker@trockerapp.com',
+                'id': '{4f6dcd29-0a10-4235-a473-211111e98604}',
                 'strict_min_version': '109.0'
             }
         }
