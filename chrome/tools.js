@@ -311,6 +311,30 @@ async function checkStorageTransition() {
 	let res = await chrome.storage.local.get(['V3_conversion']);
 	if (!res['V3_conversion']) {
 		// Commence V3 storage transition
+
+		// Firefox Background Script Migration (No offscreen needed)
+		// Detect Firefox by checking if 'browser' is defined and userAgent contains Firefox
+		if (typeof browser !== 'undefined' && /Firefox/.test(navigator.userAgent)) {
+			console.log('Firefox detected. Attempting direct localStorage migration...');
+			try {
+				if (typeof localStorage !== 'undefined' && localStorage['dataCache']) {
+					let dataCache = JSON.parse(localStorage['dataCache']);
+					await handleGetFullLocalStorageResult(dataCache);
+					console.log('Direct Firefox migration successful.');
+				} else {
+					// No legacy data found or localStorage missing
+					// Initialize storage to mark conversion as done so we don't check again
+					await handleGetFullLocalStorageResult({
+						V3_migration_log: 'Firefox_direct_migration_no_data_found',
+					});
+					console.log('Direct Firefox migration: No local storage data found. Initialized empty.');
+				}
+			} catch (e) {
+				console.error('Direct Firefox migration failed:', e);
+			}
+			return; // CRITICAL: Return here to avoid falling through to offscreen code which errors in Firefox
+		}
+
 		return sendMessageToOffscreenDocument('get-full-local-storage', null);
 	} else {
 		return;
