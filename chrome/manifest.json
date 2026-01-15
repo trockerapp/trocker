@@ -52,7 +52,7 @@
 	"optional_permissions": ["tabs"],
 	"host_permissions": ["<all_urls>", "*://*.google.com/*", "*://*.live.com/*", "*://*.googleusercontent.com/*"],
 	"short_name": "__MSG_extension_name__",
-	"version": "3.1.2",
+	"version": "3.2.0",
 	"web_accessible_resources": [
 		{
 			"resources": [
