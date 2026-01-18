@@ -1,10 +1,14 @@
 {
-    "cSpell.words": [
-        "bypasser",
-        "centeredsec",
-        "gmail",
-        "html",
-        "js",
-        "trocker"
-    ]
+	"cSpell.words": ["bypasser", "centeredsec", "gmail", "html", "js", "trocker"],
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "prettier.prettier-vscode",
+	"[html]": {
+		"editor.defaultFormatter": "prettier.prettier-vscode"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "prettier.prettier-vscode"
+	},
+	"[markdown]": {
+		"editor.formatOnSave": false
+	}
 }

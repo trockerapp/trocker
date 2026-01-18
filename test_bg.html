@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Trocker Background Image Test</title>
+		<style>
+			.test-bg {
+				width: 200px;
+				height: 200px;
+				border: 1px solid black;
+				background-size: cover;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Trocker Background Image Test</h1>
+		<p>
+			This page mimics a structure with a background image. If Trocker is working, the style attribute should be
+			modified to include the `trnonsuspmrk` marker in the URL.
+		</p>
+
+		<!-- Case 1: Suspicious Pattern (should be blocked or marked suspicious if logic runs) -->
+		<!-- Note: In "general" mode, Trocker marks things either suspicious or non-suspicious -->
+		<div id="case1" class="test-bg" style="background-image: url('http://example.com/track/open.php?id=123')">
+			Suspicious Pattern
+		</div>
+
+		<!-- Case 2: Normal Image (should be marked non-suspicious) -->
+		<div
+			id="case2"
+			class="test-bg"
+			style="background-image: url('https://validation.trockerapp.com/test-image.jpg')"
+		>
+			Normal Image
+		</div>
+	</body>
+</html>

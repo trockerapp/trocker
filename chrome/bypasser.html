@@ -1,35 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Redirecting...</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
-</head>
-<body>
-<div class="content">
-  <div class="title">
-	<img src="header.png" title="Trocker" alt="Trocker">
-  <div class="centeredsec">
-    <div>You were trying to click on this link:</div>
-    <div><span class="link"><a id="trackedLink" href="" alt="Tracked Link"></a></span><div>
-	<div>But it is tracked!</div>
-  </div>
-  <div id="willbypass" class="centeredsec gap hidden">
-    <div>Trocker has extracted the original untracked link:</div>
-    <div><span class="link"><a id="origLink" href="" alt="Original Link"></a></span></div>
-	<div>You will be redirect to this</div>
-  </div>  
-  <div id="cantbypass" class="centeredsec gap hidden">
-    <div>The original untracked link can't be extracted!</div>
-	<div>You will be redirected to the tracked link</div>
-	<div>Simply close this page if you don't want to</div>
-  </div>
-  <div>Redirecting in <span id="cntdown"></span>s...</div>
-  </div>  
-</div>
-</body>
-<script src="lists.js"></script>
-<script src="tools.js"></script>
-<script src="bypasser.js"></script>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Redirecting...</title>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+	</head>
+	<body>
+		<div class="content">
+			<div class="title">
+				<img src="img/header.png" title="Trocker" alt="Trocker" />
+				<div class="centeredsec">
+					<div>You were trying to click on this link:</div>
+					<div>
+						<span class="link"><a id="trackedLink" href="" alt="Tracked Link"></a></span>
+					</div>
+					<div>But it is tracked!</div>
+				</div>
+				<div id="willbypass" class="centeredsec gap hidden">
+					<div>Trocker has extracted the original untracked link:</div>
+					<div>
+						<span class="link"><a id="origLink" href="" alt="Original Link"></a></span>
+					</div>
+					<div>You will be redirect to this</div>
+				</div>
+				<div id="cantbypass" class="centeredsec gap hidden">
+					<div>The original untracked link can't be extracted!</div>
+					<div>You will be redirected to the tracked link</div>
+					<div>Simply close this page if you don't want to</div>
+				</div>
+				<div class="centeredsec">
+					Redirecting in <span id="cntdown"></span>s... (you can change this in
+					<a href="options.html">settings</a>)
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="lists.js" type="module"></script>
+	<script src="tools.js" type="module"></script>
+	<script src="bypasser.js" type="module"></script>
 </html>

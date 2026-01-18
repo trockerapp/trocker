@@ -9,7 +9,7 @@
 <body>
 <div class="content">
   <div class="title">
-    <a href="https://trockerapp.github.io/"><img src="header.png" title="Trocker" alt="Trocker Logo"></a>
+    <a href="https://trockerapp.github.io/"><img src="img/header.png" title="Trocker" alt="Trocker Logo"></a>
     <div>Extension Options</div>
   </div>
   <form name="options_form" action="">
@@ -24,12 +24,11 @@
 				</div>
 				<p><em>Clarification about permissions:</em> the following key features are why Trocker needs the <a href="https://developers.chrome.com/extensions/match_patterns">&ltall_urls&gt permission</a> to function:</p>
 				<ul>
+					<li>Reliably running inside webmails (in Firefox) so that it can whitelist safe images and allow them to load</li>
 					<li>Blocking email trackers in any webmail that does not proxy images on its own server (e.g. outlook.com)</li>
 					<li>Bypassing tracked links (links that track when you click on them)</li>
 				</ul>
-				<!-- <input type="checkbox" disabled="disabled" name="all_urls_Permission1" id="allUrlsPermission1">
-				<label for="all_urls_Permission1">Allow Trocker to run on all websites (i.e. <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">"&ltall_urls&gt" permission</a>)</label> </li> -->
-				<p>Without the <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>, Trocker will only be able to block tracking images (but not links) and only in some webmails (e.g. Gmail) because the browser will not let Trocker know about all tracking images/links and thus Trocker will not be able to block them. This is a powerful permission which is why browsers rightfully warn you that the extension can "Read and change all your data on the websites you visit".</p>
+				<p>Without the <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>, Trocker cannot reliably check images within webmails (especially in Firefox) to make sure safe images are whiteliested and can load. This may lead to all images being blocked (if Trocker's script does not run inside the webmail). Since we don't want to break your email experience, out of an abundance of caution, Trocker disables itself unless this permission is granted. Enabling Trocker will prompt you to grant this permission.</p>
       </div>
 	</div>
 	<div class="centeredsec">
@@ -52,8 +51,8 @@
 				<input type="checkbox" name="exposeLinks" id="exposeLinksOpt">
 				<label for="exposeLinks">Enable</label> <br/>
 				<ul>
-					<li>Hidden Tracking images will become visible as <img src="tl.png" style="width:10px; height:10px;"> (block-listed trackers) or <img src="td.png" style="width:10px; height:10px;"> (auto-detected trackers)</li>
-					<li>Mouse pointer turns into <img src="tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
+					<li>Hidden Tracking images will become visible as <img src="img/tl.png" style="width:10px; height:10px;"> (block-listed trackers) or <img src="img/td.png" style="width:10px; height:10px;"> (auto-detected trackers)</li>
+					<li>Mouse pointer turns into <img src="img/tlc.png" style="width:12px; height:16px;"> over tracked links. </li>
 				</ul>
 			</div>
 		</div>
@@ -66,8 +65,8 @@
 				<label for="showTrackerCount">Enable <span id="anyPageWarning"></span></label>  <br />
 				This feature requires the following permissions to be granted:<br/>
 				<ul>
-						<li><input type="checkbox" disabled="disabled" name="all_urls_Permission" id="allUrlsPermission">
-							<label for="all_urls_Permission">Allow Trocker to run on all websites (i.e. <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>)</label> </li>
+						<li><input type="checkbox" name="all_urls_Permission" id="allUrlsPermission">
+							<label for="all_urls_Permission"><b>(Mandatory)</b> Allow Trocker to run on all websites (i.e. <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>)</label> </li>
 						<li><input type="checkbox" name="tabs_Permission" id="tabsPermission">
 							<label for="tabs_Permission">Allow Trocker to get the url for a tab (i.e. <a href="https://developer.chrome.com/extensions/tabs" target="_blank">"tabs" permission</a>)</label> </li>
 				</ul>
@@ -111,7 +110,8 @@
 					<button id="customClickTrackersRestore">Restore default</button>
 					<button id="customClickTrackersSave">Save</button>
 					<span id="customClickTrackersStatus"></span>
-					<p>Changes will be reflect immediately on exposing of trackers, but actual blocking will only reflect changes after Chrome or Trocker has restarted. You can disable and re-enable Trocker to force Trocker to restart. You will also need to refresh your email tab for the restarted Trocker to be able to interact with that tab.</p>
+					<!-- <p>Changes will be reflect immediately on exposing of trackers, but actual blocking will only reflect changes after Chrome or Trocker has restarted. You can disable and re-enable Trocker to force Trocker to restart. You will also need to refresh your email tab for the restarted Trocker to be able to interact with that tab.</p> -->
+					<p>If anything breaks, simply disable "Customize lists" or keep the enabled but press "Restore default" and "Save" on both text boxes.</p>
 				</div>
 			</div>
 		</div>
@@ -150,8 +150,8 @@
 		<div class="option_value">
 			<div class="option_value_primary">
 				<ul>
-					<li><span class="stat_name">Email Open Trackers: </span><span class="stat_value" id="blockedOpenTrackers"></span> Blocked. <span class="stat_value" id="allowedOpenTrackers"></span> Allowed.</li>
-					<li><span class="stat_name">Link Click Trackers: </span><span class="stat_value" id="bypassedClickTrackers"></span> Bypassed. <span class="stat_value" id="allowedClickTrackers"></span> Allowed.</li>
+					<li><span class="stat_name">Email Open Trackers: </span><span class="stat_value" id="blockedOpenTrackers"></span> blocked. <span class="stat_value" id="allowedOpenTrackers"></span> exposed but allowed.</li>
+					<li><span class="stat_name">Link Click Trackers: </span><span class="stat_value" id="exposedClickTrackers"></span> exposed in email. <span class="stat_value" id="bypassedClickTrackers"></span> redirected clicks. <span class="stat_value" id="allowedClickTrackers"></span> allowed clicks.</li>
 				</ul>
 				<span class="stat_name" id="spreadtheword"></span>
 			</div>
@@ -210,7 +210,7 @@
   </div>  
 </div>
 </body>
-<script src="lists.js"></script>
-<script src="tools.js"></script>
-<script src="options.js"></script>
+<script src="lists.js" type="module"></script>
+<script src="tools.js" type="module"></script>
+<script src="options.js" type="module"></script>
 </html>

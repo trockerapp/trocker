@@ -1,16 +1,16 @@
 {
-   "extension_description": {
-      "message": "This extension is an email Tracker Blocker, hence the name: Trocker!"
-   },
-   "extension_name": {
-      "message": "Trocker"
-   },
-   "gmailcheck_exception": {
-      "message": "exception: $1",
-      "placeholders": {
-         "1": {
-            "content": "$1"
-         }
-      }
-   }
+	"extension_description": {
+		"message": "This extension is an email Tracker Blocker, hence the name: Trocker!"
+	},
+	"extension_name": {
+		"message": "Trocker"
+	},
+	"gmailcheck_exception": {
+		"message": "exception: $1",
+		"placeholders": {
+			"1": {
+				"content": "$1"
+			}
+		}
+	}
 }

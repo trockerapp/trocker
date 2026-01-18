@@ -1,63 +1,85 @@
 {
-   "background": {
-      "page": "background.html",
-      "persistent": true
-   },
-   "browser_action": {
-      "default_icon": "icon_128.png"
-   },
-   "content_scripts": [
-      {
-         "all_frames": false,
-         "js": [
-            "trocker.js"
-         ],
-         "matches": [
-            "*://mail.google.com/*",
-            "*://inbox.google.com/*",
-            "*://*.mail.live.com/*",
-            "*://*.outlook.live.com/*",
-            "*://*.outlook.office365.com/*",
-            "*://*.outlook.office.com/*",
-            "*://*.mail.yahoo.com/*"
-         ],
-         "match_about_blank" : true,
-         "run_at": "document_end"
-      }
-   ],
-   "default_locale": "en",
-   "description": "__MSG_extension_description__",
-   "homepage_url": "https://trockerapp.github.io",
-   "icons": {
-      "128": "icon_128.png",
-      "16": "icon_16.png",
-      "48": "icon_48.png"
-   },
-   "manifest_version": 2,
-   "name": "__MSG_extension_name__",
-   "options_ui": {
-      "chrome_style": false,
-      "open_in_tab": true,
-      "page": "options.html"
-   },
-   "permissions": [
-      "webRequest",
-      "webRequestBlocking",
-      "<all_urls>",
-      "*://*.google.com/*",
-      "*://*.live.com/*",
-      "*://*.googleusercontent.com/*"
-   ],
-   "optional_permissions": [
-      "tabs"
-   ],
-   "short_name": "__MSG_extension_name__",
-   "version": "2.6.28",
-   "web_accessible_resources": [
-      "tl.png",
-      "td.png",
-      "tlc.png",
-      "tracked.png",
-      "bypasser.html"
-   ]
+	"background": {
+		"service_worker": "service-worker.js",
+		"type": "module"
+	},
+	"action": {
+		"default_icon": {
+			"16": "img/icon_16.png",
+			"48": "img/icon_48.png",
+			"128": "img/icon_128.png"
+		}
+	},
+	"incognito": "split",
+	"content_scripts": [
+		{
+			"all_frames": false,
+			"js": ["trocker.js"],
+			"matches": [
+				"*://mail.google.com/*",
+				"*://inbox.google.com/*",
+				"*://*.mail.live.com/*",
+				"*://*.outlook.live.com/*",
+				"*://*.outlook.office365.com/*",
+				"*://*.outlook.office.com/*",
+				"*://*.mail.yahoo.com/*"
+			],
+			"match_about_blank": true,
+			"run_at": "document_end"
+		}
+	],
+	"default_locale": "en",
+	"description": "__MSG_extension_description__",
+	"homepage_url": "https://trockerapp.github.io",
+	"icons": {
+		"128": "img/icon_128.png",
+		"16": "img/icon_16.png",
+		"48": "img/icon_48.png"
+	},
+	"manifest_version": 3,
+	"name": "__MSG_extension_name__",
+	"options_ui": {
+		"open_in_tab": true,
+		"page": "options.html"
+	},
+	"permissions": [
+		"declarativeNetRequest",
+		"declarativeNetRequestFeedback",
+		"declarativeNetRequestWithHostAccess",
+		"storage",
+		"offscreen"
+	],
+	"optional_permissions": ["tabs"],
+	"host_permissions": ["<all_urls>", "*://*.google.com/*", "*://*.live.com/*", "*://*.googleusercontent.com/*"],
+	"short_name": "__MSG_extension_name__",
+	"version": "3.3.0",
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"img/tl.png",
+				"img/td.png",
+				"img/tr.png",
+				"img/tlc.png",
+				"img/tracked.png",
+				"img/trackedr.png",
+				"bypasser.html",
+				"updated.html"
+			],
+			"matches": ["*://*/*"]
+		}
+	],
+	"declarative_net_request": {
+		"rule_resources": [
+			{
+				"id": "DNR_proxy_rules",
+				"enabled": true,
+				"path": "data/DNR_proxy_rules.json"
+			},
+			{
+				"id": "DNR_bypass_redirects",
+				"enabled": true,
+				"path": "data/DNR_bypass_redirects.json"
+			}
+		]
+	}
 }
