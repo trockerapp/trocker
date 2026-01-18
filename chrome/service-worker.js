@@ -2,6 +2,7 @@ import { getOpenTrackerList, getClickTrackerList } from './lists.js';
 import {
 	parseVersionString,
 	loadVariable,
+	saveVariable,
 	updateBrowserActionButton,
 	updateDeclarativeNetRequestRules,
 	statPlusN,
@@ -27,10 +28,8 @@ try {
 // 	console.log(changeInfo);
 // }
 
-async function switchTrockerState() {
-	if ((await loadVariable('trockerEnable')) == true) await saveVariable('trockerEnable', false);
-	else await saveVariable('trockerEnable', true);
-
+async function setTrockerState(enable) {
+	await saveVariable('trockerEnable', enable);
 	updateBrowserActionButton();
 	updateDeclarativeNetRequestRules();
 }
@@ -65,7 +64,31 @@ async function onInstallHandler(details) {
 
 	await updateBrowserActionButton();
 	await updateDeclarativeNetRequestRules();
+
+	checkPermissions();
 }
+
+chrome.runtime.onStartup.addListener(checkPermissions);
+
+function checkPermissions() {
+	chrome.permissions.contains(
+		{
+			origins: ['<all_urls>'],
+		},
+		async (result) => {
+			if (!result) {
+				await setTrockerState(false);
+				openOptionsPage();
+			}
+		}
+	);
+}
+
+chrome.permissions.onRemoved.addListener(async (permissions) => {
+	if (permissions.origins && permissions.origins.includes('<all_urls>')) {
+		await setTrockerState(false);
+	}
+});
 
 chrome.runtime.onMessage.addListener(handleContentScriptMessages);
 

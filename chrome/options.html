@@ -24,12 +24,11 @@
 				</div>
 				<p><em>Clarification about permissions:</em> the following key features are why Trocker needs the <a href="https://developers.chrome.com/extensions/match_patterns">&ltall_urls&gt permission</a> to function:</p>
 				<ul>
+					<li>Reliably running inside webmails (in Firefox) so that it can whitelist safe images and allow them to load</li>
 					<li>Blocking email trackers in any webmail that does not proxy images on its own server (e.g. outlook.com)</li>
 					<li>Bypassing tracked links (links that track when you click on them)</li>
 				</ul>
-				<!-- <input type="checkbox" disabled="disabled" name="all_urls_Permission1" id="allUrlsPermission1">
-				<label for="all_urls_Permission1">Allow Trocker to run on all websites (i.e. <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">"&ltall_urls&gt" permission</a>)</label> </li> -->
-				<p>Without the <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>, Trocker will only be able to block tracking images (but not links) and only in some webmails (e.g. Gmail) because the browser will not let Trocker know about all tracking images/links and thus Trocker will not be able to block them. This is a powerful permission which is why browsers rightfully warn you that the extension can "Read and change all your data on the websites you visit".</p>
+				<p>Without the <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>, Trocker cannot reliably check images within webmails (especially in Firefox) to make sure safe images are whiteliested and can load. This may lead to all images being blocked (if Trocker's script does not run inside the webmail). Since we don't want to break your email experience, out of an abundance of caution, Trocker disables itself unless this permission is granted. Enabling Trocker will prompt you to grant this permission.</p>
       </div>
 	</div>
 	<div class="centeredsec">
@@ -67,7 +66,7 @@
 				This feature requires the following permissions to be granted:<br/>
 				<ul>
 						<li><input type="checkbox" name="all_urls_Permission" id="allUrlsPermission">
-							<label for="all_urls_Permission">Allow Trocker to run on all websites (i.e. <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>)</label> </li>
+							<label for="all_urls_Permission"><b>(Mandatory)</b> Allow Trocker to run on all websites (i.e. <a href="https://developers.chrome.com/extensions/match_patterns" target="_blank">&ltall_urls&gt permission</a>)</label> </li>
 						<li><input type="checkbox" name="tabs_Permission" id="tabsPermission">
 							<label for="tabs_Permission">Allow Trocker to get the url for a tab (i.e. <a href="https://developer.chrome.com/extensions/tabs" target="_blank">"tabs" permission</a>)</label> </li>
 				</ul>

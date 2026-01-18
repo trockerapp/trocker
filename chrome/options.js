@@ -122,7 +122,23 @@ function updateStatus(innerText, className = '', timeOutMs = 1000, statusElemId 
 async function restoreOptions() {
 	updatingSettings = true;
 	document.getElementById('trockerEnableOpt').checked = await loadVariable('trockerEnable');
-	document.getElementById('trockerEnableOpt').onchange = saveOptions;
+
+	// Check if we need to force disable due to missing permissions
+	chrome.permissions.contains(
+		{
+			permissions: [],
+			origins: ['<all_urls>'],
+		},
+		async (result) => {
+			if (!result && document.getElementById('trockerEnableOpt').checked) {
+				document.getElementById('trockerEnableOpt').checked = false;
+				await saveOptions();
+				updateStatus('Trocker disabled due to missing permissions.', 'warningMsg');
+			}
+		}
+	);
+
+	document.getElementById('trockerEnableOpt').onchange = handleEnableToggle;
 
 	document.getElementById('showTrackerCountOpt').checked = await loadVariable('showTrackerCount');
 	document.getElementById('showTrackerCountOpt').onchange = saveOptions;
@@ -252,6 +268,34 @@ async function restoreOptions() {
 	updatingSettings = false;
 }
 
+async function handleEnableToggle(event) {
+	if (document.getElementById('trockerEnableOpt').checked) {
+		// User is trying to enable
+		// We request permission directly to preserve user gesture.
+		// If already granted, it returns true without prompting.
+		chrome.permissions.request(
+			{
+				permissions: [],
+				origins: ['<all_urls>'],
+			},
+			async (granted) => {
+				if (granted) {
+					updateStatus('Permission granted. Trocker enabled.', 'successMsg');
+					saveOptions();
+					restoreOptionalPermissions();
+				} else {
+					document.getElementById('trockerEnableOpt').checked = false;
+					await saveOptions();
+					updateStatus('Permission required to enable Trocker!', 'warningMsg', 5000);
+				}
+			}
+		);
+	} else {
+		// User is disabling, just save
+		saveOptions();
+	}
+}
+
 function restoreOptionalPermissions() {
 	// Optional permissions check
 	chrome.permissions.contains(
@@ -316,12 +360,11 @@ function updatePermissionWarnings() {
 		}
 	}
 	if (document.getElementById('allUrlsPermission').checked) {
-		// document.getElementById("enablePermissionWarning").innerText = '(Permissions required for all features are granted)'
 		document.getElementById('enablePermissionWarning').innerText = '';
 		document.getElementById('enablePermissionWarning').className = '';
 	} else {
 		document.getElementById('enablePermissionWarning').innerText =
-			'(Some features will not work because the required permission is missing)';
+			'(You will be prompted to enable the required <all_urls> permission upon enabling Trocker.)';
 		document.getElementById('enablePermissionWarning').className = 'warningMsg';
 	}
 }
@@ -370,10 +413,15 @@ function changeOptionalPermission(event) {
 				permissions: permissions,
 				origins: origins,
 			},
-			(removed) => {
+			async (removed) => {
 				if (removed) {
 					// The permissions have been removed.
 					updateStatus('Permission for ' + permissionName + ' was removed.');
+					if (permissionName === '<all_urls>') {
+						document.getElementById('trockerEnableOpt').checked = false;
+						await saveOptions();
+						updateStatus('Trocker disabled because permission was revoked.', 'warningMsg');
+					}
 				} else {
 					// The permissions have not been removed (e.g., you tried to remove
 					// required permissions).
