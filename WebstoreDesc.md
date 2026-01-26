@@ -25,6 +25,7 @@ No one will be able to know when and if you open their emails, or click on their
 Change log:
 3.1.1:
 - Added support for Yahoo's new image proxy format and DOM design.
+- Fixed a bug that caused image flickering in compose windows in Yahoo mail on Firefox.
 - Adds more known trackers to universal block list.
 
 3.3.0:

@@ -885,6 +885,9 @@ function removeJudgmentsFromSrc(src) {
 	src = src.split(suspMark).join(trIgnoreMarkRem); // replace all
 	src = src.split(trIgnoreMark).join(trIgnoreMarkRem); // replace all
 	src = src.split(trIgnoreMarkRem + '&').join(''); // replace all
+	if (env === 'ymail') {
+		src = src.split(trIgnoreMarkRem).join('');
+	}
 	return src;
 }
 
