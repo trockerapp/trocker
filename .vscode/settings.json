@@ -3,7 +3,7 @@
 	"editor.formatOnSave": true,
 	"editor.defaultFormatter": "prettier.prettier-vscode",
 	"[html]": {
-		"editor.defaultFormatter": "prettier.prettier-vscode"
+		"editor.defaultFormatter": "vscode.html-language-features"
 	},
 	"[json]": {
 		"editor.defaultFormatter": "prettier.prettier-vscode"

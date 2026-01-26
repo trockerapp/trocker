@@ -196,6 +196,6 @@ let webmails = [
 		name: 'ymail',
 		matchUrls: ['mail.yahoo.com'],
 		whiteList: [],
-		whiteListExcept: ['.yusercontent.com/mail'], // Yahoo's image proxy
+		whiteListExcept: ['.yusercontent.com/mail', '.ecp.yusercontent.com/mail'], // Yahoo's image proxy
 	},
 ];

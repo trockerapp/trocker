@@ -396,24 +396,40 @@ class EmailOutlookDraft extends Email {
 
 class EmailYMail extends Email {
 	static getOpenEmails() {
-		let emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0,.V_GM.H_6D6F')).map(
+		let emails = Array.from(document.querySelectorAll('[data-test-id="message-view"][data-test-expanded="true"]')).map(
 			(a) => new EmailYMail(a)
-		); // Opened emails in outlook
+		); // Opened emails in Yahoo
+		if (emails.length === 0) {
+			// Fallback to old selectors if no new ones found (e.g. classic mail)
+			emails = Array.from(document.querySelectorAll('.m_Z12nDQf.D_F.ek_BB.ir_0,.V_GM.H_6D6F')).map(
+				(a) => new EmailYMail(a)
+			);
+		}
 		emails = emails.filter((e) => e.getBody().length !== 0); // Remove unopened emails
 		return emails;
 	}
 	static getDraftEmails() {
-		const drafts = Array.from(document.querySelectorAll('.P_ZzJed')).map((a) => new EmailYMailDraft(a)); // Compose windows (reply, forward, new message)
+		const drafts = Array.from(document.querySelectorAll('[data-test-id="editorWrapper"]')).map(
+			(a) => new EmailYMailDraft(a)
+		); // Compose windows (reply, forward, new message)
 		const print_previews = Array.from(document.querySelectorAll('.ir_n')).map((a) => new EmailYMailDraft(a)); // Print preview
 		return drafts.concat(print_previews);
 	}
 	getBody() {
-		return Array.from(this.mainDOMElem.querySelectorAll('.msg-body,.d_6VdP')); // .d_6VdP => for compose views, .msg-body => for open emails and print view
+		let body = Array.from(this.mainDOMElem.querySelectorAll('[data-test-id="message-view-body-content"],[data-test-id="rte"]'));
+		if (body.length === 0) {
+			body = Array.from(this.mainDOMElem.querySelectorAll('.msg-body,.d_6VdP')); // .d_6VdP => for compose views, .msg-body => for open emails and print view
+		}
+		return body;
 	}
 	getTrockerSignDOMElem(showSign) {
 		// Revise to create if needed and return the trocker sign
 		var trackedSign = null;
-		trackedSign = this.mainDOMElem.querySelector('.D_F.en_0 img.' + trackedSignClass);
+		trackedSign = this.mainDOMElem.querySelector('.D_F.en_0 img.' + trackedSignClass); // Old selector
+		if (trackedSign === null || trackedSign.length < 1) {
+			// Look for sign in new DOM location
+			trackedSign = this.mainDOMElem.querySelector('[data-test-id="message-header"] img.' + trackedSignClass);
+		}
 		if (trackedSign === null || trackedSign.length < 1) {
 			// Could be classic Yahoo mail
 			trackedSign = this.mainDOMElem.querySelector('.N_dRA.D_X.q_52qC.mq_AQ img.' + trackedSignClass);
@@ -421,12 +437,17 @@ class EmailYMail extends Email {
 		if ((trackedSign === null || trackedSign.length < 1) && showSign) {
 			trackedSign = createTrackedSign();
 			//trackedSign.style.cursor = 'pointer';
-			let parentElem = this.mainDOMElem.querySelector('.o_h.D_F.em_0.E_fq7.ek_BB .D_F.en_0');
+			let parentElem = this.mainDOMElem.querySelector('[data-test-id="message-header"]');
+			if (!parentElem) {
+				parentElem = this.mainDOMElem.querySelector('.o_h.D_F.em_0.E_fq7.ek_BB .D_F.en_0');
+			}
 			if (!parentElem) {
 				// Classic Yahoo mail
 				parentElem = this.mainDOMElem.querySelector('.N_dRA.D_X.q_52qC.mq_AQ');
 			}
-			parentElem.appendChild(trackedSign);
+			if (parentElem) {
+				parentElem.appendChild(trackedSign);
+			}
 		}
 		return trackedSign;
 	}
@@ -711,7 +732,7 @@ function getProxyURLs() {
 		return ['googleusercontent.com/proxy', 'googleusercontent.com/meips'];
 	if (env === 'outlook') return ['mail.live.com/Handlers'];
 	if (env === 'outlook2') return []; // Does not proxify
-	if (env === 'ymail') return ['yusercontent.com/mail'];
+	if (env === 'ymail') return ['yusercontent.com/mail', 'ecp.yusercontent.com/mail'];
 	return '';
 }
 

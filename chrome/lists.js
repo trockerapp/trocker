@@ -306,6 +306,12 @@ export async function getClickTrackerList(forceDefault = false) {
 			regex: '(.*ping\.answerbook\.com.*)',
 		},
 		{
+			name: 'CC',
+			domains: ['r20.rs6.net/tn.jsp'],
+			patterns: [],
+			regex: '(.*r20\.rs6\.net\/tn\.jsp.*)',
+		},
+		{
 			name: 'IB',
 			domains: ['mkt4477.com/ctt'],
 			patterns: ['*://*.mkt4477.com/ctt*'],
