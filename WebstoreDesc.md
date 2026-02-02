@@ -11,7 +11,7 @@ You can trust Trocker! Trocker runs locally on your machine and does not send or
 
 Trocker is also open source with the source code available at https://github.com/trockerapp/trocker and we encourage everyone to check it out from there or from Chrome Dev tools to confirm that there are no suspicious activities being done.
 
-Trocker keeps you safe in all webmails, including Gmail™, Yahoo! and Outlook.com. It has additional capabilities in Gmail, Inbox and Outlook.com. In these 3 webmails, it has a heuristic tracker detection that detects and blocks almost any email tracking attempt, even from not well-known trackers!
+Trocker keeps you safe in all webmails by blocking known trackers in the background. It has additional capabilities in supported webmails (currently Gmail™, Yahoo! and Outlook.com). In these webmails, it exposes the trackers visually and has a heuristic tracker detection that detects and blocks almost any email tracking attempt, even from not well-known trackers!
 
 Trocker is very efficient as it only gets activated when a tracker is detected.
 
@@ -20,9 +20,13 @@ Some email trackers track emails by injecting an invisible small image in the ma
 Trocker (as a lovely Tracker Blocker) stops this by simply blocking those image links from being loaded. It finds those injected images by looking at the url and matching the url pattern with the tracking servers that host injected images.
 If you yourself are a user of these tracking services (you track emails you send others), your service wouldn't be affected and will work fine. Trocker would only defend you from OTHERS tracking you.
 Moreover, some links are click tracked meaning that if you click on them, your clicks are logged and tracked. Trocker tries to bypass those links and redirect you directly to the original target without you being tracked. If not possible, Trocker will inform you that the link you've clicked on is tracked.
-No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. In Gmail, Inbox and Outlook.com, Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if it is unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
+No one will be able to know when and if you open their emails, or click on their links if you enable Trocker. In supported webmails (Gmail, Yahoo and Outlook.com), Trocker has a heuristic tracker detection that will detect and block almost any tracker, even if it is unknown. This works based on the fact that very tiny images are almost always trackers. After all, if they want you to see the image, they will make it bigger than 1x1 pixel!
 
 Change log:
+3.4.0:
+- Removed the vestigial 'tabs' permission from Manifest V2.
+- Refined the options page to only prompt for permissions when necessary.
+
 3.1.1:
 - Added support for Yahoo's new image proxy format and DOM design.
 - Fixed a bug that caused image flickering in compose windows in Yahoo mail on Firefox.

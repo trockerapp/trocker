@@ -421,10 +421,6 @@ export async function loadVariable(varName) {
 		varValue = true;
 		cacheObject(varName, varValue);
 	}
-	if (varName == 'anyPage' && varValue === undefined) {
-		varValue = false;
-		cacheObject(varName, varValue);
-	}
 	if (varName == 'exposeLinks' && varValue === undefined) {
 		varValue = true;
 		cacheObject(varName, varValue);

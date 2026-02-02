@@ -14,7 +14,6 @@ async function saveOptions() {
 	updatingSettings = true;
 	await saveVariable('trockerEnable', document.getElementById('trockerEnableOpt').checked);
 	await saveVariable('showTrackerCount', document.getElementById('showTrackerCountOpt').checked);
-	await saveVariable('anyPage', document.getElementById('anyPageOpt').checked);
 	await saveVariable('exposeLinks', document.getElementById('exposeLinksOpt').checked);
 	let timeoutVal = parseInt(document.getElementById('bypassTimeoutOpt').value);
 	if (timeoutVal < 1) {
@@ -143,9 +142,6 @@ async function restoreOptions() {
 	document.getElementById('showTrackerCountOpt').checked = await loadVariable('showTrackerCount');
 	document.getElementById('showTrackerCountOpt').onchange = saveOptions;
 
-	document.getElementById('anyPageOpt').checked = await loadVariable('anyPage');
-	document.getElementById('anyPageOpt').onchange = saveOptions;
-
 	document.getElementById('exposeLinksOpt').checked = await loadVariable('exposeLinks');
 	document.getElementById('exposeLinksOpt').onchange = saveOptions;
 
@@ -176,7 +172,6 @@ async function restoreOptions() {
 	// Handle requests to change optional permissions
 	// document.getElementById("allUrlsPermission1").onchange = changeOptionalPermission;
 	document.getElementById('allUrlsPermission').onchange = changeOptionalPermission;
-	document.getElementById('tabsPermission').onchange = changeOptionalPermission;
 
 	// Showing some stats
 	// Open Tracker Stats
@@ -318,24 +313,7 @@ function restoreOptionalPermissions() {
 			// updatePermissionWarnings();
 		}
 	);
-	chrome.permissions.contains(
-		{
-			permissions: ['tabs'],
-			origins: [],
-		},
-		(result) => {
-			let hasPermission;
-			if (result) {
-				// The extension has the permissions.
-				hasPermission = true;
-			} else {
-				// The extension doesn't have the permissions.
-				hasPermission = false;
-			}
-			document.getElementById('tabsPermission').checked = hasPermission;
-			updatePermissionWarnings();
-		}
-	);
+
 	chrome.permissions.getAll((permissions) => {
 		// Alternative check for <all_urls>
 		let hasAllUrlsPermission = permissions.origins.filter((s) => s == '<all_urls>').length;
@@ -346,19 +324,14 @@ function restoreOptionalPermissions() {
 }
 
 function updatePermissionWarnings() {
-	if (document.getElementById('allUrlsPermission').checked && document.getElementById('tabsPermission').checked) {
-		document.getElementById('anyPageWarning').innerText = '(All required permission are granted)';
-		document.getElementById('anyPageWarning').className = '';
-	} else {
-		if (document.getElementById('anyPageOpt').checked) {
-			document.getElementById('anyPageWarning').innerText =
-				'(Some required permission are missing (grant from below)!)';
-			document.getElementById('anyPageWarning').className = 'warningMsg';
-		} else {
-			document.getElementById('anyPageWarning').innerText = '';
-			document.getElementById('anyPageWarning').className = '';
+	if (document.getElementById('allUrlsPermission').checked) {
+		if (!document.getElementById('advancedOpt').checked) {
+			document.getElementById('permissionSection').classList.add('hidden');
 		}
+	} else {
+		document.getElementById('permissionSection').classList.remove('hidden');
 	}
+
 	if (document.getElementById('allUrlsPermission').checked) {
 		document.getElementById('enablePermissionWarning').innerText = '';
 		document.getElementById('enablePermissionWarning').className = '';
@@ -379,10 +352,6 @@ function changeOptionalPermission(event) {
 		permissions = [];
 		origins = ['<all_urls>'];
 		permissionName = '<all_urls>';
-	} else if (event.target.id === 'tabsPermission') {
-		permissions = ['tabs'];
-		origins = [];
-		permissionName = 'tabs';
 	} else {
 		// This should not happen
 		return;
