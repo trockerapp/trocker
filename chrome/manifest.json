@@ -22,6 +22,7 @@
 				"*://*.outlook.live.com/*",
 				"*://*.outlook.office365.com/*",
 				"*://*.outlook.office.com/*",
+				"*://*.outlook.cloud.microsoft/*",
 				"*://*.mail.yahoo.com/*"
 			],
 			"match_about_blank": true,

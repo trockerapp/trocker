@@ -629,6 +629,7 @@ function getEnv(host = null) {
 	if (host.indexOf('outlook.live.com') > -1) return 'outlook2';
 	if (host.indexOf('outlook.office365.com') > -1) return 'outlook2';
 	if (host.indexOf('outlook.office.com') > -1) return 'outlook2';
+	if (host.indexOf('outlook.cloud.microsoft') > -1) return 'outlook2';
 	if (host.indexOf('mail.yahoo.com') > -1) return 'ymail';
 	return '';
 }
