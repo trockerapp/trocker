@@ -1,4 +1,4 @@
-import { getOpenTrackerList, getClickTrackerList } from './lists.js';
+import { getOpenTrackerList, getClickTrackerList, getClickHeuristicsConfig } from './lists.js';
 import { WEBMAILS } from './tracker-data.js';
 import {
 	parseVersionString,
@@ -144,6 +144,7 @@ async function handleContentScriptMessages(message, sender) {
 		sendMessageToContentScript(tabId, 'getTrackerLists-result', {
 			openTrackers: await getOpenTrackerList(),
 			clickTrackers: await getClickTrackerList(),
+			clickHeuristicsConfig: await getClickHeuristicsConfig(),
 			webmails: WEBMAILS,
 		});
 	}

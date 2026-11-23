@@ -1,5 +1,7 @@
 import { getOpenTrackerList, getClickTrackerList } from '../lists.js';
+import { CLICK_HEURISTICS_CONFIG } from '../tracker-data.js';
 import { getOpenTrackerSamples, getClickTrackerSamples } from './samples.js';
+import { UNWRAP_CASES, LINK_EVAL_CASES, EMAIL_BATCH_CASES } from './click-heuristics-cases.js';
 
 // import { isTiny, isSusp } from "../trocker.js";
 // import "../trocker.js";
@@ -32,6 +34,64 @@ async function runTests() {
 	resBox.innerHTML = '';
 	var images = document.querySelectorAll('.normalImages img, .normalImages div[style*="background-image"]');
 	runTinyImageTests(images, resBox, false);
+
+	// Test set 4: click-tracker heuristics & URL unwrapping
+	var heuristicsBox = document.getElementsByClassName('clickHeuristicsRes')[0];
+	if (heuristicsBox) {
+		heuristicsBox.innerHTML = '';
+		runClickHeuristicTests(heuristicsBox);
+	}
+}
+
+function runClickHeuristicTests(resBox) {
+	if (typeof TrockerClickHeuristics === 'undefined') {
+		resBox.textContent = 'TrockerClickHeuristics is not loaded!';
+		return;
+	}
+	TrockerClickHeuristics.setConfig(CLICK_HEURISTICS_CONFIG);
+
+	let total = 0;
+	let fails = 0;
+	function report(ok, label, detail) {
+		total++;
+		if (!ok) fails++;
+		const span = document.createElement('span');
+		span.style.background = ok ? 'limegreen' : '#e55353';
+		span.textContent = `${total}) [${ok ? 'PASS' : 'FAIL'}] ${label}${detail ? ' — ' + detail : ''}`;
+		resBox.appendChild(span);
+		resBox.appendChild(document.createElement('br'));
+	}
+
+	for (const tc of UNWRAP_CASES) {
+		const got = TrockerClickHeuristics.unwrapUrl(tc.input);
+		report(got === tc.expected, `Unwrap: ${tc.label}`, got === tc.expected ? '' : `got "${got}"`);
+	}
+	for (const tc of LINK_EVAL_CASES) {
+		const hosts = new Set(tc.openTrackerHosts || []);
+		const res = TrockerClickHeuristics.evaluateLink({ href: tc.href, textContent: tc.text }, hosts);
+		const got = res ? res.reason : null;
+		report(
+			got === tc.expectedReason,
+			`Link: ${tc.label}`,
+			got === tc.expectedReason ? '' : `expected "${tc.expectedReason}", got "${got}"`
+		);
+	}
+	for (const tc of EMAIL_BATCH_CASES) {
+		const res = TrockerClickHeuristics.analyzeEmailLinks(tc.links);
+		const ok =
+			res.findings.length === tc.expectedFindingsCount &&
+			res.links.length === tc.expectedLinksCount &&
+			(!tc.expectedReason || res.findings.every((f) => f.reason === tc.expectedReason));
+		report(
+			ok,
+			`Email batch: ${tc.label}`,
+			ok ? '' : `findings=${res.findings.length}, links=${res.links.length}`
+		);
+	}
+
+	const summary = document.createElement('div');
+	summary.textContent = `${fails} (of ${total}) click-heuristic tests failed!`;
+	resBox.appendChild(summary);
 }
 
 function runTinyImageTests(images, resBox, correctAns) {

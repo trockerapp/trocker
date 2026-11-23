@@ -14,7 +14,7 @@
 	"content_scripts": [
 		{
 			"all_frames": false,
-			"js": ["trocker.js"],
+			"js": ["click-heuristics.js", "trocker.js"],
 			"matches": [
 				"*://mail.google.com/*",
 				"*://inbox.google.com/*",
@@ -61,6 +61,7 @@
 				"img/td.png",
 				"img/tr.png",
 				"img/tlc.png",
+				"img/tdc.png",
 				"img/tracked.png",
 				"img/trackedr.png",
 				"bypasser.html",

@@ -24,6 +24,8 @@ No one will be able to know when and if you open their emails, or click on their
 
 Change log:
 3.5.0:
+- Added heuristic click-tracker detection and gateway URL unwrapping (Outlook SafeLinks, Google redirects, Proofpoint) with a distinct cursor indicator for auto-detected tracked links.
+- Added 4 more tracking services to the default open/click tracker lists.
 - Added support for the new Outlook webmail design (Fluent UI).
 - Fixed a bug that prevented the Trocker indicator badge tooltip and click action from working in Outlook.
 - Refactored static tracker lists and webmail configurations into a dedicated module.

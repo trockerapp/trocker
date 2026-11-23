@@ -104,8 +104,8 @@ export const DEFAULT_OPEN_TRACKERS = [
 	},
 	{
 		name: 'CC',
-		domains: ['constantcontact.com/images', 'r20.rs6.net/on.jsp'],
-		patterns: ['*://*.constantcontact.com/images/p1x1.gif*'],
+		domains: ['constantcontact.com/images', 'rs6.net/on.jsp'],
+		patterns: ['*://*.constantcontact.com/images/p1x1.gif*', '*://*.rs6.net/on.jsp*'],
 	},
 	{
 		name: 'GA',
@@ -141,6 +141,35 @@ export const DEFAULT_OPEN_TRACKERS = [
 		name: 'CM',
 		domains: ['pixel.watch'],
 		patterns: ['*://*.pixel.watch/*'],
+	},
+	{
+		name: 'SS',
+		domains: ['eotrx.substackcdn.com/o/', 'substack.com/o/'],
+		patterns: ['*://eotrx.substackcdn.com/o/*', '*://*.substack.com/o/*'],
+	},
+	{
+		name: 'BR',
+		domains: [
+			'sendibm1.com/mk/op/',
+			'sendibm2.com/mk/op/',
+			'sendibm3.com/mk/op/',
+			'sendibm1.com/tr/op/',
+			'sendibm2.com/tr/op/',
+			'sendibm3.com/tr/op/',
+		],
+		patterns: [
+			'*://*.sendibm1.com/mk/op/*',
+			'*://*.sendibm2.com/mk/op/*',
+			'*://*.sendibm3.com/mk/op/*',
+			'*://*.sendibm1.com/tr/op/*',
+			'*://*.sendibm2.com/tr/op/*',
+			'*://*.sendibm3.com/tr/op/*',
+		],
+	},
+	{
+		name: 'BH',
+		domains: ['beehiiv.com/ss/o/'],
+		patterns: ['*://*.beehiiv.com/ss/o/*'],
 	},
 ];
 
@@ -273,9 +302,9 @@ export const DEFAULT_CLICK_TRACKERS = [
 	},
 	{
 		name: 'CC',
-		domains: ['r20.rs6.net/tn.jsp'],
-		patterns: [],
-		regex: '(.*r20\.rs6\.net\/tn\.jsp.*)',
+		domains: ['rs6.net/tn.jsp'],
+		patterns: ['*://*.rs6.net/tn.jsp*'],
+		regex: '(.*rs6\\.net\\/tn\\.jsp.*)',
 	},
 	{
 		name: 'IB',
@@ -313,6 +342,38 @@ export const DEFAULT_CLICK_TRACKERS = [
 		domains: ['klclick1.com'],
 		patterns: ['*://trk.klclick1.com/*'],
 		regex: '(.*trk\.klclick1\.com.*)',
+	},
+	{
+		name: 'SS',
+		domains: ['substack.com/redirect/'],
+		patterns: ['*://substack.com/redirect/*', '*://*.substack.com/redirect/*'],
+		regex: '(.*substack\\.com\\/redirect\\/.*)',
+	},
+	{
+		name: 'BR',
+		domains: [
+			'sendibm1.com/mk/cl/',
+			'sendibm2.com/mk/cl/',
+			'sendibm3.com/mk/cl/',
+			'sendibm1.com/tr/cl/',
+			'sendibm2.com/tr/cl/',
+			'sendibm3.com/tr/cl/',
+		],
+		patterns: [
+			'*://*.sendibm1.com/mk/cl/*',
+			'*://*.sendibm2.com/mk/cl/*',
+			'*://*.sendibm3.com/mk/cl/*',
+			'*://*.sendibm1.com/tr/cl/*',
+			'*://*.sendibm2.com/tr/cl/*',
+			'*://*.sendibm3.com/tr/cl/*',
+		],
+		regex: '(.*sendibm[1-3]\\.com\\/(?:mk|tr)\\/cl\\/.*)',
+	},
+	{
+		name: 'BH',
+		domains: ['beehiiv.com/ss/c/'],
+		patterns: ['*://*.beehiiv.com/ss/c/*'],
+		regex: '(.*beehiiv\\.com\\/ss\\/c\\/.*)',
 	},
 ];
 
@@ -359,3 +420,195 @@ export const WEBMAILS = [
 		whiteListExcept: ['.yusercontent.com/mail', '.ecp.yusercontent.com/mail'], // Yahoo's image proxy
 	},
 ];
+
+// Declarative configuration for heuristic click-tracker detection (JSON-serializable for sendMessage).
+export const CLICK_HEURISTICS_CONFIG = {
+	// Security gateway / webmail redirect wrappers to unwrap before evaluating the real link
+	urlWrappers: [
+		{
+			name: 'outlook-safelinks',
+			hostPattern: '\\.safelinks\\.protection\\.(?:outlook|office365)\\.[a-z.]+$',
+			hostFlags: 'i',
+			paramNames: ['url'],
+		},
+		{
+			name: 'google-redirect',
+			hostPattern: '^www\\.google\\.[a-z.]+$',
+			hostFlags: 'i',
+			pathPattern: '^\\/url$',
+			paramNames: ['q', 'url'],
+		},
+		{
+			name: 'proofpoint-v3',
+			hostPattern: '^(?:[a-z0-9-]+\\.)?urldefense\\.com$|^urldefense\\.proofpoint\\.com$',
+			hostFlags: 'i',
+			hrefPattern: '\\/v3\\/__(.+?)__;(.*?)!',
+			hrefFlags: 'i',
+			decoder: 'proofpoint-v3',
+		},
+		{
+			name: 'proofpoint-v2',
+			hostPattern: '^(?:[a-z0-9-]+\\.)?urldefense\\.com$|^urldefense\\.proofpoint\\.com$',
+			hostFlags: 'i',
+			pathPattern: '^\\/v2\\/url',
+			paramNames: ['u'],
+			decoder: 'proofpoint-v2',
+		},
+		{
+			name: 'proofpoint-v1',
+			hostPattern: '^(?:[a-z0-9-]+\\.)?urldefense\\.com$|^urldefense\\.proofpoint\\.com$',
+			hostFlags: 'i',
+			pathPattern: '^\\/v1\\/url',
+			paramNames: ['u'],
+		},
+	],
+
+	// Domain-agnostic ESP click-tracking path/query shapes (work even on custom CNAME domains)
+	espClickPatterns: [
+		{ name: 'sendgrid', pattern: '\\/(?:ls|wf|uni\\/ls)\\/click\\b', flags: 'i' },
+		{ name: 'iterable', pattern: '\\/[ua]\\/click\\?(?:[^#]*&)?_[tme]=', flags: 'i' },
+		{ name: 'hubspot', pattern: '\\/e[1-3]t\\/(?:c|Ctc)\\/', flags: '' },
+		{ name: 'mailchimp', pattern: '\\/track\\/click\\b', flags: 'i' },
+		{ name: 'mailchimp-short', pattern: '[?&]c2id=[0-9a-f]{24,}', flags: 'i' },
+		{ name: 'ses', pattern: '\\/CL0\\/https?(?::|%3A)%2F%2F', flags: 'i' },
+		{ name: 'postmark', pattern: '\\/L0\\/https?:', flags: 'i' },
+		{ name: 'sparkpost', pattern: '\\/f\\/a\\/[A-Za-z0-9_~.-]{16,}\\/', flags: '' },
+		{ name: 'mailgun', pattern: '\\/c\\/[A-Za-z0-9_=-]{40,}(?:\\/|$)', flags: '' },
+		{ name: 'beehiiv', pattern: '\\/(?:ss\\/c\\/[A-Za-z0-9_.-]{20,}|[0-9a-f]{32,}\\/hclick\\b)', flags: 'i' },
+		{ name: 'customerio', pattern: '\\/e\\/c\\/[A-Za-z0-9_-]{20,}', flags: '' },
+		{ name: 'brevo', pattern: '\\/(?:tr|mk)\\/cl\\/[A-Za-z0-9_\\/-]{8,}', flags: '' },
+		{
+			name: 'substack',
+			pattern: '\\/redirect\\/(?:2\\/[A-Za-z0-9_-]{20,}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\?j=)',
+			flags: 'i',
+		},
+		{ name: 'marketo', pattern: '\\/trk\\?t=', flags: 'i' },
+		{ name: 'generic', pattern: '\\/(?:track|tracking|trk)\\/(?:click|link|redirect)\\b', flags: 'i' },
+	],
+
+	// Common tracking subdomain prefixes (only flagged when paired with an opaque token)
+	trackingSubdomains: [
+		'click',
+		'clicks',
+		'clk',
+		'trk',
+		'track',
+		'tracking',
+		'links',
+		'link',
+		'email',
+		'emails',
+		'mail',
+		'comm',
+		'comms',
+		'mg',
+		'sg',
+		'e',
+		'go',
+		't',
+		'r',
+		'u\\d+',
+		'url\\d+',
+		'ct',
+		'em',
+		'mkt',
+		'nl',
+		'news',
+	],
+
+	// Path segments indicating a click/redirect endpoint (paired with high-entropy payload)
+	clickPathSegments: ['click', 'clicks', 'clk', 'cl', 'redirect', 'redir', 'trk', 'track', 'tracking'],
+
+	// Auth/account paths excluded from embedded-URL and entropy heuristics
+	authPathSegments: [
+		'login',
+		'log-in',
+		'signin',
+		'sign-in',
+		'auth',
+		'oauth',
+		'sso',
+		'logout',
+		'signout',
+		'verify',
+		'reset',
+		'confirm',
+	],
+
+	// Social share and feedback endpoints excluded from embedded-URL-param heuristic
+	sharePathPatterns: [
+		'intent\\/tweet',
+		'sharer(?:\\.php)?',
+		'sharing\\/share-offsite',
+		'pin\\/create',
+		'alerts\\/(?:share|feedback)',
+	],
+
+	// Webmail UI hosts to skip completely
+	webmailOwnHosts: [
+		'mail.google.com',
+		'inbox.google.com',
+		'outlook.live.com',
+		'outlook.office.com',
+		'outlook.office365.com',
+		'outlook.cloud.microsoft',
+		'mail.yahoo.com',
+	],
+
+	// Email security gateway hosts: if a link cannot be unwrapped (e.g. future Proofpoint v4 or opaque Mimecast),
+	// skip flagging the gateway itself as a click tracker
+	securityGatewayHostPatterns: [
+		'(?:^|\\.)urldefense\\.com$',
+		'^urldefense\\.proofpoint\\.com$',
+		'\\.safelinks\\.protection\\.(?:outlook|office365)\\.[a-z.]+$',
+		'(?:^|\\.)mimecastprotect\\.com$',
+		'^protect-[a-z0-9-]+\\.mimecast\\.com$',
+		'^linkprotect\\.cudasvc\\.com$',
+	],
+
+	// Auth callback params ignored by embedded-url-param
+	nonTrackerUrlParams: ['redirect_uri', 'return_to', 'return_url', 'callback', 'continue'],
+
+	// High-entropy params that are NOT email click trackers (cloud signatures, OAuth, ad IDs)
+	nonTrackerEntropyParams: [
+		'x-amz-signature',
+		'x-amz-security-token',
+		'x-amz-credential',
+		'x-goog-signature',
+		'signature',
+		'sig',
+		'token',
+		'access_token',
+		'id_token',
+		'refresh_token',
+		'code',
+		'state',
+		'nonce',
+		'jwt',
+		'samlrequest',
+		'samlresponse',
+		'gclid',
+		'fbclid',
+		'msclkid',
+		'wbraid',
+		'gbraid',
+	],
+
+	// Hosts excluded from repeated-opaque-host (e.g. GitHub commit SHAs in notification emails)
+	excludedHomogenizationHosts: ['github.com'],
+
+	// Numeric thresholds for token length, Shannon entropy, and host homogenization
+	thresholds: {
+		pathTokenMinLen: 24,
+		queryTokenMinLen: 32,
+		hexBlobMinLen: 32,
+		hexBlobMinEntropy: 3.3,
+		base64BlobMinLen: 40,
+		base64BlobMinEntropy: 4.4,
+		highEntropyParamMinLen: 80,
+		highEntropyParamMinEntropy: 4.6,
+		homogenizationMinLinks: 4,
+		homogenizationMinDistinctTexts: 3,
+		homogenizationMinOpaqueRatio: 0.8,
+	},
+};

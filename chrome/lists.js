@@ -1,5 +1,5 @@
 import { loadVariable } from './tools.js';
-import { DEFAULT_OPEN_TRACKERS, DEFAULT_CLICK_TRACKERS } from './tracker-data.js';
+import { DEFAULT_OPEN_TRACKERS, DEFAULT_CLICK_TRACKERS, CLICK_HEURISTICS_CONFIG } from './tracker-data.js';
 
 async function loadTrackerList(customVarName, defaultList, forceDefault, label) {
 	let useCustomLists = await loadVariable('useCustomLists');
@@ -23,4 +23,8 @@ export async function getOpenTrackerList(forceDefault = false) {
 
 export async function getClickTrackerList(forceDefault = false) {
 	return loadTrackerList('customClickTrackers', DEFAULT_CLICK_TRACKERS, forceDefault, 'Click trackers');
+}
+
+export async function getClickHeuristicsConfig() {
+	return CLICK_HEURISTICS_CONFIG;
 }
