@@ -1,4 +1,5 @@
 import { getOpenTrackerList, getClickTrackerList } from './lists.js';
+import { WEBMAILS } from './tracker-data.js';
 import {
 	parseVersionString,
 	loadVariable,
@@ -143,7 +144,7 @@ async function handleContentScriptMessages(message, sender) {
 		sendMessageToContentScript(tabId, 'getTrackerLists-result', {
 			openTrackers: await getOpenTrackerList(),
 			clickTrackers: await getClickTrackerList(),
-			webmails: webmails,
+			webmails: WEBMAILS,
 		});
 	}
 	return;
@@ -160,47 +161,3 @@ function sendMessageToContentScript(tabId, type, data) {
 // Webmail image proxy domains we have to listen on
 // Gmail Example: https://ci5.googleusercontent.com/proxy/c98MiCwnx8WKJGocCSAHkb-hELC6NR1lEjYmgXearhWHPiAwdbhTHIriCpYAJF38AQ0hW8nU2fpxNpRcfX7WlIO5uQzoqUWv9hLk-tywdbEOkabGvgH83LRQK0cZqzoA_WMkHvFIJ6eF8aDzNAncocBmT48JP_KGGN8KjNaAxrYxtrmp6qx9YNGY__LPXhQs66jEYIgh1cnPrcTG9rQhAYLnAN1Tyi-aNfmFyTb2W0x8fD7jGjuhX-v7YpbAnXtUI2_wY9wowlYD7Q=s0-d-e1-ft#http://t.sidekickopen04.com/e1t/o/5/f18dQhb0S7ks8dDMPbW2n0x6l2B9gXrN7sKj6v5dwdFW7gs8107d-cvzW5vws_W3LvrVvW6fVgD81k1H6H0?si=5353798341492736&pi=e20e388a-468f-4643-9ab3-9a162c205522
 // Outlook Example: https://dub121.mail.live.com/Handlers/ImageProxy.mvc?bicild=&canary=CZchR4mnfhxj7s0LgOeyVm90Hy2KbEDkiuDHIBKoGGU%3d0&url=http%3a%2f%2ft.sidekickopen04.com%2fe1t%2fo%2f5%2ff18dQhb0S7ks8dDMPbW2n0x6l2B9gXrN7sKj6v5dwdFW7gs8107d-cvzW5vws_W3LvrVvW6fVgD81k1H6H0%3fsi%3d5353798341492736%26pi%3de20e388a-468f-4643-9ab3-9a162c205522
-
-// Handle special webmail requests from webmails that don't always use proxies
-let webmails = [
-	{
-		name: 'google',
-		matchUrls: ['://mail.google.com', '://inbox.google.com'],
-		whiteList: [],
-		whiteListExcept: ['.googleusercontent.com/proxy', '.googleusercontent.com/meips'], // Google's image proxy
-	},
-	{
-		name: 'outlook',
-		matchUrls: ['outlook.live.com', 'outlook.office.com', 'outlook.cloud.microsoft'],
-		whiteList: [
-			'https://c.live.com/',
-			'https://c.bing.com/',
-			'https://outlook.live.com/',
-			'https://avatar.skype.com',
-			'http://c.live.com/',
-			'http://c.bing.com/',
-			'http://outlook.live.com/',
-			'http://avatar.skype.com',
-			'msecnd.net/dam/skype/',
-			'office365.com',
-			'office.com',
-			'cloud.microsoft',
-			'outlook.cloud.microsoft',
-			'https://outlook.cloud.microsoft/',
-			'http://outlook.cloud.microsoft/',
-			'storage.live.com',
-			'cdn.office.net',
-			'https://attachment.outlook.live.net',
-			'https://attachment.outlook.office.com',
-			'https://attachment.outlook.cloud.microsoft',
-			'officeapps.live.com',
-		],
-		whiteListExcept: [],
-	},
-	{
-		name: 'ymail',
-		matchUrls: ['mail.yahoo.com'],
-		whiteList: [],
-		whiteListExcept: ['.yusercontent.com/mail', '.ecp.yusercontent.com/mail'], // Yahoo's image proxy
-	},
-];
