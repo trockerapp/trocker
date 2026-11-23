@@ -1033,6 +1033,13 @@ function checkAndDoYourDuty() {
 			}, 1000);
 		}
 		let trackerStats = countTrackers(trockerOptions);
+		if (trackerStats.suspiciousUrls && trackerStats.suspiciousUrls.length > 0) {
+			chrome.runtime.sendMessage({
+				target: 'background',
+				type: 'reportSuspiciousUrls',
+				value: trackerStats.suspiciousUrls,
+			});
+		}
 		if (trackerStats.total_count > 0 || trackerStatsPrevious.total_count) {
 			chrome.runtime.sendMessage({
 				target: 'background',

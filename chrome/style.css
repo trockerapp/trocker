@@ -225,3 +225,148 @@ a.tfbtn:active {
 ol li {
 	overflow-wrap: break-word;
 }
+
+.susp_controls {
+	margin: 0.5em;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.susp_list {
+	margin: 0.5em 0;
+	padding-left: 20px;
+}
+
+.susp_domain_item {
+	margin-bottom: 8px;
+}
+
+.susp_domain_header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+}
+
+.susp_badge {
+	font-size: 11px;
+	padding: 1px 6px;
+	border-radius: 4px;
+	font-weight: bold;
+}
+
+.susp_badge_open {
+	background-color: #fde8e8;
+	color: #9b1c1c;
+}
+
+.susp_badge_click {
+	background-color: #e1effe;
+	color: #1e429f;
+}
+
+.susp_reason {
+	font-size: 11px;
+	padding: 1px 5px;
+	border-radius: 3px;
+	background-color: #f3f4f6;
+	color: #374151;
+	font-family: monospace;
+}
+
+.susp_badge_btn {
+	border: 1px solid transparent;
+	line-height: 1.4;
+	cursor: pointer;
+	--interest-delay-start: 0.15s;
+	interest-delay-start: var(--interest-delay-start);
+	--interest-delay-end: 0.1s;
+	interest-delay-end: var(--interest-delay-end);
+}
+
+.susp_badge_btn:hover,
+.susp_badge_btn:focus-visible {
+	border-color: currentColor;
+	outline: none;
+}
+
+.susp_list:has(.susp_badge_btn:is(:interest-source, .interest-source)) .susp_badge_btn {
+	--interest-delay-start: 0s;
+}
+
+[popover].susp_tooltip {
+	max-width: 280px;
+	padding: 6px 10px;
+	border: 1px solid #374151;
+	border-radius: 6px;
+	background-color: #1f2937;
+	color: #f9fafb;
+	font-family: inherit;
+	font-size: 12px;
+	line-height: 1.4;
+	text-align: left;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@supports (position-area: block-start) {
+	[popover].susp_tooltip {
+		inset: auto;
+		margin: 0;
+		margin-bottom: 6px;
+		position-area: block-start;
+		position-try-fallbacks: flip-block;
+	}
+}
+
+.susp_legend {
+	margin: 6px 0 10px 0;
+	font-size: 12px;
+	color: #374151;
+}
+
+.susp_legend summary {
+	cursor: pointer;
+	color: #4b5563;
+	user-select: none;
+}
+
+.susp_legend_list {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 4px 10px;
+	align-items: baseline;
+	margin: 8px 0 4px 0;
+	padding: 8px 10px;
+	background-color: #fafafa;
+	border: 1px solid #e5e7eb;
+	border-radius: 4px;
+}
+
+.susp_legend_list dt {
+	margin: 0;
+	white-space: nowrap;
+}
+
+.susp_legend_list dd {
+	margin: 0;
+	color: #374151;
+}
+
+.susp_remove_btn {
+	margin-left: auto;
+	cursor: pointer;
+	border: 1px solid #ccc;
+	background: #fff;
+	border-radius: 3px;
+	padding: 0 5px;
+	line-height: 1.4;
+}
+
+.susp_urls {
+	margin-top: 4px;
+	font-size: 11px;
+	font-family: monospace;
+	word-break: break-all;
+	color: #444;
+}

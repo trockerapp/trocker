@@ -538,30 +538,96 @@ export async function statPlusPlus(statObjName, statName, fieldName) {
 	await statPlusN(statObjName, statName, fieldName, 1);
 }
 
-async function logSuspURL(url) {
-	if (loadVariable('advanced')) {
-		if (!url) return;
-		let suspDomainsObj = await loadVariable('suspDomains'); // This make sure dataCache exists
-		let urlDomain = extractDomain(url);
-		if (suspDomainsObj[urlDomain] === undefined)
-			suspDomainsObj[urlDomain] = {
-				loads: 0,
-				sampleUrls: [],
-			};
-		suspDomainsObj[urlDomain].loads++;
-		if (suspDomainsObj[urlDomain].sampleUrls.indexOf(url) == -1) {
-			suspDomainsObj[urlDomain].sampleUrls.push(url);
-			suspDomainsObj[urlDomain].sampleUrls = suspDomainsObj[urlDomain].sampleUrls.slice(
-				Math.max(suspDomainsObj[urlDomain].sampleUrls.length - 5, 0)
-			); // Only keep the last 5 elements
-		}
-		let keys = Object.keys(suspDomainsObj);
-		let maxKeysToKeep = 15;
-		if (keys.length > maxKeysToKeep)
-			// Only keep the last 100 elements
-			for (let i = 0; i < keys.length - maxKeysToKeep; i++) delete suspDomainsObj[keys[i]];
-		await saveVariable('suspDomains', suspDomainsObj);
+const MAX_SUSP_DOMAINS = 50;
+const MAX_SUSP_SAMPLES_PER_DOMAIN = 5;
+const MAX_SUSP_REASONS_PER_DOMAIN = 8;
+
+let suspLogQueue = Promise.resolve();
+
+export function logSuspURLs(entries) {
+	if (!Array.isArray(entries) || entries.length === 0) return Promise.resolve();
+	suspLogQueue = suspLogQueue
+		.then(() => _logSuspURLsImpl(entries))
+		.catch((err) => console.error('Failed to log suspicious URLs:', err));
+	return suspLogQueue;
+}
+
+export async function logSuspURL(url, type = 'open', reason = '') {
+	return logSuspURLs([{ url, type, reason }]);
+}
+
+function normalizeSuspDomainRecord(rec, now) {
+	const base = rec && typeof rec === 'object' ? rec : {};
+	const loads = typeof base.loads === 'number' ? base.loads : 0;
+	return {
+		loads,
+		openLoads: typeof base.openLoads === 'number' ? base.openLoads : loads,
+		clickLoads: typeof base.clickLoads === 'number' ? base.clickLoads : 0,
+		reasons: Array.isArray(base.reasons) ? base.reasons : [],
+		sampleUrls: Array.isArray(base.sampleUrls) ? base.sampleUrls : [],
+		lastSeen: typeof base.lastSeen === 'number' ? base.lastSeen : now,
+	};
+}
+
+function pushBoundedUnique(arr, value, maxLen) {
+	if (!value || arr.includes(value)) return;
+	arr.push(value);
+	if (arr.length > maxLen) {
+		arr.splice(0, arr.length - maxLen);
 	}
+}
+
+function pushBoundedSample(arr, sample, maxLen) {
+	if (!sample || !sample.url) return;
+	const exists = arr.some((item) => (typeof item === 'string' ? item === sample.url : item && item.url === sample.url));
+	if (exists) return;
+	arr.push(sample);
+	if (arr.length > maxLen) {
+		arr.splice(0, arr.length - maxLen);
+	}
+}
+
+async function _logSuspURLsImpl(entries) {
+	if (!(await loadVariable('advanced'))) return;
+
+	let suspDomainsObj = await loadVariable('suspDomains');
+	if (!suspDomainsObj || typeof suspDomainsObj !== 'object') {
+		suspDomainsObj = {};
+	}
+
+	let changed = false;
+	const now = Date.now();
+	for (const entry of entries) {
+		const url = typeof entry === 'string' ? entry : entry && entry.url;
+		const type = typeof entry === 'object' && entry && entry.type === 'click' ? 'click' : 'open';
+		const reason = typeof entry === 'object' && entry && entry.reason ? entry.reason : '';
+		if (!url) continue;
+
+		const urlDomain = extractDomain(url);
+		if (!urlDomain) continue;
+
+		const rec = normalizeSuspDomainRecord(suspDomainsObj[urlDomain], now);
+		rec.loads++;
+		if (type === 'click') rec.clickLoads++;
+		else rec.openLoads++;
+		rec.lastSeen = now;
+
+		pushBoundedUnique(rec.reasons, reason, MAX_SUSP_REASONS_PER_DOMAIN);
+		pushBoundedSample(rec.sampleUrls, { url, type, reason }, MAX_SUSP_SAMPLES_PER_DOMAIN);
+		suspDomainsObj[urlDomain] = rec;
+		changed = true;
+	}
+
+	if (!changed) return;
+
+	const keys = Object.keys(suspDomainsObj);
+	if (keys.length > MAX_SUSP_DOMAINS) {
+		keys.sort((a, b) => (suspDomainsObj[a].lastSeen || 0) - (suspDomainsObj[b].lastSeen || 0));
+		for (let i = 0; i < keys.length - MAX_SUSP_DOMAINS; i++) {
+			delete suspDomainsObj[keys[i]];
+		}
+	}
+	await saveVariable('suspDomains', suspDomainsObj);
 }
 
 function extractDomain(url) {

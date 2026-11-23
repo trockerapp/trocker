@@ -182,6 +182,31 @@
 					</div>
 				</div>
 			</div>
+			<div class="centeredsec hidden advancedItem" id="suspDomainsSection">
+				<div class="option_name">Suspicious Domains:</div>
+				<div class="option_value">
+					<div class="option_value_primary">
+						<p>Heuristically detected unknown open/click tracker domains (logged while Advanced mode is
+							enabled). Review before adding to your custom lists.</p>
+						<div class="susp_controls">
+							<label for="suspDomainsFilter">Filter:</label>
+							<select id="suspDomainsFilter">
+								<option value="all">All</option>
+								<option value="open">Open only</option>
+								<option value="click">Click only</option>
+							</select>
+							<button type="button" id="clearSuspDomainsBtn">Clear log</button>
+							<button type="button" id="saveSuspDomainsBtn">Export Markdown</button>
+							<label><input type="checkbox" id="redactSuspTokensOpt" checked> Redact tokens</label>
+						</div>
+						<details class="susp_legend">
+							<summary>What do these badges mean?</summary>
+							<dl id="suspBadgeLegend" class="susp_legend_list"></dl>
+						</details>
+						<div id="suspDomains">Nothing in the log!</div>
+					</div>
+				</div>
+			</div>
 			<div class="centeredsec">
 				<div class="option_name">Version:</div>
 				<div class="option_value">

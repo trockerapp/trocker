@@ -7,6 +7,7 @@ import {
 	updateBrowserActionButton,
 	updateDeclarativeNetRequestRules,
 	statPlusN,
+	logSuspURLs,
 } from './tools.js';
 
 console.log('service-worker.js');
@@ -139,6 +140,10 @@ async function handleContentScriptMessages(message, sender) {
 		}
 		if (trackerStats.click > 0) {
 			await statPlusN('clickTrackerStats', 'etc', 'exposed', trackerStats.click);
+		}
+	} else if (message.type == 'reportSuspiciousUrls') {
+		if (Array.isArray(message.value) && message.value.length > 0) {
+			await logSuspURLs(message.value);
 		}
 	} else if (message.type == 'getTrackerLists') {
 		sendMessageToContentScript(tabId, 'getTrackerLists-result', {

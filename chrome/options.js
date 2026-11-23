@@ -1,5 +1,6 @@
 import { loadVariable, saveVariable, updateBrowserActionButton, updateDeclarativeNetRequestRules } from './tools.js';
 import { getOpenTrackerList, getClickTrackerList } from './lists.js';
+import { redactUrlTokens } from './url-redact.js';
 
 let updatingSettings = false;
 
@@ -220,31 +221,23 @@ async function restoreOptions() {
 			for (let a0 of a) a0.classList.add('hidden');
 		}
 
-		// Extra stats
-		if (!document.getElementById('suspDomains')) {
-			document.getElementById('allowedClickTrackers').parentElement.innerHTML +=
-				'<li><span class="stat_name">Suspicious Domains: </span><span class="stat_value" id="suspDomains">Nothing in the log!</span>';
+		// Suspicious Domains log
+		const filterSelect = document.getElementById('suspDomainsFilter');
+		if (filterSelect) {
+			filterSelect.onchange = renderSuspDomains;
 		}
-		// Susp Domain List
-		let suspDomainsObj = await loadVariable('suspDomains');
-		//document.getElementById("suspDomains").innerHTML = Object.keys(suspDomainsObj).length+'<br />';
-		let listHTML = '<div><ol>';
-		for (let key in suspDomainsObj) {
-			//listHTML += '<li><input type="checkbox" id="removeDomain" src="'+key+'">'+key+' -> '+suspDomainsObj[key].loads+'<br /><ul>';
-			listHTML += '<li>' + key + ' -> ' + suspDomainsObj[key].loads + ' times<br /><ul>';
-			for (let i = 0; i < suspDomainsObj[key].sampleUrls.length; i++)
-				listHTML += '<li>' + suspDomainsObj[key].sampleUrls[i] + '</li>';
-			listHTML += '</ul></li>';
+		const saveBtn = document.getElementById('saveSuspDomainsBtn');
+		if (saveBtn) {
+			saveBtn.onclick = saveSuspDomainsMarkdown;
 		}
-		listHTML += '</ol></div>';
-		document.getElementById('suspDomains').innerHTML = listHTML;
-		//document.getElementById('removeDomain').onchange = removeSuspDomain;
+		const clearBtn = document.getElementById('clearSuspDomainsBtn');
+		if (clearBtn) {
+			clearBtn.onclick = clearSuspDomains;
+		}
+		await renderSuspDomains();
 	} else {
 		let a = document.getElementsByClassName('advancedItem');
 		for (let a0 of a) a0.classList.add('hidden');
-		// Extra stats
-		let node = document.getElementById('suspDomains');
-		if (node) node.parentElement.removeChild(node);
 	}
 
 	if (allOpenTrackerBlocks + allClickTrackerBypasses > 100) {
@@ -402,10 +395,354 @@ function changeOptionalPermission(event) {
 	}
 }
 
-async function removeSuspDomain(key) {
-	suspDomainsObj = await loadVariable('suspDomains');
-	//delete thisIsObject[key];
-	await saveVariable('suspDomains', suspDomainsObj);
+const SUSP_OPEN_BADGE_DESC =
+	'Times this domain was heuristically flagged as an email open-tracking image (tracking pixel).';
+const SUSP_CLICK_BADGE_DESC = 'Times this domain was heuristically flagged as a click-tracking link.';
+
+const SUSP_REASON_DESCRIPTIONS = {
+	'tiny-image': 'Image has tracking-pixel dimensions (e.g., 1×1 or hidden tiny image).',
+	'susp-path': 'Image URL path matches a suspicious open-tracking pattern.',
+	'tiny+susp-path': 'Image has tracking-pixel dimensions and its URL path matches an open-tracking pattern.',
+	'path-embedded-url': 'URL contains another http(s):// destination URL embedded inside its path.',
+	'open-tracker-host': 'Link shares its host with an open-tracking pixel detected in the same email.',
+	'text-url-mismatch': "Link's visible text displays a different domain than its actual destination href.",
+	'subdomain-token': 'Tracking-style subdomain (e.g., click.*, links.*, trk.*) paired with an opaque tracking token.',
+	'click-path+entropy': 'Click/redirect-style URL path paired with a high-entropy token or opaque query parameter.',
+	'high-entropy-params':
+		'Query string contains a high-entropy token with a terse key, multiple opaque params, or email UTM tags.',
+	'repeated-opaque-host':
+		'Multiple links in the same email with different anchor text all route through this host with opaque tokens.',
+};
+
+const SUSP_LEGEND_ITEMS = [
+	{ badgeClass: 'susp_badge susp_badge_open', label: 'open: N', desc: SUSP_OPEN_BADGE_DESC },
+	{ badgeClass: 'susp_badge susp_badge_click', label: 'click: N', desc: SUSP_CLICK_BADGE_DESC },
+	{
+		badgeClass: 'susp_reason',
+		label: 'esp-path:<esp>',
+		desc: 'URL matches a known ESP click-tracking path pattern (e.g., SendGrid, HubSpot, SES, Substack) on a custom domain.',
+	},
+	{
+		badgeClass: 'susp_reason',
+		label: 'embedded-url-param:<key>',
+		desc: 'Query parameter carries an embedded or Base64-encoded destination URL.',
+	},
+	...Object.entries(SUSP_REASON_DESCRIPTIONS).map(([label, desc]) => ({
+		badgeClass: 'susp_reason',
+		label,
+		desc,
+	})),
+];
+
+let suspTooltipSeq = 0;
+
+function initSuspTooltips() {
+	// Fallback where popover="hint" is unsupported (defaults to "manual"): switch toggletips to "auto" on open
+	// so click-opened popovers still light-dismiss and close on Escape.
+	const probe = document.createElement('div');
+	if ('popover' in probe) {
+		probe.popover = 'hint';
+		if (probe.popover !== 'hint') {
+			document.addEventListener(
+				'beforetoggle',
+				(event) => {
+					const target = event.target;
+					if (
+						event.newState === 'open' &&
+						target instanceof HTMLElement &&
+						target.classList.contains('susp_tooltip') &&
+						target.getAttribute('popover') === 'hint'
+					) {
+						target.popover = 'auto';
+					}
+				},
+				true
+			);
+		}
+	}
+
+	// Keep aria-expanded in sync with popover state (toggle does not bubble, so capture phase is required).
+	document.addEventListener(
+		'toggle',
+		(event) => {
+			const target = event.target;
+			if (!(target instanceof HTMLElement) || !target.classList.contains('susp_tooltip') || !target.id) return;
+			const expanded = event.newState === 'open' ? 'true' : 'false';
+			const triggers = document.querySelectorAll(`[popovertarget="${CSS.escape(target.id)}"]`);
+			for (const trigger of triggers) {
+				trigger.setAttribute('aria-expanded', expanded);
+			}
+		},
+		true
+	);
+
+	// Populate the collapsible badge legend from the single source of truth above.
+	const legendEl = document.getElementById('suspBadgeLegend');
+	if (legendEl) {
+		legendEl.textContent = '';
+		for (const entry of SUSP_LEGEND_ITEMS) {
+			const dt = document.createElement('dt');
+			const badge = document.createElement('span');
+			badge.className = entry.badgeClass;
+			badge.textContent = entry.label;
+			dt.appendChild(badge);
+
+			const dd = document.createElement('dd');
+			dd.textContent = entry.desc;
+
+			legendEl.appendChild(dt);
+			legendEl.appendChild(dd);
+		}
+	}
 }
 
-document.addEventListener('DOMContentLoaded', restoreOptions);
+function describeSuspReason(reason) {
+	if (!reason) return '';
+	if (SUSP_REASON_DESCRIPTIONS[reason]) return SUSP_REASON_DESCRIPTIONS[reason];
+	if (reason.startsWith('esp-path:')) {
+		const esp = reason.slice('esp-path:'.length);
+		return `URL matches a known ${esp} click-tracking path pattern (often on a custom CNAME domain).`;
+	}
+	if (reason.startsWith('embedded-url-param:')) {
+		const key = reason.slice('embedded-url-param:'.length);
+		return `Query parameter "${key}" carries an embedded or Base64-encoded destination URL.`;
+	}
+	return '';
+}
+
+function createBadge(className, text, description = '') {
+	if (!description) {
+		const span = document.createElement('span');
+		span.className = className;
+		span.textContent = text;
+		return span;
+	}
+
+	const tipId = `susp-tip-${suspTooltipSeq++}`;
+	const frag = document.createDocumentFragment();
+
+	const btn = document.createElement('button');
+	btn.type = 'button';
+	btn.className = `${className} susp_badge_btn`;
+	btn.textContent = text;
+	btn.setAttribute('interestfor', tipId);
+	btn.setAttribute('popovertarget', tipId);
+	btn.setAttribute('popovertargetaction', 'show');
+	btn.setAttribute('aria-expanded', 'false');
+
+	const tip = document.createElement('div');
+	tip.id = tipId;
+	tip.setAttribute('popover', 'hint');
+	tip.setAttribute('role', 'tooltip');
+	tip.className = 'susp_tooltip';
+	tip.textContent = description;
+
+	frag.appendChild(btn);
+	frag.appendChild(tip);
+	return frag;
+}
+
+function createSuspDomainItem(item) {
+	const li = document.createElement('li');
+	li.className = 'susp_domain_item';
+
+	const header = document.createElement('div');
+	header.className = 'susp_domain_header';
+
+	const domainEl = document.createElement('strong');
+	domainEl.textContent = item.domain;
+	header.appendChild(domainEl);
+
+	if (item.openLoads > 0) {
+		header.appendChild(createBadge('susp_badge susp_badge_open', `open: ${item.openLoads}`, SUSP_OPEN_BADGE_DESC));
+	}
+	if (item.clickLoads > 0) {
+		header.appendChild(
+			createBadge('susp_badge susp_badge_click', `click: ${item.clickLoads}`, SUSP_CLICK_BADGE_DESC)
+		);
+	}
+	for (const reason of item.reasons) {
+		header.appendChild(createBadge('susp_reason', reason, describeSuspReason(reason)));
+	}
+
+	const rmBtn = document.createElement('button');
+	rmBtn.type = 'button';
+	rmBtn.className = 'susp_remove_btn';
+	rmBtn.textContent = '×';
+	rmBtn.title = `Remove ${item.domain} from log`;
+	rmBtn.onclick = () => removeSuspDomain(item.domain);
+	header.appendChild(rmBtn);
+	li.appendChild(header);
+
+	if (item.sampleUrls.length > 0) {
+		const details = document.createElement('details');
+		const summary = document.createElement('summary');
+		summary.textContent = `${item.sampleUrls.length} sample URL${item.sampleUrls.length === 1 ? '' : 's'}`;
+		details.appendChild(summary);
+
+		const ul = document.createElement('ul');
+		ul.className = 'susp_urls';
+		for (const sample of item.sampleUrls) {
+			const urlLi = document.createElement('li');
+			const tagParts = [sample.type, sample.reason].filter(Boolean);
+			if (tagParts.length > 0) {
+				const typeDesc =
+					sample.type === 'open'
+						? 'Open tracker'
+						: sample.type === 'click'
+							? 'Click tracker'
+							: '';
+				const reasonDesc = describeSuspReason(sample.reason);
+				const badgeTitle = [typeDesc, reasonDesc].filter(Boolean).join(': ');
+				urlLi.appendChild(createBadge('susp_reason', tagParts.join(' | '), badgeTitle));
+				urlLi.appendChild(document.createTextNode(' '));
+			}
+			urlLi.appendChild(document.createTextNode(sample.url));
+			ul.appendChild(urlLi);
+		}
+		details.appendChild(ul);
+		li.appendChild(details);
+	}
+
+	return li;
+}
+
+async function getFilteredSuspDomains() {
+	const filterEl = document.getElementById('suspDomainsFilter');
+	const filterVal = filterEl ? filterEl.value : 'all';
+
+	const suspDomainsObj = (await loadVariable('suspDomains')) || {};
+	const entries = Object.entries(suspDomainsObj)
+		.map(([domain, rec]) => {
+			const openLoads = typeof rec.openLoads === 'number' ? rec.openLoads : rec.loads || 0;
+			const clickLoads = typeof rec.clickLoads === 'number' ? rec.clickLoads : 0;
+			return {
+				domain,
+				loads: rec.loads || openLoads + clickLoads,
+				openLoads,
+				clickLoads,
+				reasons: Array.isArray(rec.reasons) ? rec.reasons : [],
+				sampleUrls: Array.isArray(rec.sampleUrls)
+					? rec.sampleUrls.map((s) =>
+							typeof s === 'string'
+								? { url: s, type: '', reason: '' }
+								: { url: s.url || '', type: s.type || '', reason: s.reason || '' }
+						)
+					: [],
+				lastSeen: rec.lastSeen || 0,
+			};
+		})
+		.filter((item) => (filterVal === 'open' ? item.openLoads > 0 : filterVal === 'click' ? item.clickLoads > 0 : true))
+		.sort((a, b) => b.lastSeen - a.lastSeen || b.loads - a.loads);
+
+	return { entries, filterVal };
+}
+
+function formatSuspDomainsMarkdown(entries, filterVal, redact) {
+	const lines = [
+		`## Suspicious Domains (filter: ${filterVal}, count: ${entries.length}${redact ? ', tokens redacted' : ''})`,
+		'',
+	];
+	entries.forEach((item, idx) => {
+		const counts = [];
+		if (item.openLoads > 0) counts.push(`open: ${item.openLoads}`);
+		if (item.clickLoads > 0) counts.push(`click: ${item.clickLoads}`);
+		const reasonsStr =
+			item.reasons.length > 0 ? ` | reasons: ${item.reasons.map((r) => '`' + r + '`').join(', ')}` : '';
+		const lastSeenStr = item.lastSeen ? ` | last seen: ${new Date(item.lastSeen).toISOString()}` : '';
+		lines.push(
+			`${idx + 1}. **${item.domain}** — ${counts.join(', ') || `loads: ${item.loads}`}${reasonsStr}${lastSeenStr}`
+		);
+		const sampleCounts = new Map();
+		for (const sample of item.sampleUrls) {
+			const tagParts = [sample.type, sample.reason].filter(Boolean);
+			const tag = tagParts.length > 0 ? `\`[${tagParts.join(' | ')}]\` ` : '';
+			const displayUrl = redact ? redactUrlTokens(sample.url) : sample.url;
+			const line = `${tag}\`${displayUrl}\``;
+			sampleCounts.set(line, (sampleCounts.get(line) || 0) + 1);
+		}
+		for (const [line, count] of sampleCounts.entries()) {
+			lines.push(`   - ${line}${count > 1 ? ` (×${count})` : ''}`);
+		}
+	});
+	return lines.join('\n');
+}
+
+async function saveSuspDomainsMarkdown(event) {
+	if (event) {
+		event.preventDefault();
+		event.stopPropagation();
+	}
+	const { entries, filterVal } = await getFilteredSuspDomains();
+	if (entries.length === 0) {
+		updateStatus('Nothing in the log to save.', 'warningMsg', 2500);
+		return;
+	}
+	const redactEl = document.getElementById('redactSuspTokensOpt');
+	const redact = redactEl ? redactEl.checked : true;
+	const markdown = formatSuspDomainsMarkdown(entries, filterVal, redact);
+
+	const dateStr = new Date().toISOString().slice(0, 10);
+	const filename = `trocker-suspicious-domains-${dateStr}.md`;
+	const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = filename;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+	updateStatus(
+		`Saved ${entries.length} suspicious domain(s) to ${filename}${redact ? ' (redacted)' : ''}.`,
+		'successMsg',
+		2500
+	);
+}
+
+async function renderSuspDomains() {
+	const container = document.getElementById('suspDomains');
+	if (!container) return;
+
+	suspTooltipSeq = 0;
+	const { entries } = await getFilteredSuspDomains();
+
+	container.textContent = '';
+	if (entries.length === 0) {
+		const empty = document.createElement('p');
+		empty.className = 'text_disabled';
+		empty.textContent = 'Nothing in the log!';
+		container.appendChild(empty);
+		return;
+	}
+
+	const ol = document.createElement('ol');
+	ol.className = 'susp_list';
+	for (const item of entries) {
+		ol.appendChild(createSuspDomainItem(item));
+	}
+	container.appendChild(ol);
+}
+
+async function removeSuspDomain(key) {
+	let suspDomainsObj = (await loadVariable('suspDomains')) || {};
+	delete suspDomainsObj[key];
+	await saveVariable('suspDomains', suspDomainsObj);
+	await renderSuspDomains();
+}
+
+async function clearSuspDomains(event) {
+	if (event) {
+		event.preventDefault();
+		event.stopPropagation();
+	}
+	await saveVariable('suspDomains', {});
+	await renderSuspDomains();
+	updateStatus('Suspicious domains log cleared.');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+	initSuspTooltips();
+	restoreOptions();
+});
