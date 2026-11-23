@@ -198,6 +198,24 @@ class EmailOutlook extends Email {
 		this.proxifesImages = false;
 	}
 	static getOpenEmails() {
+		// New Outlook (Fluent UI): anchor on the semantic mailMessageBodyContainer and walk up to the message container
+		let bodyContainers = Array.from(document.querySelectorAll('[data-test-id="mailMessageBodyContainer"]'));
+		if (bodyContainers.length > 0) {
+			let seen = new Set();
+			let emails = [];
+			for (const bodyContainer of bodyContainers) {
+				const emailElem =
+					bodyContainer.closest('div.wide-content-host') ||
+					bodyContainer.closest('div[data-itempart-id]') ||
+					bodyContainer.closest('div[aria-expanded="true"]') ||
+					bodyContainer;
+				if (!seen.has(emailElem)) {
+					seen.add(emailElem);
+					emails.push(new EmailOutlook(emailElem));
+				}
+			}
+			return emails;
+		}
 		// document.querySelectorAll('div.GjFKx') // Unopen emails
 		let emails = Array.from(document.querySelectorAll('div.SlLx9, div.uy30y')).map((a) => new EmailOutlook(a)); // Opened emails in outlook, final version
 		// Before updates ~Nov 2022
@@ -236,6 +254,10 @@ class EmailOutlook extends Email {
 	}
 	static getDraftEmails() {
 		let emails = Array.from(document.querySelectorAll('.yz4r1, .r4JeH')).map((a) => new EmailOutlookDraft(a)); // Compose windows and print preview, current outlook
+		if (!emails || !emails.length)
+			emails = Array.from(document.querySelectorAll('div[id^="docking_DockingTriggerPart_"]')).map(
+				(a) => new EmailOutlookDraft(a)
+			); // Compose windows, semantic ID fallback
 		// Before updates ~Nov 2022
 		if (!emails || !emails.length)
 			emails = Array.from(document.querySelectorAll('._17WvdmDfhREFqBNvlLv75X')).map(
@@ -256,9 +278,12 @@ class EmailOutlook extends Email {
 		return emails;
 	}
 	getBody() {
-		const bodyElems = this.mainDOMElem.querySelectorAll(
-			'.GNqVo,.SlLx9,.Q8TCC,.r4JeH,.uy30y,.XbIp4,.ulb23,.TiApU,._2Qk4AbDuWwkuLB005ds2jm,.QMubUjbS-BOly_BTHEZj7,.JWNdg1hee9_Rz6bIGvG1c,.uPjvZdP7b0tJmYcRO3HY9'
-		);
+		let bodyElems = this.mainDOMElem.querySelectorAll('[data-test-id="mailMessageBodyContainer"]');
+		if (bodyElems.length === 0) {
+			bodyElems = this.mainDOMElem.querySelectorAll(
+				'.GNqVo,.SlLx9,.Q8TCC,.r4JeH,.uy30y,.XbIp4,.ulb23,.TiApU,._2Qk4AbDuWwkuLB005ds2jm,.QMubUjbS-BOly_BTHEZj7,.JWNdg1hee9_Rz6bIGvG1c,.uPjvZdP7b0tJmYcRO3HY9'
+			);
+		}
 		if (bodyElems.length > 0) {
 			return Array.from(bodyElems);
 		} else {
@@ -267,12 +292,15 @@ class EmailOutlook extends Email {
 		}
 	}
 	getUIElements() {
-		const attachmentElems = this.mainDOMElem.querySelectorAll('.T3idP');
+		let attachmentElems = this.mainDOMElem.querySelectorAll('[id^="MSG_"][id$="_ATTACHMENTS"]');
+		if (attachmentElems.length === 0) {
+			attachmentElems = this.mainDOMElem.querySelectorAll('.T3idP');
+		}
 		return attachmentElems;
 	}
 	getUIImages() {
 		// Revise this to more specifically return the body of the email in each webmail
-		const attachmentElems = this.mainDOMElem.querySelectorAll('.T3idP');
+		const attachmentElems = this.getUIElements();
 		if (attachmentElems.length > 0) {
 			return [].concat.apply(
 				[],
@@ -289,6 +317,10 @@ class EmailOutlook extends Email {
 	getImages() {
 		//var images = email.querySelectorAll('img[src*="'+proxyURL+'"]'); // Opened emails in Outlook
 		if (
+			this.mainDOMElem.className.indexOf('wide-content-host') > -1 || // New Outlook (Fluent UI)
+			this.mainDOMElem.hasAttribute('data-itempart-id') || // New Outlook message container
+			this.mainDOMElem.getAttribute('data-test-id') === 'mailMessageBodyContainer' || // New Outlook body container fallback
+			this.mainDOMElem.querySelector('[data-test-id="mailMessageBodyContainer"]') !== null || // Any container wrapping new Outlook body
 			this.mainDOMElem.className.indexOf('SlLx9') > -1 || // Main emails
 			this.mainDOMElem.className.indexOf('Q8TCC') > -1 || // Popout
 			this.mainDOMElem.className.indexOf('r4JeH') > -1 || // Print view
@@ -330,6 +362,14 @@ class EmailOutlook extends Email {
 	}
 	getTrockerSignParentElem() {
 		let e = null;
+		// New Outlook (Fluent UI)
+		e = this.mainDOMElem.querySelector('[data-testid="SentReceivedSavedTime"]');
+		if (e === null) {
+			e = this.mainDOMElem.querySelector('[id^="MSG_"][id$="_DATETIME"]');
+		}
+		if (e !== null) {
+			return e;
+		}
 		if (this.mainDOMElem.className.indexOf('SlLx9') > -1 || this.mainDOMElem.className.indexOf('Q8TCC') > -1) {
 			e = this.mainDOMElem.querySelector('.t9ThB');
 			if (e === null) {
@@ -369,7 +409,7 @@ class EmailOutlook extends Email {
 		var trackedSign = null;
 		let e = this.getTrockerSignParentElem();
 		if (e !== null) {
-			let trackedSign = e.querySelector('img.' + trackedSignClass);
+			trackedSign = e.querySelector('img.' + trackedSignClass);
 			if ((trackedSign === null || trackedSign.length < 1) && showSign) {
 				trackedSign = createTrackedSign();
 				trackedSign = setTrackedSignImage(trackedSign, false);
@@ -718,9 +758,9 @@ function getUIWhitelistElems() {
 			elems = document.querySelectorAll('.nH.bAw, .bq9, .brC-aT5-aOt-bsf-Jw'); // Header, Left Bar, Right add-on bar
 		}
 	} else if (env === 'outlook2') {
-		// Some selectors: .___1d1gxkh: Left bar, .___7y4pq70: Left bar app overflow box
+		// Some selectors: [role="navigation"][aria-label="left-rail-appbar"] / .___1d1gxkh: Left bar, .___7y4pq70: Left bar app overflow box
 		elems = document.querySelectorAll(
-			'.___1d1gxkh, .___7y4pq70, .___1s80610, .f17wyjut, .___mi5lus0, .ms-Icon-imageContainer, .Yd48r, .GssDD'
+			'[role="navigation"][aria-label="left-rail-appbar"], .___1d1gxkh, .___7y4pq70, .___1s80610, .f17wyjut, .___mi5lus0, .ms-Icon-imageContainer, .Yd48r, .GssDD'
 		); // Left Bar, Left bar app overflow box
 	}
 	return elems;
