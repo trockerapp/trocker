@@ -791,6 +791,11 @@ function createTrackedSign() {
 	//trackedSign.style.display = 'none';
 	trackedSign.height = 12;
 	trackedSign.width = 18;
+	trackedSign.style.height = '12px';
+	trackedSign.style.width = '18px';
+	trackedSign.style.alignSelf = 'center';
+	trackedSign.style.flexShrink = '0';
+	trackedSign.style.boxSizing = 'content-box';
 	trackedSign.style.verticalAlign = '0px';
 	trackedSign.style.paddingLeft = '6px';
 	return trackedSign;
