@@ -262,6 +262,7 @@ async function handleOffscreenMessages(message) {
 		case 'loadVariable':
 		case 'getTrackerLists':
 		case 'reportTrackerStats':
+		case 'reportSuspiciousUrls':
 			// service worker will reply
 			break;
 		default:
